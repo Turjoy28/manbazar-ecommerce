@@ -1,0 +1,137 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CLIENT GLOBAL STYLES — 3-Color Dynamic Theme System
+   
+   FONT: Hind Siliguri — Bengali-optimized Google Font.
+   
+   COLOR SYSTEM:
+   Three brand colors are injected dynamically from the database via page.tsx:
+     --primary-brand   → Main accent (buttons, CTAs, icons, highlights)
+     --secondary-brand → Dark tone (headers, footer bg, hero bg, text headings)
+     --tertiary-brand  → Supporting accent (borders, hover states, badges, tags)
+   
+   These override the static fallbacks below. Tailwind color tokens
+   (bg-primary, text-secondary, etc.) automatically pick them up.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Tailwind Theme Mapping */
+@theme inline {
+  --font-sans: 'Hind Siliguri', sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary-brand);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary-brand);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-tertiary: var(--tertiary-brand);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+/* Root Variables */
+:root {
+  /* Layout */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+
+  --radius: 0.625rem;
+
+  /* Dynamic Colors (Admin Controlled) */
+  --primary-brand: #e07b39;
+  --secondary-brand: #111827;
+  --tertiary-brand: #f97316;
+
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #ffffff;
+
+  --ring: var(--primary-brand);
+
+  /* Charts */
+  --chart-1: var(--primary-brand);
+  --chart-2: var(--tertiary-brand);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+
+  /* Auto Contrast Text */
+  --primary-text: oklch(from var(--primary-brand) clamp(0, calc((0.6 - l) * 9999), 1) 0 0);
+  --secondary-text: oklch(from var(--secondary-brand) clamp(0, calc((0.6 - l) * 9999), 1) 0 0);
+  --tertiary-text: oklch(from var(--tertiary-brand) clamp(0, calc((0.6 - l) * 9999), 1) 0 0);
+}
+
+/* Base */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+/* Floating Cart Animation */
+@keyframes bounce-slow {
+  0%,100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
