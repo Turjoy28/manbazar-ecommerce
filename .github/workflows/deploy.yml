@@ -1,0 +1,95 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Node Modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+            client/node_modules
+            admin/node_modules
+            server/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies (CI check)
+        run: |
+          echo "Installing server dependencies..."
+          cd server && npm ci && cd ..
+          echo "Installing client dependencies..."
+          cd client && npm ci && cd ..
+          echo "Installing admin dependencies..."
+          cd admin && npm ci && cd ..
+
+      - name: Build applications (CI check)
+        run: |
+          echo "Building server..."
+          cd server && npm run build && cd ..
+          echo "Building client..."
+          cd client && npm run build && cd ..
+          echo "Building admin..."
+          cd admin && npm run build && cd ..
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          script: |
+            # Navigate to the project directory
+            # Note: Customize secrets.VPS_PROJECT_PATH in GitHub secrets if it differs from /var/www/menbazar
+            cd ${{ secrets.VPS_PROJECT_PATH || '/var/www/menbazar' }}
+            
+            # Reset any local changes and pull latest code
+            git reset --hard HEAD
+            git pull origin main
+            
+            # Build and deploy Server
+            echo "Deploying Server..."
+            cd server
+            npm install --omit=dev
+            npm run build
+            cd ..
+            
+            # Build and deploy Client
+            echo "Deploying Client..."
+            cd client
+            npm install
+            npm run build
+            cd ..
+            
+            # Build and deploy Admin
+            echo "Deploying Admin..."
+            cd admin
+            npm install
+            npm run build
+            cd ..
+            
+            # Reload PM2 processes
+            echo "Restarting applications with PM2..."
+            pm2 startOrReload ecosystem.config.js --update-env
+            pm2 save
+            
+            echo "Deployment Completed Successfully!"
