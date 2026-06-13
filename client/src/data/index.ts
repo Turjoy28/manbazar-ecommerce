@@ -187,42 +187,42 @@ export const SIZE_CHART: SizeChartRow[] = [
 
 export const FEATURES: Feature[] = [
   {
-    _id: "1",
+    id: "1",
     icon: "shirt",
     title: "প্রিমিয়াম ফেব্রিক",
     description: "শ্রেষ্ঠ, উচ্চমানের কটন থেকে তৈরি সেরা মানের টি-শার্ট।",
     number: "01",
   },
   {
-    _id: "2",
+    id: "2",
     icon: "palette",
     title: "ট্রেন্ডি ডিজাইন",
     description: "ক্লাসিক, স্টাইলিশ এবং ট্রেন্ডি ডিজাইন — যা সবকে আকর্ষণ করে।",
     number: "02",
   },
   {
-    _id: "3",
+    id: "3",
     icon: "ruler",
     title: "কমফোর্টেবল ফিট",
     description: "সঠিক সাইজ এবং আরামদায়ক ফিট, যা সারাদিন পরতে স্বস্তিকর করে।",
     number: "03",
   },
   {
-    _id: "4",
+    id: "4",
     icon: "refresh",
     title: "কালার ডিউরেবিলিটি",
     description: "দীর্ঘস্থায়ী রঙ, বারবার ধোয়ার পরেও রঙ এবং গুণমান অক্ষুণ্ণ থাকে।",
     number: "04",
   },
   {
-    _id: "5",
+    id: "5",
     icon: "truck",
     title: "দ্রুত ডেলিভারি",
     description: "আপনার কাছাকাছি কুরিয়ারে দ্রুত এবং নিরাপদ ডেলিভারি।",
     number: "05",
   },
   {
-    _id: "6",
+    id: "6",
     icon: "headphones",
     title: "সার্বক্ষণিক সাপোর্ট",
     description: "সার্বক্ষণিক সাপোর্ট, যেকোনো প্রশ্নে আমরা সাহায্য করতে প্রস্তুত।",

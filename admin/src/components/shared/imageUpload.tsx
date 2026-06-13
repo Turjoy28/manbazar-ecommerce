@@ -219,14 +219,21 @@ export default function ImageUpload({
                                     key={index}
                                     className="border rounded-xl overflow-hidden">
                                     {/* Image preview */}
-                                    <div className="relative h-48">
-                                        <Image
-                                            src={image}
-                                            alt={`image-${index}`}
-                                            fill
-                                            className="object-cover"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        />
+                                    <div className="relative h-48 flex items-center justify-center bg-muted/30">
+                                        {image && (image.startsWith("/") || image.startsWith("http://") || image.startsWith("https://")) ? (
+                                            <Image
+                                                src={image}
+                                                alt={`image-${index}`}
+                                                fill
+                                                className="object-cover"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            />
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-2 text-muted-foreground p-4 text-center">
+                                                <ImageIcon className="h-8 w-8 text-muted-foreground/60" />
+                                                <span className="text-xs font-semibold truncate max-w-[200px]">{image || "No image"}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Action buttons — Change and Delete */}

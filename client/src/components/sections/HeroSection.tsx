@@ -1,7 +1,7 @@
 "use client";
 import Logo from "../shared/Logo";
 
-export default function HeroSection({ banner }) {
+export default function HeroSection({ banner }: { banner: any }) {
   return (
     <section className="relative w-full min-h-105 md:min-h-130 overflow-hidden">
       {/* Background image */}

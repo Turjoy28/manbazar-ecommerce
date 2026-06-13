@@ -1,6 +1,6 @@
 "use client";
 
-export default function SizeChartSection({chart}) {
+export default function SizeChartSection({ chart }: { chart: any }) {
   return (
     <section className="py-12 px-4 max-w-5xl mx-auto">
       {/* Label */}
@@ -82,7 +82,7 @@ export default function SizeChartSection({chart}) {
             {chart.chartMeta.title}
           </h3>
 
-          {chart.chartMeta.cards.map((item, idx) => (
+          {chart.chartMeta.cards.map((item: any, idx: number) => (
             <div
               key={idx}
               className="flex items-start gap-3 bg-white rounded-lg p-3 shadow-sm border border-gray-100"

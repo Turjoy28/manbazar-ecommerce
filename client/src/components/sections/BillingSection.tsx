@@ -15,18 +15,13 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-import {
-  Field,
-  FieldContent,
-  FieldLabel,
-} from "@/components/ui/field"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
-
 
 // ─── Cart item row ─────────────────────────────────────────────────────────
 function CartItemRow({
@@ -35,7 +30,7 @@ function CartItemRow({
   onDecrease,
   onSizeChange,
   onColorChange,
-  onDelete
+  onDelete,
 }: {
   item: CartItem;
   onIncrease: () => void;
@@ -44,100 +39,120 @@ function CartItemRow({
   onColorChange: (value: string) => void;
   onDelete: () => void;
 }) {
-  
   return (
     <>
-      {
-        item?.product ? (
-          <div className="flex lg:flex-row flex-col items-center gap-3 py-2 relative">
-            {/* Thumbnail */}
-            <div className="relative w-14 h-14 rounded border border-gray-200 overflow-hidden shrink-0">
-              <Image
-                src={item?.product?.thumbnail || item?.product?.images?.[0] || "/placeholder.png"}
-                alt={item?.product?.name || "Product"}
-                fill
-                className="object-cover"
-                sizes="56px"
-              />
-            </div>
-
-            {/* Name + qty controls */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800 truncate">
-                {item?.product?.name}
-              </p>
-              <div className="flex md:flex-row lg:flex-row flex-col gap-2 mt-1">
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={onDecrease}
-                    className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-sm font-bold"
-                  >
-                    −
-                  </button>
-                  <span className="text-sm font-semibold w-5 text-center">{item?.quantity}</span>
-                  <button
-                    onClick={onIncrease}
-                    className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-sm font-bold"
-                  >
-                    +
-                  </button>
-                </div>
-
-                {/* select size */}
-                <Select value={item.size} onValueChange={onSizeChange}>
-                  <SelectTrigger className="w-full max-w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Size</SelectLabel>
-                      {item?.product?.sizes?.map((size) => (
-                        <SelectItem key={size} value={size}>
-                          {size}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-
-                {/* select color */}
-                <Select value={item.color}
-                  onValueChange={onColorChange}>
-                  <SelectTrigger className="w-full max-w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Color</SelectLabel>
-                      {item?.product?.colors?.map((color) => (
-                        <SelectItem key={color} value={color}>
-                          {color}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Price */}
-            <p className="text-sm font-semibold text-gray-800 shrink-0">
-              ৳ {(item?.product?.price * item?.quantity).toFixed(2)}
-            </p>
-            <Button onClick={onDelete} className="absolute -top-4 -right-9 cursor-pointer bg-red-500 "><X/></Button>
+      {item?.product ? (
+        <div className="flex lg:flex-row flex-col items-center gap-3 py-2 relative">
+          {/* Thumbnail */}
+          <div className="relative w-14 h-14 rounded border border-gray-200 overflow-hidden shrink-0">
+            <Image
+              src={
+                item?.product?.thumbnail ||
+                item?.product?.images?.[0] ||
+                "/placeholder.png"
+              }
+              alt={item?.product?.name || "Product"}
+              fill
+              className="object-cover"
+              sizes="56px"
+            />
           </div>
-        ) : ""
-      }
-      
+
+          {/* Name + qty controls */}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-800 truncate">
+              {item?.product?.name}
+            </p>
+            <div className="flex md:flex-row lg:flex-row flex-col gap-2 mt-1">
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={onDecrease}
+                  className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-sm font-bold"
+                >
+                  −
+                </button>
+                <span className="text-sm font-semibold w-5 text-center">
+                  {item?.quantity}
+                </span>
+                <button
+                  onClick={onIncrease}
+                  className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-sm font-bold"
+                >
+                  +
+                </button>
+              </div>
+
+              {/* select size */}
+              <Select
+                value={item.size}
+                onValueChange={(val) => val && onSizeChange(val)}
+              >
+                <SelectTrigger className="w-full max-w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Size</SelectLabel>
+                    {item?.product?.sizes?.map((size) => (
+                      <SelectItem key={size} value={size}>
+                        {size}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              {/* select color */}
+              <Select
+                value={item.color}
+                onValueChange={(val) => val && onColorChange(val)}
+              >
+                <SelectTrigger className="w-full max-w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Color</SelectLabel>
+                    {item?.product?.colors?.map((color) => (
+                      <SelectItem key={color} value={color}>
+                        {color}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Price */}
+          <p className="text-sm font-semibold text-gray-800 shrink-0">
+            ৳ {(item?.product?.price * item?.quantity).toFixed(2)}
+          </p>
+          <Button
+            onClick={onDelete}
+            className="absolute -top-4 -right-9 cursor-pointer bg-red-500 "
+          >
+            <X />
+          </Button>
+        </div>
+      ) : (
+        ""
+      )}
     </>
   );
 }
 
 // ─── Order summary table ───────────────────────────────────────────────────
-function OrderSummary({cart, deliveryCharge}: {cart: CartItem[]; deliveryCharge: number}) {
+function OrderSummary({
+  cart,
+  deliveryCharge,
+}: {
+  cart: CartItem[];
+  deliveryCharge: number;
+}) {
   const subtotal = cart.reduce(
     (sum, item) => sum + item?.product?.price * item.quantity,
-    0
+    0,
   );
 
   return (
@@ -156,17 +171,23 @@ function OrderSummary({cart, deliveryCharge}: {cart: CartItem[]; deliveryCharge:
         >
           <div className="flex items-center gap-2">
             <div className="relative w-8 h-8 rounded overflow-hidden border border-gray-200 shrink-0">
-                <Image
-                  src={item.product.thumbnail || item.product.images?.[0] || "/placeholder.png"}
-                  alt={item.product.name}
-                  fill
-                  className="object-cover"
-                  sizes="32px"
-                />
+              <Image
+                src={
+                  item.product.thumbnail ||
+                  item.product.images?.[0] ||
+                  "/placeholder.png"
+                }
+                alt={item.product.name}
+                fill
+                className="object-cover"
+                sizes="32px"
+              />
             </div>
             <span className="text-gray-700">
               {item.product.name}
-              <span className="text-gray-400 text-xs ml-1">× {item.quantity}</span>
+              <span className="text-gray-400 text-xs ml-1">
+                × {item.quantity}
+              </span>
             </span>
           </div>
           <span className="text-gray-800 font-medium">
@@ -178,33 +199,37 @@ function OrderSummary({cart, deliveryCharge}: {cart: CartItem[]; deliveryCharge:
       {/* Subtotal */}
       <div className="flex justify-between px-4 py-2 border-b border-gray-200">
         <span className="text-gray-600">Subtotal</span>
-        <span className="font-medium text-gray-800">৳ {subtotal.toFixed(2)}</span>
-      </div>
-
-
-      <div className="flex justify-between px-4 py-2 border-b border-gray-200">
-        <span>Delivery Charge</span>
-        <span>
-          ৳ {deliveryCharge.toFixed(2)}
+        <span className="font-medium text-gray-800">
+          ৳ {subtotal.toFixed(2)}
         </span>
       </div>
 
-
+      <div className="flex justify-between px-4 py-2 border-b border-gray-200">
+        <span>Delivery Charge</span>
+        <span>৳ {deliveryCharge.toFixed(2)}</span>
+      </div>
 
       {/* Total */}
       <div className="flex justify-between px-4 py-3 bg-gray-50">
         <span className="font-bold text-gray-800">Total</span>
-        <span className="font-bold text-gray-900">৳ {(subtotal + deliveryCharge).toFixed(2)}</span>
+        <span className="font-bold text-gray-900">
+          ৳ {(subtotal + deliveryCharge).toFixed(2)}
+        </span>
       </div>
     </div>
   );
 }
 
-
-
 // ─── Main billing section ──────────────────────────────────────────────────
 export default function BillingSection() {
-  const { cartItems, updateQuantity, updateItemSize, updateItemColor, removeFromCart, clearCart } = useContext(OrderContext);
+  const {
+    cartItems,
+    updateQuantity,
+    updateItemSize,
+    updateItemColor,
+    removeFromCart,
+    clearCart,
+  } = useContext(OrderContext);
 
   // Billing form state
   const [billing, setBilling] = useState({
@@ -214,12 +239,11 @@ export default function BillingSection() {
     paymentMethod: "",
     transactionId: "",
     senderNumber: "",
-    location: "dhaka"
+    location: "dhaka",
   });
 
-
-  const handleBillingChange = (field: keyof typeof billing) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
+  const handleBillingChange =
+    (field: keyof typeof billing) => (e: React.ChangeEvent<HTMLInputElement>) =>
       setBilling((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleIncrease = (item: CartItem) =>
@@ -238,11 +262,9 @@ export default function BillingSection() {
     removeFromCart(item.product._id, item.size, item.color);
   const deliveryCharge = billing.location === "dhaka" ? 80 : 150;
 
-  
-  
   const totalAmount = cartItems.reduce(
     (sum, item) => sum + item?.product?.price * item.quantity,
-    0
+    0,
   );
 
   const grandTotal = totalAmount + deliveryCharge;
@@ -251,14 +273,13 @@ export default function BillingSection() {
     customer: billing,
 
     products: cartItems.map((item) => ({
-      id: item.product._id,
+      productId: item.product._id,
       name: item.product.name,
       price: item.product.price,
       quantity: item.quantity,
       size: item.size,
       color: item.color,
     })),
-
 
     subtotal: totalAmount,
 
@@ -268,7 +289,11 @@ export default function BillingSection() {
   };
 
   const handlePlaceOrder = async () => {
-    if (!billing.name.trim() || !billing.address.trim() || !billing.phone.trim()) {
+    if (
+      !billing.name.trim() ||
+      !billing.address.trim() ||
+      !billing.phone.trim()
+    ) {
       alert("Please fill in all required billing fields.");
       return;
     }
@@ -282,18 +307,27 @@ export default function BillingSection() {
       await createOrder(orderPayload);
       clearCart();
       setBilling({
-        name: "", address: "", phone: "", paymentMethod: "", transactionId: "", senderNumber: "", location: "dhaka"
+        name: "",
+        address: "",
+        phone: "",
+        paymentMethod: "",
+        transactionId: "",
+        senderNumber: "",
+        location: "dhaka",
       });
       toast.success(`অর্ডার দেওয়া হয়েছে! মোট: ৳${grandTotal.toFixed(2)}`);
     } catch (err: any) {
-      toast.error(err.message || "Sorry, we could not place your order. Please try again.");
+      toast.error(
+        err.message ||
+          "Sorry, we could not place your order. Please try again.",
+      );
     }
   };
 
   return (
     <section id="billing" className="py-10 px-4 max-w-5xl mx-auto">
-      {
-        cartItems.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+      {cartItems.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {/* ── Left: Billing form ── */}
           <form>
             <h2 className="text-lg font-bold text-gray-800 mb-5 border-b border-gray-200 pb-2">
@@ -360,23 +394,13 @@ export default function BillingSection() {
                 >
                   <div className="flex gap-4">
                     <div className="flex items-center gap-2">
-                      <RadioGroupItem
-                        value="dhaka"
-                        id="dhaka"
-                      />
-                      <Label htmlFor="dhaka">
-                        Inside Dhaka
-                      </Label>
+                      <RadioGroupItem value="dhaka" id="dhaka" />
+                      <Label htmlFor="dhaka">Inside Dhaka</Label>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <RadioGroupItem
-                        value="outside"
-                        id="outside"
-                      />
-                      <Label htmlFor="outside">
-                        Outside Dhaka
-                      </Label>
+                      <RadioGroupItem value="outside" id="outside" />
+                      <Label htmlFor="outside">Outside Dhaka</Label>
                     </div>
                   </div>
                 </RadioGroup>
@@ -385,11 +409,23 @@ export default function BillingSection() {
 
             {/* Payment option */}
             <Label className="mt-5 mb-2 text-base">Payment option</Label>
-            <RadioGroup value={billing.paymentMethod} onValueChange={(e) => setBilling((prev) => ({ ...prev, paymentMethod: e }))} className="flex">
+            <RadioGroup
+              value={billing.paymentMethod}
+              onValueChange={(e) =>
+                setBilling((prev) => ({ ...prev, paymentMethod: e }))
+              }
+              className="flex"
+            >
               <FieldLabel htmlFor="COD">
                 <Field orientation="horizontal">
                   <FieldContent className="flex items-center justify-center h-12.5">
-                    <Image src="https://urbanattire-bd.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fcash-on-delivery.aeaebb08.png&w=128&q=75" alt="cash on delivery" width={100} height={100} className=""/>
+                    <Image
+                      src="https://urbanattire-bd.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fcash-on-delivery.aeaebb08.png&w=128&q=75"
+                      alt="cash on delivery"
+                      width={100}
+                      height={100}
+                      className=""
+                    />
                   </FieldContent>
                   <RadioGroupItem value="cod" id="COD" />
                 </Field>
@@ -397,44 +433,49 @@ export default function BillingSection() {
               <FieldLabel htmlFor="online">
                 <Field orientation="horizontal">
                   <FieldContent className="flex items-center justify-center h-12.5">
-                    <Image src="https://www.rainbownetworkbd.com/Theme/images/B&N.png" alt="online payment" width={100} height={10}/>
+                    <Image
+                      src="https://dailyinqilab.com/mediaStorage/content/images/2025November/7-20251104001021.jpg"
+                      alt="online payment"
+                      width={100}
+                      height={10}
+                    />
                   </FieldContent>
                   <RadioGroupItem value="online" id="online" />
                 </Field>
               </FieldLabel>
             </RadioGroup>
 
-            {
-              billing.paymentMethod === "online" && (
-                <div className="p-3 border border-amber-500 rounded-2xl mt-5" >
-                  <p className="mb-3 text-red-400">এই নাম্বারে টাকা পাঠান: 024254254540</p>
-                  <div className="mb-3">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      আপনার ফোন নম্বর <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      value={billing.senderNumber}
-                      onChange={handleBillingChange("senderNumber")}
-                      placeholder="যে নাম্বার থেকে টাকা পাঠিয়েছেন সেটি লিখুন"
-                      className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      ট্রানজেকশন আইডি <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      value={billing.transactionId}
-                      onChange={handleBillingChange("transactionId")}
-                      placeholder="পেমেন্ট করার পর যেই ট্রানজেকশন আইডি পেয়েছেন সেটি লিখুন"
-                      className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                    />
-                  </div>
+            {billing.paymentMethod === "online" && (
+              <div className="p-3 border border-amber-500 rounded-2xl mt-5">
+                <p className="mb-3 text-red-400">
+                  এই নাম্বারে টাকা পাঠান: 024254254540
+                </p>
+                <div className="mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    আপনার ফোন নম্বর <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={billing.senderNumber}
+                    onChange={handleBillingChange("senderNumber")}
+                    placeholder="যে নাম্বার থেকে টাকা পাঠিয়েছেন সেটি লিখুন"
+                    className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  />
                 </div>
-              )
-            }
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ট্রানজেকশন আইডি <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={billing.transactionId}
+                    onChange={handleBillingChange("transactionId")}
+                    placeholder="পেমেন্ট করার পর যেই ট্রানজেকশন আইডি পেয়েছেন সেটি লিখুন"
+                    className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  />
+                </div>
+              </div>
+            )}
           </form>
 
           {/* ── Right: Cart + Order Summary ── */}
@@ -460,22 +501,26 @@ export default function BillingSection() {
             </div>
 
             {/* Your order summary */}
-            <h2 className="text-base font-bold text-gray-800 mt-6 mb-2">Your order</h2>
-            <OrderSummary cart={cartItems} deliveryCharge={deliveryCharge}/>
+            <h2 className="text-base font-bold text-gray-800 mt-6 mb-2">
+              Your order
+            </h2>
+            <OrderSummary cart={cartItems} deliveryCharge={deliveryCharge} />
 
             {/* Payment warning */}
             <div className="mt-4 bg-orange-50 border border-orange-200 rounded p-3 text-xs text-orange-700 flex gap-2 items-start">
               <span className="text-orange-400 mt-0.5 shrink-0">ℹ️</span>
               <span>
-                Sorry, it seems that there are no available payment methods for your state. Please
-                contact us if you require assistance or wish to make alternative arrangements.
+                Sorry, it seems that there are no available payment methods for
+                your state. Please contact us if you require assistance or wish
+                to make alternative arrangements.
               </span>
             </div>
 
             {/* Privacy note */}
             <p className="text-xs text-gray-400 mt-3 leading-relaxed">
-              Your personal data will be used to process your order, support your experience throughout
-              this website, and for other purposes described in our{" "}
+              Your personal data will be used to process your order, support
+              your experience throughout this website, and for other purposes
+              described in our{" "}
               <a href="#" className="underline hover:text-gray-600">
                 Privacy Policy
               </a>
@@ -490,9 +535,10 @@ export default function BillingSection() {
               🔒 Place Order — ৳ {grandTotal.toFixed(2)}
             </button>
           </div>
-        </div> : ""
-      }
-      
+        </div>
+      ) : (
+        ""
+      )}
     </section>
   );
 }

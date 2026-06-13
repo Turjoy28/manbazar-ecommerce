@@ -58,7 +58,7 @@ function FeatureCard({ feature, number }: { feature: Feature, number: number }) 
   );
 }
 
-export default function WhyUsSection({ specialty }) {
+export default function WhyUsSection({ specialty }: { specialty: any }) {
   return (
     <section className="py-12 px-4 max-w-5xl mx-auto">
       {/* Label */}
@@ -76,7 +76,7 @@ export default function WhyUsSection({ specialty }) {
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-        {specialty?.cards?.map((feature, ind) => (
+        {specialty?.cards?.map((feature: any, ind: number) => (
           <FeatureCard key={feature._id} feature={feature} number={ind+1}/>
         ))}
       </div>

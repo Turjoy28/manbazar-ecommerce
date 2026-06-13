@@ -1,7 +1,7 @@
 import { Globe, Mail, MapPin, Phone } from "lucide-react";
 import Logo from "./Logo";
 
-export default function Footer({logo, footerInfo}) {
+export default function Footer({ logo, footerInfo }: { logo: any; footerInfo: any }) {
     return (
       <footer className="bg-tertiary text-(--tertiary-text) mt-20">
         <div className="max-w-7xl mx-auto px-6 py-12">

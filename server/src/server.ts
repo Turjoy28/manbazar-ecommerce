@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import app from './app.js';
 import config from './config/index.js';
 import { seedAdmin } from './script/seedAdmin.js';
+import { seedUi } from './script/seedUi.js';
 
 
 async function main() {
@@ -14,6 +15,7 @@ async function main() {
         console.log('Connected to MongoDB successfully');
 
         await seedAdmin();
+        await seedUi();
 
         app.listen(config.port, () => {
             console.log(`Server is listening on port http://localhost:${config.port}`);

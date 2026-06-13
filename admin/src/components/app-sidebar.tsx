@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import React, { useEffect } from "react"
+import React, { useEffect } from "react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -12,11 +12,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, Settings, Package, ShoppingCart } from "lucide-react"
-import { getUiData } from "@/services/ui"
-import Link from "next/link"
-import Image from "next/image"
+} from "@/components/ui/sidebar";
+import {
+  LayoutDashboardIcon,
+  Settings,
+  Package,
+  ShoppingCart,
+} from "lucide-react";
+import { getUiData } from "@/services/ui";
+import Link from "next/link";
+import Image from "next/image";
 
 const data = {
   user: {
@@ -28,47 +33,39 @@ const data = {
     {
       title: "Dashboard",
       url: "/",
-      icon: (
-        <LayoutDashboardIcon
-        />
-      ),
+      icon: <LayoutDashboardIcon />,
     },
     {
       title: "Products",
       url: "/products",
-      icon: (
-        <Package />
-      ),
+      icon: <Package />,
     },
     {
       title: "Orders",
       url: "/orders",
-      icon: (
-        <ShoppingCart />
-      ),
+      icon: <ShoppingCart />,
     },
     {
       title: "Settings",
       url: "/settings",
-      icon: (
-        <Settings/>
-      ),
-    }
-  ]
-}
+      icon: <Settings />,
+    },
+  ],
+};
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [logo, setLogo] = React.useState<string>("");
 
-  useEffect(()=>{
-    const fetchLogo = async()=>{
+  useEffect(() => {
+    const fetchLogo = async () => {
       const res = await getUiData();
 
-      setLogo(res.data[0].banner.logo)
-    }
-    fetchLogo()
-  }, [])
-  
-  
+      if (res?.data?.[0]?.banner?.logo) {
+        setLogo(res.data[0].banner.logo);
+      }
+    };
+    fetchLogo();
+  }, []);
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -78,7 +75,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5! hover:bg-transparent"
               render={<Link href="/"></Link>}
             >
-              {logo && <Image src={logo} alt="logo" width={150} height={150} />}
+              {logo && (
+                logo.startsWith("/") || logo.startsWith("http://") || logo.startsWith("https://") ? (
+                  <Image src={logo} alt="logo" width={150} height={150} className="object-contain" />
+                ) : (
+                  <span className="text-foreground font-extrabold text-xl tracking-wider">{logo}</span>
+                )
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
