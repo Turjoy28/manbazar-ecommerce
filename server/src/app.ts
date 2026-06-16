@@ -4,7 +4,8 @@ import cookieParser from 'cookie-parser';
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/globalErrorHandler.js";
 import router from "./routes/index.js";
-
+const dns = require('dns');
+dns.setServers(['[8.8.8.8]', '[8.8.4.4]']);
 
 const app = express();
 

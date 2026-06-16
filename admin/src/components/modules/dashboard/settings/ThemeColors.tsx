@@ -16,6 +16,38 @@ interface ThemeColorsProps {
     id: string;
 }
 
+const ColorField = ({
+    label,
+    hint,
+    value,
+    onChange,
+}: {
+    label: string;
+    hint: string;
+    value: string;
+    onChange: (v: string) => void;
+}) => (
+    <div className="space-y-1.5">
+        <Label className="text-sm font-semibold">{label}</Label>
+        <p className="text-xs text-muted-foreground">{hint}</p>
+        <div className="flex gap-2">
+            <Input
+                type="color"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-12 h-10 p-1 cursor-pointer rounded-lg border"
+            />
+            <Input
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="flex-1 font-mono uppercase"
+                placeholder="#000000"
+                required
+            />
+        </div>
+    </div>
+);
+
 export default function ThemeColors({ theme, id }: ThemeColorsProps) {
     const [primary, setPrimary]     = useState(theme?.primaryColor   || "#e07b39");
     const [secondary, setSecondary] = useState(theme?.secondaryColor  || "#111827");
@@ -41,37 +73,7 @@ export default function ThemeColors({ theme, id }: ThemeColorsProps) {
         }
     };
 
-    const ColorField = ({
-        label,
-        hint,
-        value,
-        onChange,
-    }: {
-        label: string;
-        hint: string;
-        value: string;
-        onChange: (v: string) => void;
-    }) => (
-        <div className="space-y-1.5">
-            <Label className="text-sm font-semibold">{label}</Label>
-            <p className="text-xs text-muted-foreground">{hint}</p>
-            <div className="flex gap-2">
-                <Input
-                    type="color"
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-12 h-10 p-1 cursor-pointer rounded-lg border"
-                />
-                <Input
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="flex-1 font-mono uppercase"
-                    placeholder="#000000"
-                    required
-                />
-            </div>
-        </div>
-    );
+
 
     return (
         <div className="border border-border rounded-xl p-6 bg-card space-y-5 shadow-sm">

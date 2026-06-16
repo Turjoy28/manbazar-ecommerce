@@ -12,7 +12,7 @@ export default {
     admin_password: process.env.ADMIN_PASSWORD,
     jwt_secret: process.env.JWT_ACCESS_SECRET,
     jwt_expires_in: process.env.JWT_ACCESS_EXPIRES_IN || "1d",
-    
+
     // Courier API Credentials
     steadfast: {
         api_key: process.env.STEADFAST_API_KEY || "",
