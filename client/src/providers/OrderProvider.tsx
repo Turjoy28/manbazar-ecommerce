@@ -28,7 +28,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
 
     // Load from local storage
     useEffect(() => {
-        const stored = localStorage.getItem("extenup-cart");
+        const stored = localStorage.getItem("menbazar-cart");
         if (stored) {
             try {
                 setCartItems(JSON.parse(stored));
@@ -40,12 +40,12 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
 
     // Save to local storage
     useEffect(() => {
-        localStorage.setItem("extenup-cart", JSON.stringify(cartItems));
+        localStorage.setItem("menbazar-cart", JSON.stringify(cartItems));
     }, [cartItems]);
 
     const addToCart = (product: Product, quantity = 1, size?: string, color?: string) => {
         setCartItems(prev => {
-            const existingIndex = prev.findIndex(item => 
+            const existingIndex = prev.findIndex(item =>
                 item.product._id === product._id && item.size === size && item.color === color
             );
             if (existingIndex >= 0) {
@@ -58,7 +58,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const removeFromCart = (productId: string, size?: string, color?: string) => {
-        setCartItems(prev => prev.filter(item => 
+        setCartItems(prev => prev.filter(item =>
             !(item.product._id === productId && item.size === size && item.color === color)
         ));
     };
