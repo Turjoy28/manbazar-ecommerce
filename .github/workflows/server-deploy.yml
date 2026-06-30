@@ -42,6 +42,10 @@ jobs:
       - name: Adding Known Hosts
         run: ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Create Deploy Directory
+        run: |
+          ssh -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ${{ secrets.VPS_DEPLOY_PATH }}/server"
+
       - name: Transfer Build Files
         run: |
           rsync -avz --delete -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
