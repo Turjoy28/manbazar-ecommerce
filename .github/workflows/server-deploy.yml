@@ -44,7 +44,7 @@ jobs:
 
       - name: Create Deploy Directory
         run: |
-          ssh -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ${{ secrets.VPS_DEPLOY_PATH }}/server"
+          ssh -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ${{ secrets.VPS_DEPLOY_PATH }}/server/dist"
 
       - name: Transfer Build Files
         run: |
