@@ -1,0 +1,75 @@
+name: Deploy Admin to VPS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'admin/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'admin/package-lock.json'
+
+      - name: Install Dependencies
+        run: |
+          cd admin
+          npm ci
+
+      - name: Build Application
+        run: |
+          cd admin
+          npm run build
+        env:
+          NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.VPS_SSH_KEY }}
+          known_hosts: 'unnecessary-placeholder'
+          if_key_exists: replace
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Transfer Build Files
+        run: |
+          rsync -avz --delete -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            admin/.next/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/admin/.next/
+          
+          rsync -avz -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            admin/package.json \
+            admin/next.config.ts \
+            admin/public/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/admin/
+          
+          rsync -avz -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            ecosystem.config.js \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/
+
+      - name: Post-Deploy Actions on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd ${{ secrets.VPS_DEPLOY_PATH }}/admin
+            npm ci --omit=dev
+            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            pm2 reload ecosystem.config.js --only menbazar-admin || pm2 start ecosystem.config.js --only menbazar-admin

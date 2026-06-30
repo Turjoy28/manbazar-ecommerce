@@ -1,0 +1,70 @@
+name: Deploy Server to VPS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'server/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'server/package-lock.json'
+
+      - name: Install Dependencies
+        run: |
+          cd server
+          npm ci
+
+      - name: Build Application
+        run: |
+          cd server
+          npm run build
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.VPS_SSH_KEY }}
+          known_hosts: 'unnecessary-placeholder'
+          if_key_exists: replace
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Transfer Build Files
+        run: |
+          rsync -avz --delete -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            server/dist/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/server/dist/
+          
+          rsync -avz -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            server/package.json \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/server/
+          
+          rsync -avz -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            ecosystem.config.js \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/
+
+      - name: Post-Deploy Actions on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd ${{ secrets.VPS_DEPLOY_PATH }}/server
+            npm ci --omit=dev
+            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            pm2 reload ecosystem.config.js --only menbazar-server || pm2 start ecosystem.config.js --only menbazar-server

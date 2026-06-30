@@ -15,7 +15,7 @@ module.exports = {
       name: 'menbazar-client',
       cwd: './client',
       script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3000',
+      args: 'start -p 3002',
       instances: 'max',
       exec_mode: 'cluster',
       env: {
@@ -26,7 +26,7 @@ module.exports = {
       name: 'menbazar-admin',
       cwd: './admin',
       script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3001',
+      args: 'start -p 3003',
       instances: 'max',
       exec_mode: 'cluster',
       env: {
