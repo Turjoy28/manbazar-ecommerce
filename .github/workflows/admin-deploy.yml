@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'admin/**'
+      - '.github/workflows/admin-deploy.yml'
+  workflow_dispatch:
 
 env:
   DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH || '/var/www/menbazar' }}
