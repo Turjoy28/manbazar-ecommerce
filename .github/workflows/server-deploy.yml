@@ -7,6 +7,9 @@ on:
     paths:
       - 'server/**'
 
+env:
+  DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH || '/var/www/menbazar' }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -42,23 +45,19 @@ jobs:
       - name: Adding Known Hosts
         run: ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Create Deploy Directory
-        run: |
-          ssh -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ${{ secrets.VPS_DEPLOY_PATH }}/server/dist"
-
       - name: Transfer Build Files
         run: |
-          rsync -avz --delete -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+          rsync -avz --delete --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/server/dist && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             server/dist/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/server/dist/
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/server/dist/
           
-          rsync -avz -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+          rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/server && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             server/package.json \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/server/
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/server/
           
-          rsync -avz -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+          rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }} && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             ecosystem.config.js \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/
 
       - name: Post-Deploy Actions on VPS
         uses: appleboy/ssh-action@master
@@ -68,7 +67,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
-            cd ${{ secrets.VPS_DEPLOY_PATH }}/server
+            cd ${{ env.DEPLOY_PATH }}/server
             npm ci --omit=dev
-            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            cd ${{ env.DEPLOY_PATH }}
             pm2 reload ecosystem.config.js --only menbazar-server || pm2 start ecosystem.config.js --only menbazar-server

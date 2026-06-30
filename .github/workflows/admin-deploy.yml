@@ -7,6 +7,9 @@ on:
     paths:
       - 'admin/**'
 
+env:
+  DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH || '/var/www/menbazar' }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -45,25 +48,21 @@ jobs:
       - name: Adding Known Hosts
         run: ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Create Deploy Directory
-        run: |
-          ssh -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p ${{ secrets.VPS_DEPLOY_PATH }}/admin/.next ${{ secrets.VPS_DEPLOY_PATH }}/admin/public"
-
       - name: Transfer Build Files
         run: |
-          rsync -avz --delete -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+          rsync -avz --delete --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/admin/.next && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             admin/.next/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/admin/.next/
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/admin/.next/
           
-          rsync -avz -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+          rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/admin/public && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             admin/package.json \
             admin/next.config.ts \
             admin/public/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/admin/
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/admin/
           
-          rsync -avz -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+          rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }} && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             ecosystem.config.js \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DEPLOY_PATH }}/
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/
 
       - name: Post-Deploy Actions on VPS
         uses: appleboy/ssh-action@master
@@ -73,7 +72,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
-            cd ${{ secrets.VPS_DEPLOY_PATH }}/admin
+            cd ${{ env.DEPLOY_PATH }}/admin
             npm ci --omit=dev
-            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            cd ${{ env.DEPLOY_PATH }}
             pm2 reload ecosystem.config.js --only menbazar-admin || pm2 start ecosystem.config.js --only menbazar-admin
