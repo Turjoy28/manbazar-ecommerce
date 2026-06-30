@@ -74,6 +74,7 @@ jobs:
           
           rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/server && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             server/package.json \
+            server/package-lock.json \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/server/
           
           rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }} && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \

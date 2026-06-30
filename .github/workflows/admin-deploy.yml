@@ -77,6 +77,7 @@ jobs:
           
           rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/admin/public && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             admin/package.json \
+            admin/package-lock.json \
             admin/next.config.ts \
             admin/public/ \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/admin/
