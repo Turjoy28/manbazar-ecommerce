@@ -6,7 +6,7 @@ export interface OrderPayload {
         phone: string;
         address: string;
         location: string;
-        paymentMethod: string;
+        paymantMethod: string;
     };
     products: {
         productId: string;

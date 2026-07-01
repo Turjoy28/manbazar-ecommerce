@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'menbazar-server',
+      name: 'manbazar-server',
       cwd: './server',
       script: 'dist/server.js',
       instances: 1,
@@ -12,7 +12,7 @@ module.exports = {
       }
     },
     {
-      name: 'menbazar-client',
+      name: 'manbazar-client',
       cwd: './client',
       script: 'node_modules/next/dist/bin/next',
       args: 'start -p 3002',
@@ -23,7 +23,7 @@ module.exports = {
       }
     },
     {
-      name: 'menbazar-admin',
+      name: 'manbazar-admin',
       cwd: './admin',
       script: 'node_modules/next/dist/bin/next',
       args: 'start -p 3003',

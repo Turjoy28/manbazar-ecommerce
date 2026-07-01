@@ -7,7 +7,7 @@ export default {
     port: Number(process.env.PORT) || 5001,
     database_uri: process.env.DATABASE_URI || "",
     secret: process.env.JWT_SECRET || "",
-    env: process.env.NODE_ENV || "development",
+    env: process.env.NODE_ENV || "developmant",
     admin_email: process.env.ADMIN_EMAIL,
     admin_password: process.env.ADMIN_PASSWORD,
     jwt_secret: process.env.JWT_ACCESS_SECRET,

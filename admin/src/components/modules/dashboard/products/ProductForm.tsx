@@ -104,7 +104,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     }, [initialData]);
 
     /* ─── Auto-generate slug from product name (only for new products) ─── */
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElemant>) => {
         const val = e.target.value;
         setName(val);
         if (!initialData) {

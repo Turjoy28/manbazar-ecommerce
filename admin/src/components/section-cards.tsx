@@ -99,7 +99,7 @@ export function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="text-muted-foreground">
-            Current delivery fulfillment balance
+            Current delivery fulfillmant balance
           </div>
         </CardFooter>
       </Card>

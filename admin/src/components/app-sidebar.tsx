@@ -9,9 +9,9 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarManu,
+  SidebarManuButton,
+  SidebarManuItem,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboardIcon,
@@ -69,10 +69,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5! hover:bg-transparent"
+        <SidebarManu>
+          <SidebarManuItem>
+            <SidebarManuButton
+              className="data-[slot=sidebar-manu-button]:p-1.5! hover:bg-transparent"
               render={<Link href="/"></Link>}
             >
               {logo && (
@@ -82,9 +82,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="text-foreground font-extrabold text-xl tracking-wider">{logo}</span>
                 )
               )}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+            </SidebarManuButton>
+          </SidebarManuItem>
+        </SidebarManu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

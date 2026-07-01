@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH || '/var/www/menbazar' }}
+  DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH || '/var/www/manbazar' }}
 
 jobs:
   deploy:
@@ -95,4 +95,4 @@ jobs:
             cd ${{ env.DEPLOY_PATH }}/server
             npm ci --omit=dev
             cd ${{ env.DEPLOY_PATH }}
-            pm2 reload ecosystem.config.js --only menbazar-server || pm2 start ecosystem.config.js --only menbazar-server
+            pm2 reload ecosystem.config.js --only manbazar-server || pm2 start ecosystem.config.js --only manbazar-server

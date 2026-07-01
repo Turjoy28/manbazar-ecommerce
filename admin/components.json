@@ -19,7 +19,7 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "menuColor": "default",
-  "menuAccent": "subtle",
+  "manuColor": "default",
+  "manuAccent": "subtle",
   "registries": {}
 }

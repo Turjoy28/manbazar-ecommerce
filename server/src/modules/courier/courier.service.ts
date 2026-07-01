@@ -3,7 +3,7 @@ import config from "../../config/index.js";
 
 /**
  * Courier service integration for SteadFast, Pathao, and RedX.
- * API credentials are loaded from environment variables so only .env needs updating.
+ * API credentials are loaded from environmant variables so only .env needs updating.
  */
 
 // ── SteadFast ──────────────────────────────────────────────────────────────────
@@ -148,8 +148,8 @@ export const sendOrdersToCourier = async (orderIds: string[], courier: CourierNa
 
             // Extract tracking code from response (varies by courier)
             const trackingCode = String(
-                apiResult?.consignment_id ||
-                apiResult?.data?.consignment_id ||
+                apiResult?.consignmant_id ||
+                apiResult?.data?.consignmant_id ||
                 apiResult?.tracking_id ||
                 apiResult?.parcel_tracking_id ||
                 orderId

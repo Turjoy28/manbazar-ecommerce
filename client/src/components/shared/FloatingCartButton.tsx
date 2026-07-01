@@ -27,7 +27,7 @@ export default function FloatingCartButton() {
      * Next.js Link triggers a full route navigation which breaks smooth scroll.
      */
     const handleClick = () => {
-        const billingSection = document.getElementById("billing");
+        const billingSection = documant.getElemantById("billing");
         if (billingSection) {
             billingSection.scrollIntoView({ behavior: "smooth", block: "start" });
         }
