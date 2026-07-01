@@ -10,7 +10,7 @@ const getOrders = async (page = 1, limit = 10) => {
     const skip = (page - 1) * limit;
     const [orders, total] = await Promise.all([
         Order.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
-        Order.countDocumants(),
+        Order.countDocuments(),
     ]);
     return { orders, total, page, limit, pages: Math.ceil(total / limit) };
 };
@@ -35,12 +35,12 @@ const updateCourierInfo = async (
     id: string,
     courierName: string,
     courierTrackingCode: string,
-    courierConsignmantId: string,
+    courierConsignmentId: string,
     courierStatus: string
 ) => {
     return Order.findByIdAndUpdate(
         id,
-        { $set: { courierName, courierTrackingCode, courierConsignmantId, courierStatus } },
+        { $set: { courierName, courierTrackingCode, courierConsignmentId, courierStatus } },
         { new: true }
     );
 };
@@ -48,13 +48,13 @@ const updateCourierInfo = async (
 /** Aggregate dashboard statistics */
 const getStats = async () => {
     const [totalOrders, totalRevenue, pending, delivered, cancelled, products] = await Promise.all([
-        Order.countDocumants(),
+        Order.countDocuments(),
         Order.aggregate([{ $group: { _id: null, total: { $sum: "$total" } } }]),
-        Order.countDocumants({ status: "pending" }),
-        Order.countDocumants({ status: "delivered" }),
-        Order.countDocumants({ status: "cancelled" }),
+        Order.countDocuments({ status: "pending" }),
+        Order.countDocuments({ status: "delivered" }),
+        Order.countDocuments({ status: "cancelled" }),
         // Import inline to avoid circular deps
-        (await import("../../models/product.model.js")).Product.countDocumants(),
+        (await import("../../models/product.model.js")).Product.countDocuments(),
     ]);
 
     return {

@@ -70,7 +70,7 @@ export default function SizeChartSection({ chart }: { chart: any }) {
 
           <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
             <p className="text-xs text-gray-500">
-              <span className="font-semibold">Note:</span> Manual measuremant ±
+              <span className="font-semibold">Note:</span> Manual measurement ±
               ০.৫ inch হতে পারে, তাই সন্দেহ হলে একটা বড় সাইজ নেওয়া ভালো।
             </p>
           </div>

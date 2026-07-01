@@ -65,7 +65,7 @@ export default function ImageUpload({
     description = "Select images",
 }: ImageUploadProps) {
     /* Ref to the hidden file input so we can trigger it programmatically */
-    const inputRef = useRef<HTMLInputElemant>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     /* Tracks whether an upload is currently in progress */
     const [isUploading, setIsUploading] = useState(false);
     /* When non-null, the next upload replaces the image at this index */
@@ -95,7 +95,7 @@ export default function ImageUpload({
      * handleSelect — Called when the user selects file(s) from the picker.
      * Uploads the file(s) to the server and updates the value array.
      */
-    const handleSelect = async (e: ChangeEvent<HTMLInputElemant>) => {
+    const handleSelect = async (e: ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = Array.from(e.target.files || []);
         const isReplacing = replaceIndex !== null;
 

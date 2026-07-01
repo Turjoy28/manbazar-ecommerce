@@ -60,13 +60,13 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import {
-  DropdownManu,
-  DropdownManuCheckboxItem,
-  DropdownManuContent,
-  DropdownManuItem,
-  DropdownManuSeparator,
-  DropdownManuTrigger,
-} from "@/components/ui/dropdown-manu"
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -281,8 +281,8 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     id: "actions",
     cell: () => (
-      <DropdownManu>
-        <DropdownManuTrigger
+      <DropdownMenu>
+        <DropdownMenuTrigger
           render={
             <Button
               variant="ghost"
@@ -293,16 +293,16 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         >
           <EllipsisVerticalIcon
           />
-          <span className="sr-only">Open manu</span>
-        </DropdownManuTrigger>
-        <DropdownManuContent align="end" className="w-32">
-          <DropdownManuItem>Edit</DropdownManuItem>
-          <DropdownManuItem>Make a copy</DropdownManuItem>
-          <DropdownManuItem>Favorite</DropdownManuItem>
-          <DropdownManuSeparator />
-          <DropdownManuItem variant="destructive">Delete</DropdownManuItem>
-        </DropdownManuContent>
-      </DropdownManu>
+          <span className="sr-only">Open menu</span>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem>Make a copy</DropdownMenuItem>
+          <DropdownMenuItem>Favorite</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     ),
   },
 ]
@@ -405,7 +405,7 @@ export function DataTable({
             { label: "Outline", value: "outline" },
             { label: "Past Performance", value: "past-performance" },
             { label: "Key Personnel", value: "key-personnel" },
-            { label: "Focus Documants", value: "focus-documants" },
+            { label: "Focus Documents", value: "focus-documents" },
           ]}
         >
           <SelectTrigger
@@ -420,7 +420,7 @@ export function DataTable({
               <SelectItem value="outline">Outline</SelectItem>
               <SelectItem value="past-performance">Past Performance</SelectItem>
               <SelectItem value="key-personnel">Key Personnel</SelectItem>
-              <SelectItem value="focus-documants">Focus Documants</SelectItem>
+              <SelectItem value="focus-documents">Focus Documents</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select> */}
@@ -432,18 +432,18 @@ export function DataTable({
           <TabsTrigger value="key-personnel">
             Key Personnel <Badge variant="secondary">2</Badge>
           </TabsTrigger>
-          <TabsTrigger value="focus-documants">Focus Documants</TabsTrigger>
+          <TabsTrigger value="focus-documents">Focus Documents</TabsTrigger>
         </TabsList>
         <div className="flex items-center gap-2">
-          <DropdownManu>
-            <DropdownManuTrigger
+          <DropdownMenu>
+            <DropdownMenuTrigger
               render={<Button variant="outline" size="sm" />}
             >
               <Columns3Icon data-icon="inline-start" />
               Columns
               <ChevronDownIcon data-icon="inline-end" />
-            </DropdownManuTrigger>
-            <DropdownManuContent align="end" className="w-32">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-32">
               {table
                 .getAllColumns()
                 .filter(
@@ -453,7 +453,7 @@ export function DataTable({
                 )
                 .map((column) => {
                   return (
-                    <DropdownManuCheckboxItem
+                    <DropdownMenuCheckboxItem
                       key={column.id}
                       className="capitalize"
                       checked={column.getIsVisible()}
@@ -462,11 +462,11 @@ export function DataTable({
                       }
                     >
                       {column.id}
-                    </DropdownManuCheckboxItem>
+                    </DropdownMenuCheckboxItem>
                   )
                 })}
-            </DropdownManuContent>
-          </DropdownManu>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline" size="sm">
             <PlusIcon
             />
@@ -627,7 +627,7 @@ export function DataTable({
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
       <TabsContent
-        value="focus-documants"
+        value="focus-documents"
         className="flex flex-col px-4 lg:px-6"
       >
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
@@ -770,7 +770,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                     },
                     { label: "Design", value: "Design" },
                     { label: "Capabilities", value: "Capabilities" },
-                    { label: "Focus Documants", value: "Focus Documants" },
+                    { label: "Focus Documents", value: "Focus Documents" },
                     { label: "Narrative", value: "Narrative" },
                     { label: "Cover Page", value: "Cover Page" },
                   ]}
@@ -791,8 +791,8 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                       </SelectItem>
                       <SelectItem value="Design">Design</SelectItem>
                       <SelectItem value="Capabilities">Capabilities</SelectItem>
-                      <SelectItem value="Focus Documants">
-                        Focus Documants
+                      <SelectItem value="Focus Documents">
+                        Focus Documents
                       </SelectItem>
                       <SelectItem value="Narrative">Narrative</SelectItem>
                       <SelectItem value="Cover Page">Cover Page</SelectItem>

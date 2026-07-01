@@ -35,7 +35,7 @@ export default function Footer({ id, footer }: FooterSettingsProps) {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleUpdate = async (e: React.FormEvent<HTMLFormElemant>) => {
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const toastId = toast.loading("Updating footer...");

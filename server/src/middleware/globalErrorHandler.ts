@@ -45,7 +45,7 @@ export function errorHandler(error: any, req: Request, res: Response, next: Next
     // Mongoose Model Not Found
     else if (error.name === "MongoServerError" && error.code === 121) {
         statusCode = 400;
-        message = "Documant validation failed against schema";
+        message = "Document validation failed against schema";
         errorDetails = error.errmsg;
     }
 
@@ -80,7 +80,7 @@ export function errorHandler(error: any, req: Request, res: Response, next: Next
     const response: ErrorResponse = {
         success: false,
         message,
-        ...(process.env.NODE_ENV === "developmant" && { error: errorDetails }),
+        ...(process.env.NODE_ENV === "development" && { error: errorDetails }),
     };
 
     res.status(statusCode).json(response);

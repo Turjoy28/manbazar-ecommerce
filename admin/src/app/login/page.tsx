@@ -68,7 +68,7 @@ export default function Login() {
             <Sparkles className="h-6 w-6 text-white" />
           </div>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            Manbazar Admin
+            Menbazar Admin
           </h2>
           <p className="mt-2 text-sm text-gray-400">
             Sign in to manage your storefront, products, and orders
@@ -103,7 +103,7 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@manbazar.com"
+                    placeholder="admin@menbazar.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"

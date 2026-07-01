@@ -8,7 +8,7 @@ import { seedUi } from './script/seedUi.js';
 async function main() {
     try {
         if (!config.database_uri) {
-            throw new Error('Database URL is not provided in environmant variables');
+            throw new Error('Database URL is not provided in environment variables');
         }
 
         await mongoose.connect(config.database_uri);

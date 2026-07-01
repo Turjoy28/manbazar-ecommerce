@@ -236,14 +236,14 @@ export default function BillingSection() {
     name: "",
     address: "",
     phone: "",
-    paymantMethod: "",
+    paymentMethod: "",
     transactionId: "",
     senderNumber: "",
     location: "dhaka",
   });
 
   const handleBillingChange =
-    (field: keyof typeof billing) => (e: React.ChangeEvent<HTMLInputElemant>) =>
+    (field: keyof typeof billing) => (e: React.ChangeEvent<HTMLInputElement>) =>
       setBilling((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleIncrease = (item: CartItem) =>
@@ -310,7 +310,7 @@ export default function BillingSection() {
         name: "",
         address: "",
         phone: "",
-        paymantMethod: "",
+        paymentMethod: "",
         transactionId: "",
         senderNumber: "",
         location: "dhaka",
@@ -407,12 +407,12 @@ export default function BillingSection() {
               </div>
             </div>
 
-            {/* Paymant option */}
-            <Label className="mt-5 mb-2 text-base">Paymant option</Label>
+            {/* Payment option */}
+            <Label className="mt-5 mb-2 text-base">Payment option</Label>
             <RadioGroup
-              value={billing.paymantMethod}
+              value={billing.paymentMethod}
               onValueChange={(e) =>
-                setBilling((prev) => ({ ...prev, paymantMethod: e }))
+                setBilling((prev) => ({ ...prev, paymentMethod: e }))
               }
               className="flex"
             >
@@ -435,7 +435,7 @@ export default function BillingSection() {
                   <FieldContent className="flex items-center justify-center h-12.5">
                     <Image
                       src="https://dailyinqilab.com/mediaStorage/content/images/2025November/7-20251104001021.jpg"
-                      alt="online paymant"
+                      alt="online payment"
                       width={100}
                       height={10}
                     />
@@ -445,7 +445,7 @@ export default function BillingSection() {
               </FieldLabel>
             </RadioGroup>
 
-            {billing.paymantMethod === "online" && (
+            {billing.paymentMethod === "online" && (
               <div className="p-3 border border-amber-500 rounded-2xl mt-5">
                 <p className="mb-3 text-red-400">
                   এই নাম্বারে টাকা পাঠান: 024254254540
@@ -506,13 +506,13 @@ export default function BillingSection() {
             </h2>
             <OrderSummary cart={cartItems} deliveryCharge={deliveryCharge} />
 
-            {/* Paymant warning */}
+            {/* Payment warning */}
             <div className="mt-4 bg-orange-50 border border-orange-200 rounded p-3 text-xs text-orange-700 flex gap-2 items-start">
               <span className="text-orange-400 mt-0.5 shrink-0">ℹ️</span>
               <span>
-                Sorry, it seems that there are no available paymant methods for
+                Sorry, it seems that there are no available payment methods for
                 your state. Please contact us if you require assistance or wish
-                to make alternative arrangemants.
+                to make alternative arrangements.
               </span>
             </div>
 

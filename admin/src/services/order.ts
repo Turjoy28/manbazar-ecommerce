@@ -16,7 +16,7 @@ export interface OrderCustomer {
     phone: string;
     address: string;
     location: string;
-    paymantMethod: string;
+    paymentMethod: string;
     transactionId?: string;
     senderNumber?: string;
 }
@@ -34,7 +34,7 @@ export interface OrderData {
     courierName?: string;
     courierTrackingCode?: string;
     courierStatus?: string;
-    courierConsignmantId?: string;
+    courierConsignmentId?: string;
     createdAt: string;
     updatedAt: string;
 }

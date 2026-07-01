@@ -290,7 +290,7 @@ export default function OrdersPage() {
           +৳{order.deliveryCharge} delivery
         </span>
         <Badge variant="outline" className="text-[10px] uppercase">
-          {order.customer.paymantMethod}
+          {order.customer.paymentMethod}
         </Badge>
         {order.coupon && (
           <Badge variant="outline" className="text-[10px]">
@@ -513,7 +513,7 @@ export default function OrdersPage() {
                       Total
                     </TableHead>
                     <TableHead className="text-muted-foreground">
-                      Paymant
+                      Payment
                     </TableHead>
                     <TableHead className="text-muted-foreground">
                       Status
@@ -593,7 +593,7 @@ export default function OrdersPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className="text-xs uppercase">
-                          {order.customer.paymantMethod}
+                          {order.customer.paymentMethod}
                         </Badge>
                       </TableCell>
                       <TableCell>

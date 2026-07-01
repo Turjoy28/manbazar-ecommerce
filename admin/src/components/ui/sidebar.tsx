@@ -83,7 +83,7 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
-      documant.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open]
   )
@@ -455,30 +455,30 @@ function SidebarGroupContent({
   )
 }
 
-function SidebarManu({ className, ...props }: React.ComponentProps<"ul">) {
+function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
   return (
     <ul
-      data-slot="sidebar-manu"
-      data-sidebar="manu"
+      data-slot="sidebar-menu"
+      data-sidebar="menu"
       className={cn("flex w-full min-w-0 flex-col gap-0.5", className)}
       {...props}
     />
   )
 }
 
-function SidebarManuItem({ className, ...props }: React.ComponentProps<"li">) {
+function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
   return (
     <li
-      data-slot="sidebar-manu-item"
-      data-sidebar="manu-item"
-      className={cn("group/manu-item relative", className)}
+      data-slot="sidebar-menu-item"
+      data-sidebar="menu-item"
+      className={cn("group/menu-item relative", className)}
       {...props}
     />
   )
 }
 
-const sidebarManuButtonVariants = cva(
-  "peer/manu-button group/manu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-left text-sm whitespace-nowrap ring-sidebar-ring outline-hidden transition-[width,height,padding] duration-200 group-has-data-[sidebar=manu-action]/manu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-3 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 has-[>svg:first-child]:pl-2.5 has-[>svg:last-child]:pr-2.5 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
+const sidebarMenuButtonVariants = cva(
+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl px-3 py-2 text-left text-sm whitespace-nowrap ring-sidebar-ring outline-hidden transition-[width,height,padding] duration-200 group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-3 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 has-[>svg:first-child]:pl-2.5 has-[>svg:last-child]:pr-2.5 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
   {
     variants: {
       variant: {
@@ -499,7 +499,7 @@ const sidebarManuButtonVariants = cva(
   }
 )
 
-function SidebarManuButton({
+function SidebarMenuButton({
   render,
   isActive = false,
   variant = "default",
@@ -511,20 +511,20 @@ function SidebarManuButton({
   React.ComponentProps<"button"> & {
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
-  } & VariantProps<typeof sidebarManuButtonVariants>) {
+  } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const { isMobile, state } = useSidebar()
   const comp = useRender({
     defaultTagName: "button",
     props: mergeProps<"button">(
       {
-        className: cn(sidebarManuButtonVariants({ variant, size }), className),
+        className: cn(sidebarMenuButtonVariants({ variant, size }), className),
       },
       props
     ),
     render: !tooltip ? render : <TooltipTrigger render={render} />,
     state: {
-      slot: "sidebar-manu-button",
-      sidebar: "manu-button",
+      slot: "sidebar-menu-button",
+      sidebar: "menu-button",
       size,
       active: isActive,
     },
@@ -553,7 +553,7 @@ function SidebarManuButton({
   )
 }
 
-function SidebarManuAction({
+function SidebarMenuAction({
   className,
   render,
   showOnHover = false,
@@ -567,9 +567,9 @@ function SidebarManuAction({
     props: mergeProps<"button">(
       {
         className: cn(
-          "absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-xl p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform group-data-[collapsible=icon]:hidden peer-hover/manu-button:text-sidebar-accent-foreground peer-data-[size=default]/manu-button:top-1.5 peer-data-[size=lg]/manu-button:top-2.5 peer-data-[size=sm]/manu-button:top-1 after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-3 md:after:hidden [&>svg]:size-4 [&>svg]:shrink-0",
+          "absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-xl p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-3 md:after:hidden [&>svg]:size-4 [&>svg]:shrink-0",
           showOnHover &&
-            "group-focus-within/manu-item:opacity-100 group-hover/manu-item:opacity-100 peer-data-active/manu-button:text-sidebar-accent-foreground aria-expanded:opacity-100 md:opacity-0",
+            "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-active/menu-button:text-sidebar-accent-foreground aria-expanded:opacity-100 md:opacity-0",
           className
         ),
       },
@@ -577,22 +577,22 @@ function SidebarManuAction({
     ),
     render,
     state: {
-      slot: "sidebar-manu-action",
-      sidebar: "manu-action",
+      slot: "sidebar-menu-action",
+      sidebar: "menu-action",
     },
   })
 }
 
-function SidebarManuBadge({
+function SidebarMenuBadge({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   return (
     <div
-      data-slot="sidebar-manu-badge"
-      data-sidebar="manu-badge"
+      data-slot="sidebar-menu-badge"
+      data-sidebar="menu-badge"
       className={cn(
-        "pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-xl px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/manu-button:text-sidebar-accent-foreground peer-data-[size=default]/manu-button:top-1.5 peer-data-[size=lg]/manu-button:top-2.5 peer-data-[size=sm]/manu-button:top-1 peer-data-active/manu-button:text-sidebar-accent-foreground",
+        "pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-xl px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground",
         className
       )}
       {...props}
@@ -600,7 +600,7 @@ function SidebarManuBadge({
   )
 }
 
-function SidebarManuSkeleton({
+function SidebarMenuSkeleton({
   className,
   showIcon = false,
   ...props
@@ -614,20 +614,20 @@ function SidebarManuSkeleton({
 
   return (
     <div
-      data-slot="sidebar-manu-skeleton"
-      data-sidebar="manu-skeleton"
+      data-slot="sidebar-menu-skeleton"
+      data-sidebar="menu-skeleton"
       className={cn("flex h-8 items-center gap-2 rounded-xl px-2", className)}
       {...props}
     >
       {showIcon && (
         <Skeleton
           className="size-4 rounded-xl"
-          data-sidebar="manu-skeleton-icon"
+          data-sidebar="menu-skeleton-icon"
         />
       )}
       <Skeleton
         className="h-4 max-w-(--skeleton-width) flex-1"
-        data-sidebar="manu-skeleton-text"
+        data-sidebar="menu-skeleton-text"
         style={
           {
             "--skeleton-width": width,
@@ -638,11 +638,11 @@ function SidebarManuSkeleton({
   )
 }
 
-function SidebarManuSub({ className, ...props }: React.ComponentProps<"ul">) {
+function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
   return (
     <ul
-      data-slot="sidebar-manu-sub"
-      data-sidebar="manu-sub"
+      data-slot="sidebar-menu-sub"
+      data-sidebar="menu-sub"
       className={cn(
         "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden",
         className
@@ -652,21 +652,21 @@ function SidebarManuSub({ className, ...props }: React.ComponentProps<"ul">) {
   )
 }
 
-function SidebarManuSubItem({
+function SidebarMenuSubItem({
   className,
   ...props
 }: React.ComponentProps<"li">) {
   return (
     <li
-      data-slot="sidebar-manu-sub-item"
-      data-sidebar="manu-sub-item"
-      className={cn("group/manu-sub-item relative", className)}
+      data-slot="sidebar-menu-sub-item"
+      data-sidebar="menu-sub-item"
+      className={cn("group/menu-sub-item relative", className)}
       {...props}
     />
   )
 }
 
-function SidebarManuSubButton({
+function SidebarMenuSubButton({
   render,
   size = "md",
   isActive = false,
@@ -690,8 +690,8 @@ function SidebarManuSubButton({
     ),
     render,
     state: {
-      slot: "sidebar-manu-sub-button",
-      sidebar: "manu-sub-button",
+      slot: "sidebar-menu-sub-button",
+      sidebar: "menu-sub-button",
       size,
       active: isActive,
     },
@@ -709,15 +709,15 @@ export {
   SidebarHeader,
   SidebarInput,
   SidebarInset,
-  SidebarManu,
-  SidebarManuAction,
-  SidebarManuBadge,
-  SidebarManuButton,
-  SidebarManuItem,
-  SidebarManuSkeleton,
-  SidebarManuSub,
-  SidebarManuSubButton,
-  SidebarManuSubItem,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarSeparator,

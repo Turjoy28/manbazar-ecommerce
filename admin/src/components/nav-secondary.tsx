@@ -5,9 +5,9 @@ import * as React from "react"
 import {
   SidebarGroup,
   SidebarGroupContent,
-  SidebarManu,
-  SidebarManuButton,
-  SidebarManuItem,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
 export function NavSecondary({
@@ -23,16 +23,16 @@ export function NavSecondary({
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
-        <SidebarManu>
+        <SidebarMenu>
           {items.map((item) => (
-            <SidebarManuItem key={item.title}>
-              <SidebarManuButton render={<a href={item.url} />}>
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton render={<a href={item.url} />}>
                 {item.icon}
                 <span>{item.title}</span>
-              </SidebarManuButton>
-            </SidebarManuItem>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           ))}
-        </SidebarManu>
+        </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
   )

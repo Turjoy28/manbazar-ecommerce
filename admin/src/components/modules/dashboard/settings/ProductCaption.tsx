@@ -14,7 +14,7 @@ export default function ProductCaption({caption,id}: {caption: {title: string}; 
 
     const [title, setTitle] = useState(caption?.title || "");
 
-    const handleUpdate = async (e: React.FormEvent<HTMLFormElemant>) => {
+    const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const toastId = toast.loading("Updating...");

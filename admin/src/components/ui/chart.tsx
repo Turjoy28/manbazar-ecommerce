@@ -44,14 +44,14 @@ function ChartContainer({
   className,
   children,
   config,
-  initialDimansion = INITIAL_DIMENSION,
+  initialDimension = INITIAL_DIMENSION,
   ...props
 }: React.ComponentProps<"div"> & {
   config: ChartConfig
   children: React.ComponentProps<
     typeof RechartsPrimitive.ResponsiveContainer
   >["children"]
-  initialDimansion?: {
+  initialDimension?: {
     width: number
     height: number
   }
@@ -72,7 +72,7 @@ function ChartContainer({
       >
         <ChartStyle id={chartId} config={config} />
         <RechartsPrimitive.ResponsiveContainer
-          initialDimansion={initialDimansion}
+          initialDimension={initialDimension}
         >
           {children}
         </RechartsPrimitive.ResponsiveContainer>

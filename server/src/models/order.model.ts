@@ -17,7 +17,7 @@ const orderSchema = new mongoose.Schema(
             phone: { type: String, required: true },
             address: { type: String, required: true },
             location: { type: String, default: "dhaka" },
-            paymantMethod: { type: String, default: "cod" },
+            paymentMethod: { type: String, default: "cod" },
             transactionId: { type: String, default: "" },
             senderNumber: { type: String, default: "" },
         },
@@ -33,7 +33,7 @@ const orderSchema = new mongoose.Schema(
         courierName: { type: String, default: "" },
         courierTrackingCode: { type: String, default: "" },
         courierStatus: { type: String, default: "" },
-        courierConsignmantId: { type: String, default: "" },
+        courierConsignmentId: { type: String, default: "" },
     },
     { timestamps: true }
 );

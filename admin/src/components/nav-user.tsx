@@ -6,18 +6,18 @@ import { toast } from "sonner";
 import { authService } from "@/services/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  DropdownManu,
-  DropdownManuContent,
-  DropdownManuGroup,
-  DropdownManuItem,
-  DropdownManuLabel,
-  DropdownManuSeparator,
-  DropdownManuTrigger,
-} from "@/components/ui/dropdown-manu";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
-  SidebarManu,
-  SidebarManuButton,
-  SidebarManuItem,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { EllipsisVerticalIcon, LogOutIcon } from "lucide-react";
@@ -66,12 +66,12 @@ export function NavUser({
   const email = profile ? profile.email : defaultUser.email;
 
   return (
-    <SidebarManu>
-      <SidebarManuItem>
-        <DropdownManu>
-          <DropdownManuTrigger
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger
             render={
-              <SidebarManuButton size="lg" className="aria-expanded:bg-muted" />
+              <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
             }
           >
             <Avatar className="size-8 rounded-lg grayscale">
@@ -85,15 +85,15 @@ export function NavUser({
               </span>
             </div>
             <EllipsisVerticalIcon className="ml-auto size-4" />
-          </DropdownManuTrigger>
-          <DropdownManuContent
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
             className="min-w-56"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
           >
-            <DropdownManuGroup>
-              <DropdownManuLabel className="p-0 font-normal">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="size-8">
                     <AvatarImage src={defaultUser.avatar} alt={name} />
@@ -106,19 +106,19 @@ export function NavUser({
                     </span>
                   </div>
                 </div>
-              </DropdownManuLabel>
-            </DropdownManuGroup>
-            <DropdownManuSeparator />
-            <DropdownManuItem
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
               onClick={handleLogout}
               className="cursor-pointer text-red-500 hover:text-red-600 focus:text-red-600"
             >
               <LogOutIcon />
               Log out
-            </DropdownManuItem>
-          </DropdownManuContent>
-        </DropdownManu>
-      </SidebarManuItem>
-    </SidebarManu>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }

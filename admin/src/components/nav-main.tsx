@@ -3,9 +3,9 @@
 import {
   SidebarGroup,
   SidebarGroupContent,
-  SidebarManu,
-  SidebarManuButton,
-  SidebarManuItem,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 
@@ -21,18 +21,18 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarManu>
+        <SidebarMenu>
           {items.map((item) => (
             <Link href={item.url} key={item.title}>
-            <SidebarManuItem>
-              <SidebarManuButton tooltip={item.title}>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip={item.title}>
                 {item.icon}
                 <span>{item.title}</span>
-              </SidebarManuButton>
-            </SidebarManuItem>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             </Link>
           ))}
-        </SidebarManu>
+        </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
   )

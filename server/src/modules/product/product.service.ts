@@ -11,7 +11,7 @@ const getAllProducts = async (page = 1, limit = 50) => {
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
         Product.find({ isActive: true }).skip(skip).limit(limit).sort({ createdAt: -1 }),
-        Product.countDocumants({ isActive: true }),
+        Product.countDocuments({ isActive: true }),
     ]);
     return { products, total, page, limit, pages: Math.ceil(total / limit) };
 };
@@ -21,7 +21,7 @@ const getAllProductsAdmin = async (page = 1, limit = 50) => {
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
         Product.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
-        Product.countDocumants(),
+        Product.countDocuments(),
     ]);
     return { products, total, page, limit, pages: Math.ceil(total / limit) };
 };

@@ -1,24 +1,24 @@
 "use client"
 
 import {
-  DropdownManu,
-  DropdownManuContent,
-  DropdownManuItem,
-  DropdownManuSeparator,
-  DropdownManuTrigger,
-} from "@/components/ui/dropdown-manu"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarManu,
-  SidebarManuAction,
-  SidebarManuButton,
-  SidebarManuItem,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
 import { MoreHorizontalIcon, FolderIcon, ShareIcon, Trash2Icon } from "lucide-react"
 
-export function NavDocumants({
+export function NavDocuments({
   items,
 }: {
   items: {
@@ -30,18 +30,18 @@ export function NavDocumants({
   const { isMobile } = useSidebar()
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Documants</SidebarGroupLabel>
-      <SidebarManu>
+      <SidebarGroupLabel>Documents</SidebarGroupLabel>
+      <SidebarMenu>
         {items.map((item) => (
-          <SidebarManuItem key={item.name}>
-            <SidebarManuButton render={<a href={item.url} />}>
+          <SidebarMenuItem key={item.name}>
+            <SidebarMenuButton render={<a href={item.url} />}>
               {item.icon}
               <span>{item.name}</span>
-            </SidebarManuButton>
-            <DropdownManu>
-              <DropdownManuTrigger
+            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger
                 render={
-                  <SidebarManuAction
+                  <SidebarMenuAction
                     showOnHover
                     className="aria-expanded:bg-muted"
                   />
@@ -50,39 +50,39 @@ export function NavDocumants({
                 <MoreHorizontalIcon
                 />
                 <span className="sr-only">More</span>
-              </DropdownManuTrigger>
-              <DropdownManuContent
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
                 className="w-24"
                 side={isMobile ? "bottom" : "right"}
                 align={isMobile ? "end" : "start"}
               >
-                <DropdownManuItem>
+                <DropdownMenuItem>
                   <FolderIcon
                   />
                   <span>Open</span>
-                </DropdownManuItem>
-                <DropdownManuItem>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
                   <ShareIcon
                   />
                   <span>Share</span>
-                </DropdownManuItem>
-                <DropdownManuSeparator />
-                <DropdownManuItem variant="destructive">
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive">
                   <Trash2Icon
                   />
                   <span>Delete</span>
-                </DropdownManuItem>
-              </DropdownManuContent>
-            </DropdownManu>
-          </SidebarManuItem>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
         ))}
-        <SidebarManuItem>
-          <SidebarManuButton className="text-sidebar-foreground/70">
+        <SidebarMenuItem>
+          <SidebarMenuButton className="text-sidebar-foreground/70">
             <MoreHorizontalIcon className="text-sidebar-foreground/70" />
             <span>More</span>
-          </SidebarManuButton>
-        </SidebarManuItem>
-      </SidebarManu>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
     </SidebarGroup>
   )
 }
