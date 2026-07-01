@@ -25,7 +25,7 @@ export default async function RootLayout({
   const tertiaryColor = theme?.tertiaryColor || "#f97316";
 
   return (
-    <html lang="bn">
+    <html lang="bn" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -34,7 +34,7 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <style
           dangerouslySetInnerHTML={{
             __html: `

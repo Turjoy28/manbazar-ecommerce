@@ -17,11 +17,13 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
         const { token, admin } = await authService.login(email, password);
 
+        const isProduction = process.env.NODE_ENV === "production";
         // Set secure HTTP-only cookie
         res.cookie("adminToken", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            domain: isProduction ? ".manbazar.com" : undefined,
             maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
 
@@ -42,7 +44,12 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
  * Clears the JWT cookie.
  */
 const logout = (req: Request, res: Response) => {
-    res.clearCookie("adminToken");
+    const isProduction = process.env.NODE_ENV === "production";
+    res.clearCookie("adminToken", {
+        domain: isProduction ? ".manbazar.com" : undefined,
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction,
+    });
     sendResponse(res, { statusCode: 200, success: true, message: "Logged out successfully" });
 };
 
