@@ -1,4 +1,4 @@
-export const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000/api/v1';
+export const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001/api/v1';
 
 import { Product } from "../types";
 
