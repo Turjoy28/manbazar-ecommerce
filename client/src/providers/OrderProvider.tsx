@@ -28,7 +28,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
 
     // Load from local storage
     useEffect(() => {
-        const stored = localStorage.getItem("menbazar-cart");
+        const stored = localStorage.getItem("manbazar-cart");
         if (stored) {
             try {
                 setCartItems(JSON.parse(stored));
@@ -40,7 +40,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
 
     // Save to local storage
     useEffect(() => {
-        localStorage.setItem("menbazar-cart", JSON.stringify(cartItems));
+        localStorage.setItem("manbazar-cart", JSON.stringify(cartItems));
     }, [cartItems]);
 
     const addToCart = (product: Product, quantity = 1, size?: string, color?: string) => {

@@ -11,7 +11,7 @@ export const seedUi = async () => {
 
         const defaultUi = {
             banner: {
-                logo: "MenBazar",
+                logo: "Manbazar",
                 title: "প্রিমিয়াম কোয়ালিটির টি-শার্ট কালেকশন",
                 bannerImage: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1600"
             },
@@ -80,8 +80,8 @@ export const seedUi = async () => {
                 shortDescription: "মেনবাজার - আপনার স্টাইল ও আরামের নির্ভরযোগ্য সঙ্গী। সেরা মানের পোশাক সরাসরি আপনাদের দোড়গোড়ায়।",
                 contactInfo: {
                     number: "01700-000000",
-                    email: "support@menbazar.com",
-                    website: "menbazar.com"
+                    email: "support@manbazar.com",
+                    website: "manbazar.com"
                 },
                 location: "ঢাকা, বাংলাদেশ",
                 copyright: "মেনবাজার কর্তৃক সর্বস্বত্ব সংরক্ষিত।"

@@ -28,8 +28,8 @@ const geistMono = Geist_Mono({
 
 /* Page metadata — shown in browser tab and search engines */
 export const metadata: Metadata = {
-  title: "Menbazar Admin — Dashboard",
-  description: "Admin panel for managing the Menbazar storefront, products, orders, and settings.",
+  title: "Manbazar Admin — Dashboard",
+  description: "Admin panel for managing the Manbazar storefront, products, orders, and settings.",
 };
 
 export default function RootLayout({
