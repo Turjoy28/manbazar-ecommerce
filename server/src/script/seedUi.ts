@@ -77,14 +77,14 @@ export const seedUi = async () => {
                 ]
             },
             footer: {
-                shortDescription: "মেনবাজার - আপনার স্টাইল ও আরামের নির্ভরযোগ্য সঙ্গী। সেরা মানের পোশাক সরাসরি আপনাদের দোড়গোড়ায়।",
+                shortDescription: "ম্যানবাজার - আপনার স্টাইল ও আরামের নির্ভরযোগ্য সঙ্গী। সেরা মানের পোশাক সরাসরি আপনাদের দোড়গোড়ায়।",
                 contactInfo: {
                     number: "01700-000000",
                     email: "support@manbazar.com",
                     website: "manbazar.com"
                 },
                 location: "ঢাকা, বাংলাদেশ",
-                copyright: "মেনবাজার কর্তৃক সর্বস্বত্ব সংরক্ষিত।"
+                copyright: "ম্যানবাজার কর্তৃক সর্বস্বত্ব সংরক্ষিত।"
             },
             theme: {
                 primaryColor: "#e07b39",
