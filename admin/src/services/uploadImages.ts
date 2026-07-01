@@ -17,7 +17,7 @@ const getApiBaseUrl = () => {
         process.env.NEXT_PUBLIC_BASE_URL;
     const baseUrl = configuredUrl && configuredUrl !== "undefined"
         ? configuredUrl
-        : "http://localhost:5000/api/v1";
+        : "http://localhost:5001/api/v1";
 
     return baseUrl
         .replace(/^https:\/\/localhost(?=[:/]|$)/, "http://localhost")

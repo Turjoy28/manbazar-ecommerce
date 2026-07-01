@@ -1,6 +1,6 @@
 import { secureFetch } from "../lib/secureFetch";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/api/v1";
 
 export interface AdminMeResponse {
     success: boolean;
