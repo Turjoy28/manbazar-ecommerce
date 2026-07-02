@@ -1,7 +1,11 @@
 "use client";
 import Logo from "../shared/Logo";
+import { useContext } from "react";
+import { OrderContext } from "@/providers/OrderProvider";
 
 export default function HeroSection({ banner }: { banner: any }) {
+  const { cartItems } = useContext(OrderContext);
+  const targetHref = cartItems && cartItems.length > 0 ? "#billing" : "#products";
   return (
     <section className="relative w-full min-h-105 md:min-h-130 overflow-hidden">
       {/* Background image */}
@@ -26,7 +30,7 @@ export default function HeroSection({ banner }: { banner: any }) {
 
         {/* CTA button */}
         <a
-          href="#billing"
+          href={targetHref}
           className="bg-primary text-(--primary-text) hover:bg-primary/90 font-semibold px-8 py-3 rounded-xl transition-colors duration-200 text-sm md:text-lg cursor-pointer"
         >
           অর্ডার করতে চাই

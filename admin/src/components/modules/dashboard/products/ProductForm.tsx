@@ -43,8 +43,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     /* ─── General Info State ─── */
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
-    const [price, setPrice] = useState<number>(0);
-    const [originalPrice, setOriginalPrice] = useState<number>(0);
+    const [price, setPrice] = useState<number | "">("");
+    const [originalPrice, setOriginalPrice] = useState<number | "">("");
     const [stock, setStock] = useState<number>(10);
     const [description, setDescription] = useState("");
     const [fabric, setFabric] = useState("");
@@ -80,8 +80,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         if (initialData) {
             setName(initialData.name || "");
             setSlug(initialData.slug || "");
-            setPrice(initialData.price || 0);
-            setOriginalPrice(initialData.originalPrice || 0);
+            setPrice(initialData.price ?? "");
+            setOriginalPrice(initialData.originalPrice ?? "");
             setStock(initialData.stock || 0);
             setDescription(initialData.description || "");
             setFabric(initialData.fabric || "");
@@ -176,7 +176,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             toast.error("Product slug is required.");
             return;
         }
-        if (price <= 0) {
+        if (price === "" || price <= 0) {
             toast.error("Price must be greater than 0.");
             return;
         }
@@ -195,8 +195,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         const payload: Omit<ProductData, "_id"> = {
             name: name.trim(),
             slug: slug.trim(),
-            price,
-            originalPrice: originalPrice || undefined,
+            price: price as number,
+            originalPrice: originalPrice !== "" ? originalPrice : undefined,
             stock,
             description: description.trim(),
             fabric: fabric.trim() || undefined,
@@ -473,7 +473,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                     id="price"
                                     type="number"
                                     value={price}
-                                    onChange={(e) => setPrice(Number(e.target.value))}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setPrice(val === "" ? "" : Number(val));
+                                    }}
                                     className="border-border bg-background/40 text-foreground font-semibold"
                                     required
                                 />
@@ -486,7 +489,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                     id="originalPrice"
                                     type="number"
                                     value={originalPrice}
-                                    onChange={(e) => setOriginalPrice(Number(e.target.value))}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setOriginalPrice(val === "" ? "" : Number(val));
+                                    }}
                                     className="border-border bg-background/40 text-foreground"
                                 />
                             </div>
