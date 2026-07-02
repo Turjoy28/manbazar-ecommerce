@@ -65,6 +65,12 @@ export interface IUI {
         buttonText: string;
     };
 
+    chatbot?: {
+        messenger?: string;
+        facebook?: string;
+        tiktok?: string;
+    };
+
     createdAt?: Date;
     updatedAt?: Date;
 }

@@ -36,15 +36,15 @@ function ProductCard({ product }: { product: Product }) {
       </Link>
       <div className="flex gap-2 items-center w-full p-2 pt-0">
         <a href="#billing" onClick={handleAddToCart} className="w-full">
-          <Button className="font-semibold bg-primary text-(--primary-text) text-xs md:text-sm transition-colors duration-200 rounded-lg cursor-pointer w-full py-4 h-auto">
-            অর্ডার করুন
+          <Button className="font-semibold bg-primary text-(--primary-text) text-xs md:text-sm transition-colors duration-200 rounded-sm cursor-pointer w-full py-4 h-auto">
+            এখনই অর্ডার করুন
           </Button>
         </a>
         <Button
           onClick={handleAddToCart}
           className="w-1/2 cursor-pointer font-bold py-4 h-auto bg-secondary text-(--secondary-text) hover:bg-secondary/80 rounded-lg"
         >
-          <ShoppingCart className="w-4 h-4" />
+          কার্টে যোগ করুন
         </Button>
       </div>
     </div>

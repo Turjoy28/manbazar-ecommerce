@@ -31,7 +31,7 @@ export default function HeroSection({ banner }: { banner: any }) {
         {/* CTA button */}
         <a
           href={targetHref}
-          className="bg-primary text-(--primary-text) hover:bg-primary/90 font-semibold px-8 py-3 rounded-xl transition-colors duration-200 text-sm md:text-lg cursor-pointer"
+          className="bg-primary text-(--primary-text) hover:bg-primary/90 font-semibold px-8 py-3 rounded-sm transition-colors duration-200 text-sm md:text-lg cursor-pointer"
         >
           অর্ডার করতে চাই
         </a>

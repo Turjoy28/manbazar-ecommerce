@@ -19,17 +19,31 @@ export interface SingleProductResponse {
 }
 
 export const getProducts = async (page = 1, limit = 50): Promise<ProductListResponse> => {
-    const res = await fetch(`${baseUrl}/products?page=${page}&limit=${limit}`, { cache: "no-store" });
+    const url = `${baseUrl}/products?page=${page}&limit=${limit}`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) {
-        throw new Error("Failed to fetch products");
+        throw new Error(`Failed to fetch products: ${res.status} ${res.statusText}`);
+    }
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+        const bodyText = await res.text();
+        console.error(`[getProducts] Non-JSON response received from ${url}. Content-Type: ${contentType}. Body preview: ${bodyText.substring(0, 300)}`);
+        throw new Error("Received non-JSON response from server");
     }
     return res.json();
 };
 
 export const getProductBySlug = async (slug: string): Promise<SingleProductResponse> => {
-    const res = await fetch(`${baseUrl}/products/slug/${slug}`, { cache: "no-store" });
+    const url = `${baseUrl}/products/slug/${slug}`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) {
-        throw new Error("Failed to fetch product");
+        throw new Error(`Failed to fetch product: ${res.status} ${res.statusText}`);
+    }
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+        const bodyText = await res.text();
+        console.error(`[getProductBySlug] Non-JSON response received from ${url}. Content-Type: ${contentType}. Body preview: ${bodyText.substring(0, 300)}`);
+        throw new Error("Received non-JSON response from server");
     }
     return res.json();
 };

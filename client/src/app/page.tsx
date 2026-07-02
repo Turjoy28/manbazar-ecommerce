@@ -122,13 +122,6 @@ export default async function Home() {
         <hr className="border-gray-100" />
       </div>
 
-      {/* 3. Size Chart — Tabular sizing guide */}
-      <SizeChartSection chart={chart} />
-
-      {/* Divider */}
-      <div className="max-w-5xl mx-auto px-4">
-        <hr className="border-gray-100" />
-      </div>
 
       {/* 4. Why Us — Specialty cards showcasing product benefits */}
       <WhyUsSection specialty={specialty} />

@@ -167,6 +167,20 @@ const uiSchema = new mongoose.Schema(
                 type: String,
                 default: "Order Now",
             }
+        },
+        chatbot: {
+            messenger: {
+                type: String,
+                default: "",
+            },
+            facebook: {
+                type: String,
+                default: "",
+            },
+            tiktok: {
+                type: String,
+                default: "",
+            }
         }
     },
     { timestamps: true }

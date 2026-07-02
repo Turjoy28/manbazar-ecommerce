@@ -87,8 +87,14 @@ function RefreshIcon() {
 
 
 // ── Image Gallery ─────────────────────────────────────────────────────────────
-function ImageGallery({ images, name }: { images: string[]; name: string }) {
+function ImageGallery({ images = [], name }: { images: string[]; name: string }) {
     const [activeIndex, setActiveIndex] = useState(0);
+
+    // Filter out invalid/empty/whitespace-only image URLs
+    const displayImages = images?.filter((img) => img && img.trim() !== "") || [];
+    if (displayImages.length === 0) {
+        displayImages.push("/placeholder.png");
+    }
 
     return (
       <div className="flex flex-col gap-3 w-full">
@@ -96,7 +102,7 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
         <div className="relative w-full aspect-4/5 rounded-xl overflow-hidden bg-gray-100 shadow-sm">
           <Image
             key={activeIndex}
-            src={images[activeIndex]}
+            src={displayImages[activeIndex] || displayImages[0] || "/placeholder.png"}
             alt={name}
             fill
             className="object-cover transition-opacity duration-300"
@@ -111,7 +117,7 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
 
         {/* Thumbnail row */}
         <div className="flex gap-2">
-          {images.map((img, idx) => (
+          {displayImages.map((img, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
@@ -245,7 +251,7 @@ export default function ProductDetails({
         <section className="max-w-6xl mx-auto px-4 pb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             {/* LEFT: Image Gallery */}
-            <ImageGallery images={product.images} name={product.name} />
+            <ImageGallery images={[product.thumbnail, ...(product.images || [])]} name={product.name} />
 
             {/* RIGHT: Product Details */}
             <div className="flex flex-col gap-5">
@@ -289,8 +295,16 @@ export default function ProductDetails({
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <p className="font-semibold text-gray-800">সাইজ বেছে নিন</p>
-                  <button
-                    onClick={() => setActiveTab("size")}
+                  <button 
+                    onClick={() => {
+                      setActiveTab("size");
+                      setTimeout(() => {
+                        document.getElementById("product-info-tabs")?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start"
+                        });
+                      }, 0);
+                    }}
                     className="text-sm text-primary hover:underline"
                   >
                     সাইজ গাইড →
@@ -392,7 +406,7 @@ export default function ProductDetails({
           </div>
 
           {/* ── Tabs: Description / Size Chart / Care ── */}
-          <div className="mt-12 border border-gray-200 rounded-xl overflow-hidden">
+          <div id="product-info-tabs" className="mt-12 border border-gray-200 rounded-xl overflow-hidden">
             {/* Tab headers */}
             <div className="flex border-b border-gray-200">
               {(["description", "size", "care"] as const).map((tab) => {

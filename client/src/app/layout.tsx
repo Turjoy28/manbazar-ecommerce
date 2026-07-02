@@ -3,6 +3,7 @@ import "./globals.css";
 import { OrderProvider } from "@/providers/OrderProvider";
 import { Toaster } from "sonner";
 import FloatingCartButton from "@/components/shared/FloatingCartButton";
+import FloatingChatbot from "@/components/shared/FloatingChatbot";
 import { getUiData } from "@/services/ui";
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default async function RootLayout({
         <OrderProvider>
           {children}
           <FloatingCartButton />
+          <FloatingChatbot chatbot={uiData?.data?.[0]?.chatbot} />
         </OrderProvider>
         <Toaster richColors />
       </body>

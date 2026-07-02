@@ -58,5 +58,12 @@ export async function secureFetch<R = unknown, B = unknown>(
         throw new Error(error || "Request failed");
     }
 
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+        const bodyText = await response.text();
+        console.error(`[secureFetch] Non-JSON response from ${url}. Content-Type: ${contentType}. Body preview: ${bodyText.substring(0, 300)}`);
+        throw new Error("Received non-JSON response from server");
+    }
+
     return response.json();
 }
