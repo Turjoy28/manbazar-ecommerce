@@ -19,33 +19,48 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="flex flex-col rounded-xl overflow-hidden shadow-sm border border-primary/20 hover:border-primary/80 transition-colors duration-200">
+    <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-150 hover:shadow-md transition-all duration-300 h-full">
       <Link
         href={`/product/${product.slug}`}
-        className="p-2 hover:p-1 hover:pb-0 transition-all"
+        className="p-3 pb-0 transition-all hover:opacity-95"
       >
-        <div className="relative w-full aspect-4/5 bg-gray-100 rounded-lg">
+        <div className="relative w-full aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden">
           <Image
             src={product.thumbnail || product.images?.[0] || "/placeholder.png"}
             alt={product.name}
             fill
-            className="object-cover rounded-lg border-2 border-primary"
+            className="object-cover rounded-xl"
             sizes="(max-width: 768px) 50vw, 33vw"
           />
         </div>
       </Link>
-      <div className="flex gap-2 items-center w-full p-2 pt-0">
-        <a href="#billing" onClick={handleAddToCart} className="w-full">
-          <Button className="font-semibold bg-primary text-(--primary-text) text-xs md:text-sm transition-colors duration-200 rounded-sm cursor-pointer w-full py-4 h-auto">
-            এখনই অর্ডার করুন
-          </Button>
-        </a>
+
+      {/* Product Name & Price */}
+      <div className="flex flex-col items-center px-3 py-2 mt-auto text-center">
+        <h3 className="text-xs md:text-sm font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem] flex items-center justify-center px-1">
+          {product.name}
+        </h3>
+        <div className="flex gap-2 items-center justify-center mt-1">
+          <span className="text-sm md:text-base font-bold text-gray-900">৳{product.price}</span>
+          {product.originalPrice && product.originalPrice > product.price && (
+            <span className="text-xs text-red-500 line-through">৳{product.originalPrice}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 items-center w-full p-3 pt-2 mt-auto">
         <Button
           onClick={handleAddToCart}
-          className="w-1/2 cursor-pointer font-bold py-4 h-auto bg-secondary text-(--secondary-text) hover:bg-secondary/80 rounded-lg"
+          className="w-1/2 cursor-pointer font-bold h-11 bg-secondary text-(--secondary-text) hover:bg-secondary/80 text-[10px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-normal"
         >
           কার্টে যোগ করুন
         </Button>
+        <a href="#billing" onClick={handleAddToCart} className="w-1/2">
+          <Button className="font-bold bg-primary text-(--primary-text) text-[10px] sm:text-xs md:text-sm transition-colors duration-200 cursor-pointer w-full h-11 text-center justify-center items-center flex rounded-none whitespace-normal hover:bg-primary/90">
+            এখনই অর্ডার করুন
+          </Button>
+        </a>
       </div>
     </div>
   );
@@ -58,7 +73,7 @@ export default function ProductSection({ productsCaption, products }: { products
   const displayedProducts = showAll ? products : products?.slice(0, 8);
 
   return (
-    <section id="products" className="py-10 px-4 max-w-5xl mx-auto">
+    <section id="products" className="py-10 px-4 md:px-6 max-w-7xl mx-auto">
       {/* Section title */}
       <div className="flex flex-col items-center mb-8">
         <div className="border border-gray-300 rounded-xl px-6 py-3 text-sm md:text-4xl font-bold mb-1">
