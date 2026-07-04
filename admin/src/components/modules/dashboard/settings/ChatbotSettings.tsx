@@ -12,6 +12,7 @@ interface ChatbotSettingsProps {
         messenger?: string;
         facebook?: string;
         tiktok?: string;
+        whatsapp?: string;
     };
     id: string;
 }
@@ -20,6 +21,7 @@ export default function ChatbotSettings({ chatbot, id }: ChatbotSettingsProps) {
     const [messenger, setMessenger] = useState(chatbot?.messenger || "");
     const [facebook, setFacebook]   = useState(chatbot?.facebook || "");
     const [tiktok, setTiktok]       = useState(chatbot?.tiktok || "");
+    const [whatsapp, setWhatsapp]   = useState(chatbot?.whatsapp || "");
     const [isUpdating, setIsUpdating] = useState(false);
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -31,6 +33,7 @@ export default function ChatbotSettings({ chatbot, id }: ChatbotSettingsProps) {
                 "chatbot.messenger": messenger.trim(),
                 "chatbot.facebook": facebook.trim(),
                 "chatbot.tiktok": tiktok.trim(),
+                "chatbot.whatsapp": whatsapp.trim(),
             });
             toast.success("Chatbot & social links updated successfully!", { id: toastId });
         } catch (error) {
@@ -62,6 +65,18 @@ export default function ChatbotSettings({ chatbot, id }: ChatbotSettingsProps) {
                             placeholder="https://m.me/your_page"
                         />
                         <p className="text-[11px] text-muted-foreground">Direct link to open Messenger (e.g., `https://m.me/page_username` or `https://messenger.com/t/page_id`).</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label htmlFor="whatsapp" className="text-sm font-semibold">WhatsApp URL</Label>
+                        <Input
+                            id="whatsapp"
+                            value={whatsapp}
+                            onChange={(e) => setWhatsapp(e.target.value)}
+                            className="bg-background/40 text-foreground"
+                            placeholder="https://wa.me/8801700000000"
+                        />
+                        <p className="text-[11px] text-muted-foreground">Direct link to chat on WhatsApp (e.g., `https://wa.me/phone_number` or `https://api.whatsapp.com/send?phone=...`).</p>
                     </div>
 
                     <div className="space-y-1.5">

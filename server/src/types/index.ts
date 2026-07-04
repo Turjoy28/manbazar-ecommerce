@@ -3,6 +3,7 @@ export interface IUI {
         logo: string;
         title: string;
         bannerImage: string;
+        navbarText?: string;
     };
 
     productsCaption: {
@@ -69,6 +70,7 @@ export interface IUI {
         messenger?: string;
         facebook?: string;
         tiktok?: string;
+        whatsapp?: string;
     };
 
     createdAt?: Date;

@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import FloatingCartButton from "@/components/shared/FloatingCartButton";
 import FloatingChatbot from "@/components/shared/FloatingChatbot";
 import { getUiData } from "@/services/ui";
+import Navbar from "@/components/shared/Navbar";
 
 export const metadata: Metadata = {
   title: "Fashion T-Shirts | ব্র্যান্ডেড শার্ট",
@@ -18,6 +19,12 @@ export default async function RootLayout({
 }) {
 
   const uiData = await getUiData();
+  const banner = uiData?.data?.[0]?.banner || {
+    logo: "Manbazar",
+    title: "প্রিমিয়াম কোয়ালিটির টি-শার্ট কালেকশন",
+    bannerImage: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1600",
+    navbarText: "প্রিমিয়াম শপিং এক্সপেরিয়েন্স - ম্যানবাজার"
+  };
 
   const theme = uiData?.data?.[0]?.theme;
 
@@ -48,6 +55,7 @@ export default async function RootLayout({
           }}
         />
         <OrderProvider>
+          <Navbar banner={banner} />
           {children}
           <FloatingCartButton />
           <FloatingChatbot chatbot={uiData?.data?.[0]?.chatbot} />

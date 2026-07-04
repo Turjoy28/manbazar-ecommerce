@@ -103,7 +103,7 @@ export default async function Home() {
     getProducts(1, 100).catch(() => ({ data: { products: [] } })),
   ]);
   const uiRecord = uiData?.data?.[0] || DEFAULT_UI_DATA;
-  const { banner, chart, productsCaption, specialty, footer, theme, cta } = uiRecord;
+  const { banner, chart, productsCaption, specialty, footer, theme, cta, chatbot } = uiRecord;
 
   const products = productsData?.data?.products || [];
 
@@ -138,7 +138,7 @@ export default async function Home() {
       <BillingSection />
 
       {/* 7. Footer — Contact info, copyright, and links */}
-      <Footer logo={banner?.logo} footerInfo={footer} />
+      <Footer logo={banner?.logo} footerInfo={footer} chatbot={chatbot} />
     </main>
   );
 }

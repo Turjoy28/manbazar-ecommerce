@@ -14,6 +14,10 @@ const uiSchema = new mongoose.Schema(
             bannerImage: {
                 type: String,
                 required: true,
+            },
+            navbarText: {
+                type: String,
+                default: "",
             }
         },
         productsCaption: {
@@ -178,6 +182,10 @@ const uiSchema = new mongoose.Schema(
                 default: "",
             },
             tiktok: {
+                type: String,
+                default: "",
+            },
+            whatsapp: {
                 type: String,
                 default: "",
             }

@@ -19,7 +19,7 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-150 hover:shadow-md transition-all duration-300 h-full">
+    <div className="flex flex-col bg-white overflow-hidden shadow-sm border border-gray-150 hover:shadow-md transition-all duration-300 h-full">
       <Link
         href={`/product/${product.slug}`}
         className="p-3 pb-0 transition-all hover:opacity-95"

@@ -15,12 +15,14 @@ interface BannerProps {
     currentBanner: string;
     title: string;
     id: string;
+    currentNavbarText?: string;
 }
 
 export default function Banner({
     currentBanner,
     title,
     id,
+    currentNavbarText = "",
 }: BannerProps) {
 
     const [banner, setBanner] =
@@ -29,12 +31,16 @@ export default function Banner({
     const [bannerTitle, setBannerTitle] =
         useState(title);
 
+    const [navbarText, setNavbarText] =
+        useState(currentNavbarText);
+
     const [loading, setLoading] =
         useState(false);
 
     const isChanged =
         banner !== currentBanner ||
-        bannerTitle !== title;
+        bannerTitle !== title ||
+        navbarText !== currentNavbarText;
 
     const handleUpdate = async () => {
         try {
@@ -45,6 +51,7 @@ export default function Banner({
                 {
                     "banner.bannerImage": banner,
                     "banner.title": bannerTitle,
+                    "banner.navbarText": navbarText,
                 }
             );
 
@@ -65,17 +72,34 @@ export default function Banner({
             <h4 className="text-2xl">
                 Update Banner
             </h4>
-            <Label>Banner Title</Label>
-            <Input
-                value={bannerTitle}
-                onChange={(e) =>
-                    setBannerTitle(
-                        e.target.value
-                    )
-                }
-                placeholder="Banner title"
-                className="w-full h-14"
-            />
+            
+            <div className="space-y-2">
+                <Label>Banner Title</Label>
+                <Input
+                    value={bannerTitle}
+                    onChange={(e) =>
+                        setBannerTitle(
+                            e.target.value
+                        )
+                    }
+                    placeholder="Banner title"
+                    className="w-full h-14"
+                />
+            </div>
+
+            <div className="space-y-2">
+                <Label>Navbar Notice Text</Label>
+                <Input
+                    value={navbarText}
+                    onChange={(e) =>
+                        setNavbarText(
+                            e.target.value
+                        )
+                    }
+                    placeholder="E.g., Free delivery on all orders!"
+                    className="w-full h-14"
+                />
+            </div>
 
             <ImageUpload
                 title="Banner Image"

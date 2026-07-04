@@ -13,7 +13,8 @@ export const seedUi = async () => {
             banner: {
                 logo: "Manbazar",
                 title: "প্রিমিয়াম কোয়ালিটির টি-শার্ট কালেকশন",
-                bannerImage: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1600"
+                bannerImage: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1600",
+                navbarText: "প্রিমিয়াম শপিং এক্সপেরিয়েন্স - ম্যানবাজার"
             },
             productsCaption: {
                 title: "আমাদের হট সেলিং প্রোডাক্টস"
@@ -95,6 +96,12 @@ export const seedUi = async () => {
                 title: "আপনার পছন্দের টি-শার্ট এখনই অর্ডার করুন",
                 subtitle: "সেরা কোয়ালিটি, মূল্য সীমা এবং আকর্ষণীয় প্যাক আজকেই সুরক্ষিত করুন।",
                 buttonText: "অর্ডার করতে চাই"
+            },
+            chatbot: {
+                messenger: "",
+                facebook: "",
+                tiktok: "",
+                whatsapp: ""
             }
         };
 

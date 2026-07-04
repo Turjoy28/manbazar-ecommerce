@@ -16,7 +16,7 @@ export default function HeroSection({ banner }: { banner: any }) {
         }}
       />
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 bg-black/20" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center pt-14 h-full min-h-105 md:min-h-130 px-4 text-center">
@@ -24,7 +24,7 @@ export default function HeroSection({ banner }: { banner: any }) {
         <Logo logo={banner.logo} />
 
         {/* Hero title */}
-        <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold leading-snug max-w-5xl mb-8 font-sans">
+        <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold leading-snug max-w-5xl mb-8 font-sans drop-shadow-sm">
           {banner.title}
         </h1>
 
