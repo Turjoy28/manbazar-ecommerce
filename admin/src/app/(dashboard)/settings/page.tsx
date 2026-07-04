@@ -30,6 +30,7 @@ export default async function SettingsPage() {
         title={uiData?.data?.[0].banner.title}
         id={uiData?.data?.[0]._id}
         currentNavbarText={uiData?.data?.[0].banner.navbarText}
+        currentMarqueeText={uiData?.data?.[0].banner.marqueeText}
       />
       <ProductCaption
         caption={uiData?.data?.[0].productsCaption}

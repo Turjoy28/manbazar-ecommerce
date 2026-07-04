@@ -4,6 +4,7 @@ export interface IUI {
         title: string;
         bannerImage: string;
         navbarText?: string;
+        marqueeText?: string;
     };
 
     productsCaption: {

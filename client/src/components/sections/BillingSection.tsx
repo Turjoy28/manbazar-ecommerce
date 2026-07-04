@@ -260,7 +260,17 @@ export default function BillingSection() {
 
   const handleRemoveItem = (item: CartItem) =>
     removeFromCart(item.product._id, item.size, item.color);
-  const deliveryCharge = billing.location === "dhaka" ? 80 : 150;
+  // Calculate dynamic delivery charge based on the highest delivery charge of items in the cart
+  const deliveryCharge = cartItems.length === 0 ? 0 : Math.max(
+    ...cartItems.map((item) => {
+      const charges = item.product?.deliveryCharge || [];
+      const isDhaka = billing.location === "dhaka";
+      const match = charges.find((d) =>
+        d.text.toLowerCase().includes(isDhaka ? "inside" : "outside")
+      );
+      return match ? match.price : (isDhaka ? 80 : 150);
+    })
+  );
 
   const totalAmount = cartItems.reduce(
     (sum, item) => sum + item?.product?.price * item.quantity,
@@ -395,12 +405,12 @@ export default function BillingSection() {
                   <div className="flex gap-4">
                     <div className="flex items-center gap-2">
                       <RadioGroupItem value="dhaka" id="dhaka" />
-                      <Label htmlFor="dhaka">Inside Dhaka</Label>
+                      <Label htmlFor="dhaka">ঢাকার ভিতরে</Label>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <RadioGroupItem value="outside" id="outside" />
-                      <Label htmlFor="outside">Outside Dhaka</Label>
+                      <Label htmlFor="outside">ঢাকার বাইরে</Label>
                     </div>
                   </div>
                 </RadioGroup>

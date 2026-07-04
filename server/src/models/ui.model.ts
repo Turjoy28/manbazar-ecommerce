@@ -18,6 +18,10 @@ const uiSchema = new mongoose.Schema(
             navbarText: {
                 type: String,
                 default: "",
+            },
+            marqueeText: {
+                type: String,
+                default: "",
             }
         },
         productsCaption: {

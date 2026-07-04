@@ -16,6 +16,7 @@ interface BannerProps {
     title: string;
     id: string;
     currentNavbarText?: string;
+    currentMarqueeText?: string;
 }
 
 export default function Banner({
@@ -23,6 +24,7 @@ export default function Banner({
     title,
     id,
     currentNavbarText = "",
+    currentMarqueeText = "",
 }: BannerProps) {
 
     const [banner, setBanner] =
@@ -34,24 +36,29 @@ export default function Banner({
     const [navbarText, setNavbarText] =
         useState(currentNavbarText);
 
+    const [marqueeText, setMarqueeText] =
+        useState(currentMarqueeText);
+
     const [loading, setLoading] =
         useState(false);
 
     const isChanged =
         banner !== currentBanner ||
         bannerTitle !== title ||
-        navbarText !== currentNavbarText;
+        navbarText !== currentNavbarText ||
+        marqueeText !== currentMarqueeText;
 
     const handleUpdate = async () => {
         try {
             setLoading(true);
-
+ 
             await updateUiData(
                 id,
                 {
                     "banner.bannerImage": banner,
                     "banner.title": bannerTitle,
                     "banner.navbarText": navbarText,
+                    "banner.marqueeText": marqueeText,
                 }
             );
 
@@ -97,6 +104,20 @@ export default function Banner({
                         )
                     }
                     placeholder="E.g., Free delivery on all orders!"
+                    className="w-full h-14"
+                />
+            </div>
+
+            <div className="space-y-2">
+                <Label>Navbar Sliding Marquee Text</Label>
+                <Input
+                    value={marqueeText}
+                    onChange={(e) =>
+                        setMarqueeText(
+                            e.target.value
+                        )
+                    }
+                    placeholder="E.g., Welcome to Menbazar! Special offers inside..."
                     className="w-full h-14"
                 />
             </div>

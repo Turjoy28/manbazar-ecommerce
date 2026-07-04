@@ -14,7 +14,8 @@ export const seedUi = async () => {
                 logo: "Manbazar",
                 title: "প্রিমিয়াম কোয়ালিটির টি-শার্ট কালেকশন",
                 bannerImage: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1600",
-                navbarText: "প্রিমিয়াম শপিং এক্সপেরিয়েন্স - ম্যানবাজার"
+                navbarText: "প্রিমিয়াম শপিং এক্সপেরিয়েন্স - ম্যানবাজার",
+                marqueeText: "ম্যানবাজারে আপনাকে স্বাগতম! প্রিমিয়াম কোয়ালিটির টি-শার্ট কালেকশন দেখতে নিচে স্ক্রোল করুন।"
             },
             productsCaption: {
                 title: "আমাদের হট সেলিং প্রোডাক্টস"
