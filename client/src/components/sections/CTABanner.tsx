@@ -35,7 +35,7 @@ export default function CTABanner({ cta }: { cta?: CTAData }) {
       {/* Right side — CTA button that scrolls to the billing section */}
       <a
         href="#products"
-        className="bg-primary text-(--primary-text) hover:bg-primary/90 font-semibold px-8 py-3 rounded-lg transition-colors duration-200 whitespace-nowrap shrink-0"
+        className="bg-primary text-(--primary-text) hover:bg-primary/90 font-semibold px-8 py-3 rounded-lg transition-all duration-200 whitespace-nowrap shrink-0 animate-cta-bounce"
       >
         {/* Use admin-configured button text, or fallback */}
         {cta?.buttonText || "অর্ডার করতে চাই"}

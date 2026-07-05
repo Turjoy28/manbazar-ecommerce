@@ -268,7 +268,7 @@ export default function BillingSection() {
       const match = charges.find((d) =>
         d.text.toLowerCase().includes(isDhaka ? "inside" : "outside")
       );
-      return match ? match.price : (isDhaka ? 80 : 150);
+      return match ? match.price : (isDhaka ? 50 : 150);
     })
   );
 
@@ -540,7 +540,7 @@ export default function BillingSection() {
             {/* Place order button */}
             <button
               onClick={handlePlaceOrder}
-              className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg text-base transition-colors duration-200 flex items-center justify-center gap-2"
+              className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg text-base transition-all duration-200 flex items-center justify-center gap-2 animate-cta-bounce"
             >
               🔒 Place Order — ৳ {grandTotal.toFixed(2)}
             </button>

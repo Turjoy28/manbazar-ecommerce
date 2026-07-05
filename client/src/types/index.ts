@@ -21,6 +21,7 @@ export interface Product {
   deliveryCharge: DeliveryChargeItem[];
   stock: number;
   isActive: boolean;
+  category?: string;
 }
 
 export interface CartItem {

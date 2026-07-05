@@ -102,7 +102,9 @@ export const seedUi = async () => {
                 messenger: "",
                 facebook: "",
                 tiktok: "",
-                whatsapp: ""
+                whatsapp: "",
+                youtube: "",
+                instagram: ""
             }
         };
 

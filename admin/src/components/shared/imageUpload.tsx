@@ -199,7 +199,7 @@ export default function ImageUpload({
                                     </p>
 
                                     <p className="text-sm text-muted-foreground">
-                                        PNG, JPG, WEBP
+                                        PNG, JPG, WEBP, MP4, WEBM
                                     </p>
 
                                     {/* Show counter only in multiple mode */}
@@ -221,13 +221,27 @@ export default function ImageUpload({
                                     {/* Image preview */}
                                     <div className="relative h-48 flex items-center justify-center bg-muted/30">
                                         {image && (image.startsWith("/") || image.startsWith("http://") || image.startsWith("https://")) ? (
-                                            <Image
-                                                src={image}
-                                                alt={`image-${index}`}
-                                                fill
-                                                className="object-cover"
-                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                            />
+                                            (() => {
+                                                const isVideo = image.includes("/video/upload/") || image.endsWith(".mp4") || image.endsWith(".webm") || image.endsWith(".mov") || image.endsWith(".avi");
+                                                if (isVideo) {
+                                                    return (
+                                                        <video
+                                                            src={image}
+                                                            controls
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    );
+                                                }
+                                                return (
+                                                    <Image
+                                                        src={image}
+                                                        alt={`image-${index}`}
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                    />
+                                                );
+                                            })()
                                         ) : (
                                             <div className="flex flex-col items-center gap-2 text-muted-foreground p-4 text-center">
                                                 <ImageIcon className="h-8 w-8 text-muted-foreground/60" />
@@ -269,7 +283,7 @@ export default function ImageUpload({
                         ref={inputRef}
                         hidden
                         type="file"
-                        accept="image/*"
+                        accept="image/*,video/*"
                         multiple={multiple && replaceIndex === null}
                         onChange={handleSelect}
                     />

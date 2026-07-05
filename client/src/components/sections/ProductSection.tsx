@@ -56,8 +56,8 @@ function ProductCard({ product }: { product: Product }) {
         >
           কার্টে যোগ করুন
         </Button>
-        <a href="#billing" onClick={handleAddToCart} className="w-1/2">
-          <Button className="font-bold bg-primary text-(--primary-text) text-[10px] sm:text-xs md:text-sm transition-colors duration-200 cursor-pointer w-full h-11 text-center justify-center items-center flex rounded-none whitespace-normal hover:bg-primary/90">
+        <a href="/#billing" onClick={handleAddToCart} className="w-1/2">
+          <Button className="font-bold bg-primary text-(--primary-text) text-[10px] sm:text-xs md:text-sm transition-all duration-200 cursor-pointer w-full h-11 text-center justify-center items-center flex rounded-none whitespace-normal hover:bg-primary/90 animate-cta-bounce">
             এখনই অর্ডার করুন
           </Button>
         </a>
@@ -66,11 +66,22 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
-export default function ProductSection({ productsCaption, products }: { productsCaption: string, products: Product[] }) {
+export default function ProductSection({
+  productsCaption,
+  products,
+  isCategorySection = false,
+}: {
+  productsCaption: string;
+  products: Product[];
+  isCategorySection?: boolean;
+}) {
   const [showAll, setShowAll] = useState(false);
 
-  // Show first 8 products (4 columns * 2 rows) if showAll is false
-  const displayedProducts = showAll ? products : products?.slice(0, 8);
+  // For category section, always slice to 8 (and use the link to 'See All' page).
+  // Otherwise, use state-based toggle.
+  const displayedProducts = isCategorySection 
+    ? products?.slice(0, 8) 
+    : (showAll ? products : products?.slice(0, 8));
 
   return (
     <section id="products" className="py-10 px-4 md:px-6 max-w-7xl mx-auto">
@@ -93,15 +104,26 @@ export default function ProductSection({ productsCaption, products }: { products
       </div>
 
       {/* See All Button */}
-      {products && products.length > 8 && (
+      {(isCategorySection || (products && products.length > 8)) && (
         <div className="flex justify-center mt-10">
-          <Button
-            onClick={() => setShowAll(!showAll)}
-            variant="outline"
-            className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-xl transition-all duration-300 font-semibold cursor-pointer shadow-xs"
-          >
-            {showAll ? "Show Less" : "See All"}
-          </Button>
+          {isCategorySection ? (
+            <Link href={`/category/${encodeURIComponent(productsCaption)}`}>
+              <Button
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-xl transition-all duration-300 font-semibold cursor-pointer shadow-xs"
+              >
+                See All
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              onClick={() => setShowAll(!showAll)}
+              variant="outline"
+              className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-xl transition-all duration-300 font-semibold cursor-pointer shadow-xs"
+            >
+              {showAll ? "Show Less" : "See All"}
+            </Button>
+          )}
         </div>
       )}
     </section>

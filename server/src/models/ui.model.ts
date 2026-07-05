@@ -192,6 +192,14 @@ const uiSchema = new mongoose.Schema(
             whatsapp: {
                 type: String,
                 default: "",
+            },
+            youtube: {
+                type: String,
+                default: "",
+            },
+            instagram: {
+                type: String,
+                default: "",
             }
         }
     },

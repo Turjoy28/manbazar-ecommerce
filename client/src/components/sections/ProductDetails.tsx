@@ -86,6 +86,12 @@ function RefreshIcon() {
 
 
 
+// Helper to check if a URL points to a video
+const isVideoUrl = (url: string) => {
+    if (!url) return false;
+    return url.includes("/video/upload/") || url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov") || url.endsWith(".avi");
+};
+
 // ── Image Gallery ─────────────────────────────────────────────────────────────
 function ImageGallery({ images = [], name }: { images: string[]; name: string }) {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -98,25 +104,33 @@ function ImageGallery({ images = [], name }: { images: string[]; name: string })
 
     return (
       <div className="flex flex-col gap-3 w-full">
-        {/* Main large image */}
-        <div className="relative w-full aspect-4/5 rounded-xl overflow-hidden bg-gray-100 shadow-sm">
-          <Image
-            key={activeIndex}
-            src={displayImages[activeIndex] || displayImages[0] || "/placeholder.png"}
-            alt={name}
-            fill
-            className="object-cover transition-opacity duration-300"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            priority
-          />
+        {/* Main large media (Image or Video) */}
+        <div className="relative w-full aspect-4/5 rounded-xl overflow-hidden bg-gray-100 shadow-sm flex items-center justify-center">
+          {isVideoUrl(displayImages[activeIndex]) ? (
+            <video
+              src={displayImages[activeIndex]}
+              controls
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <Image
+              key={activeIndex}
+              src={displayImages[activeIndex] || "/placeholder.png"}
+              alt={name}
+              fill
+              className="object-cover transition-opacity duration-300"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
+            />
+          )}
           {/* Badge */}
-          <div className="absolute top-3 left-3 bg-primary text-(--primary-text) text-xs font-bold px-2 py-1 rounded">
+          <div className="absolute top-3 left-3 bg-primary text-(--primary-text) text-xs font-bold px-2 py-1 rounded z-10">
             SALE
           </div>
         </div>
 
         {/* Thumbnail row */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {displayImages.map((img, idx) => (
             <button
               key={idx}
@@ -127,13 +141,24 @@ function ImageGallery({ images = [], name }: { images: string[]; name: string })
                   : "border-gray-200 hover:border-gray-400"
               }`}
             >
-              <Image
-                src={img}
-                alt={`${name} view ${idx + 1}`}
-                fill
-                className="object-cover"
-                sizes="80px"
-              />
+              {isVideoUrl(img) ? (
+                <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center relative">
+                  <video src={img} className="w-full h-full object-cover opacity-80" muted />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+              ) : (
+                <Image
+                  src={img}
+                  alt={`${name} view ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                />
+              )}
             </button>
           ))}
         </div>
@@ -337,23 +362,30 @@ export default function ProductDetails({
                 <QuantitySelector value={quantity} onChange={setQuantity} />
               </div>
 
-              <div className="text-black/50 border border-primary/70 p-5 rounded-2xl text-sm">
-                <p className="flex gap-2 items-center">
-                  <Truck size={20} /> ঢাকার ভেতরে ডেলিভারি চার্জ:{" "}
-                  <span className="font-bold text-black">৳50</span> টাকা
-                </p>
-                <p className="flex gap-2 items-center">
-                  <Truck size={20} /> ঢাকার বাহিরে ডেলিভারি চার্জ:{" "}
-                  <span className="font-bold text-black">৳150</span> টাকা
-                </p>
-              </div>
+              {(() => {
+                const charges = product?.deliveryCharge || [];
+                const inside = charges.find((d) => d.text.toLowerCase().includes("inside"))?.price ?? 50;
+                const outside = charges.find((d) => d.text.toLowerCase().includes("outside"))?.price ?? 150;
+                return (
+                  <div className="text-black/50 border border-primary/70 p-5 rounded-2xl text-sm">
+                    <p className="flex gap-2 items-center">
+                      <Truck size={20} /> ঢাকার ভেতরে ডেলিভারি চার্জ:{" "}
+                      <span className="font-bold text-black">৳{inside}</span> টাকা
+                    </p>
+                    <p className="flex gap-2 items-center">
+                      <Truck size={20} /> ঢাকার বাহিরে ডেলিভারি চার্জ:{" "}
+                      <span className="font-bold text-black">৳{outside}</span> টাকা
+                    </p>
+                  </div>
+                );
+              })()}
 
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/#billing"
                   onClick={handleOrderNow}
-                  className="flex-1 py-4 rounded-xl font-bold text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-colors duration-200"
+                  className="flex-1 py-4 rounded-xl font-bold text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
                 >
                   🔒 এখনই অর্ডার করুন
                 </Link>

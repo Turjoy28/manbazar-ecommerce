@@ -72,6 +72,8 @@ export interface IUI {
         facebook?: string;
         tiktok?: string;
         whatsapp?: string;
+        youtube?: string;
+        instagram?: string;
     };
 
     createdAt?: Date;

@@ -7,6 +7,7 @@ const uploadSingle = async (file: Express.Multer.File) => {
 
     const result = await cloudinary.uploader.upload(dataUri, {
         folder: "landing_page",
+        resource_type: "auto",
     });
 
     return result.secure_url;

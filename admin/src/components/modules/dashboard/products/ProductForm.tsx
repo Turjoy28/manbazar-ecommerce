@@ -43,6 +43,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     /* ─── General Info State ─── */
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
+    const [category, setCategory] = useState("");
     const [price, setPrice] = useState<number | "">("");
     const [originalPrice, setOriginalPrice] = useState<number | "">("");
     const [stock, setStock] = useState<number>(10);
@@ -80,6 +81,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         if (initialData) {
             setName(initialData.name || "");
             setSlug(initialData.slug || "");
+            setCategory(initialData.category || "");
             setPrice(initialData.price ?? "");
             setOriginalPrice(initialData.originalPrice ?? "");
             setStock(initialData.stock || 0);
@@ -195,6 +197,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         const payload: Omit<ProductData, "_id"> = {
             name: name.trim(),
             slug: slug.trim(),
+            category: category.trim(),
             price: price as number,
             originalPrice: originalPrice !== "" ? originalPrice : undefined,
             stock,
@@ -302,6 +305,19 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                     className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary"
                                     required
                                 />
+                            </div>
+
+                            {/* Category input */}
+                            <div className="space-y-2">
+                                <Label htmlFor="category" className="text-foreground/80">Category</Label>
+                                <Input
+                                    id="category"
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    placeholder="e.g. T-Shirt, Shirt, Polo"
+                                    className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary"
+                                />
+                                <p className="text-[11px] text-muted-foreground">Assign this product to a category for dynamic sections in the storefront.</p>
                             </div>
 
                             {/* Full product description */}

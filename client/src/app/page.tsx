@@ -7,6 +7,7 @@ import BillingSection from "@/components/sections/BillingSection";
 import { getUiData } from "@/services/ui";
 import { getProducts } from "@/services/product";
 import Footer from "@/components/shared/Footert";
+import { Product } from "@/types";
 
 const DEFAULT_UI_DATA = {
   banner: {
@@ -105,22 +106,58 @@ export default async function Home() {
   const uiRecord = uiData?.data?.[0] || DEFAULT_UI_DATA;
   const { banner, chart, productsCaption, specialty, footer, theme, cta, chatbot } = uiRecord;
 
-  const products = productsData?.data?.products || [];
+  const products: Product[] = productsData?.data?.products || [];
+
+  // Group products by category dynamically (case-insensitive and space-trimmed)
+  const categoriesMap: Record<string, Product[]> = {};
+  products.forEach((product: Product) => {
+    const cat = (product.category || "").trim();
+    if (cat) {
+      // Find if we already have a key matching this case-insensitively
+      const existingKey = Object.keys(categoriesMap).find(
+        (key) => key.toLowerCase() === cat.toLowerCase()
+      );
+      const keyToUse = existingKey || cat; // Keep casing of the first item found
+      if (!categoriesMap[keyToUse]) {
+        categoriesMap[keyToUse] = [];
+      }
+      categoriesMap[keyToUse].push(product);
+    }
+  });
+
+  const categoryNames = Object.keys(categoriesMap).slice(0, 3);
 
   return (
     <main className="bg-white min-h-screen font-sans">
       <HeroSection banner={banner} />
 
-      {/* 2. Products — Dynamic grid of products from the database */}
-      <ProductSection
-        productsCaption={productsCaption?.title}
-        products={products}
-      />
-
-      {/* Divider */}
-      <div className="max-w-5xl mx-auto px-4">
-        <hr className="border-gray-100" />
-      </div>
+      {/* 2. Products — Dynamic categories or single grid fallback */}
+      {categoryNames.length > 0 ? (
+        categoryNames.map((categoryName) => (
+          <div key={categoryName} className="my-2">
+            <ProductSection
+              productsCaption={categoryName}
+              products={categoriesMap[categoryName]}
+              isCategorySection={true}
+            />
+            {/* Divider between sections */}
+            <div className="max-w-5xl mx-auto px-4 my-2">
+              <hr className="border-gray-100" />
+            </div>
+          </div>
+        ))
+      ) : (
+        <>
+          <ProductSection
+            productsCaption={productsCaption?.title || "আমাদের হট সেলিং প্রোডাক্টস"}
+            products={products}
+          />
+          {/* Divider */}
+          <div className="max-w-5xl mx-auto px-4">
+            <hr className="border-gray-100" />
+          </div>
+        </>
+      )}
 
 
       {/* 4. Why Us — Specialty cards showcasing product benefits */}

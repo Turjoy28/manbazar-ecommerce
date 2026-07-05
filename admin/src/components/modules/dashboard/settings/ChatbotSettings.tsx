@@ -13,6 +13,8 @@ interface ChatbotSettingsProps {
         facebook?: string;
         tiktok?: string;
         whatsapp?: string;
+        youtube?: string;
+        instagram?: string;
     };
     id: string;
 }
@@ -22,6 +24,8 @@ export default function ChatbotSettings({ chatbot, id }: ChatbotSettingsProps) {
     const [facebook, setFacebook]   = useState(chatbot?.facebook || "");
     const [tiktok, setTiktok]       = useState(chatbot?.tiktok || "");
     const [whatsapp, setWhatsapp]   = useState(chatbot?.whatsapp || "");
+    const [youtube, setYoutube]     = useState(chatbot?.youtube || "");
+    const [instagram, setInstagram] = useState(chatbot?.instagram || "");
     const [isUpdating, setIsUpdating] = useState(false);
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -34,6 +38,8 @@ export default function ChatbotSettings({ chatbot, id }: ChatbotSettingsProps) {
                 "chatbot.facebook": facebook.trim(),
                 "chatbot.tiktok": tiktok.trim(),
                 "chatbot.whatsapp": whatsapp.trim(),
+                "chatbot.youtube": youtube.trim(),
+                "chatbot.instagram": instagram.trim(),
             });
             toast.success("Chatbot & social links updated successfully!", { id: toastId });
         } catch (error) {
@@ -101,6 +107,30 @@ export default function ChatbotSettings({ chatbot, id }: ChatbotSettingsProps) {
                             placeholder="https://tiktok.com/@your_username"
                         />
                         <p className="text-[11px] text-muted-foreground">Link to your TikTok account profile.</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label htmlFor="youtube" className="text-sm font-semibold">YouTube Channel URL</Label>
+                        <Input
+                            id="youtube"
+                            value={youtube}
+                            onChange={(e) => setYoutube(e.target.value)}
+                            className="bg-background/40 text-foreground"
+                            placeholder="https://youtube.com/@your_channel"
+                        />
+                        <p className="text-[11px] text-muted-foreground">Link to your YouTube channel or profile.</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label htmlFor="instagram" className="text-sm font-semibold">Instagram Profile URL</Label>
+                        <Input
+                            id="instagram"
+                            value={instagram}
+                            onChange={(e) => setInstagram(e.target.value)}
+                            className="bg-background/40 text-foreground"
+                            placeholder="https://instagram.com/your_username"
+                        />
+                        <p className="text-[11px] text-muted-foreground">Link to your Instagram profile.</p>
                     </div>
                 </div>
 

@@ -25,6 +25,7 @@ export interface ProductData {
     deliveryCharge: DeliveryChargeItem[];
     stock: number;
     isActive: boolean;
+    category?: string;
     createdAt?: string;
     updatedAt?: string;
 }

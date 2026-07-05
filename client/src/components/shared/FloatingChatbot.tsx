@@ -9,6 +9,8 @@ interface FloatingChatbotProps {
         facebook?: string;
         tiktok?: string;
         whatsapp?: string;
+        youtube?: string;
+        instagram?: string;
     };
 }
 

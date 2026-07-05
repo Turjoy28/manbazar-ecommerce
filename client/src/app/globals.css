@@ -135,3 +135,17 @@
 .animate-bounce-slow {
   animation: bounce-slow 2s ease-in-out infinite;
 }
+
+/* Premium CTA Button Bounce/Pulse Animation */
+@keyframes cta-bounce {
+  0%, 100% {
+    transform: scale(0.97);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.animate-cta-bounce {
+  animation: cta-bounce 1.2s ease-in-out infinite;
+}
