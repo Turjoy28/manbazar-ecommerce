@@ -26,6 +26,8 @@ export interface ProductData {
     stock: number;
     isActive: boolean;
     category?: string;
+    /** Optional external video URL (YouTube, Instagram Reel, TikTok, etc.) */
+    videoUrl?: string;
     createdAt?: string;
     updatedAt?: string;
 }

@@ -22,6 +22,8 @@ export interface Product {
   stock: number;
   isActive: boolean;
   category?: string;
+  /** External video URL (YouTube, Instagram Reel, TikTok, etc.) */
+  videoUrl?: string;
 }
 
 export interface CartItem {

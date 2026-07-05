@@ -86,6 +86,31 @@ function RefreshIcon() {
 
 
 
+// ── URL → Embed URL Converter ────────────────────────────────────────────────
+/**
+ * Converts standard watch URLs into embeddable iframe src URLs.
+ * - YouTube: /watch?v=ID → /embed/ID
+ * - YouTube short: youtu.be/ID → /embed/ID
+ * - TikTok: /video/ID → /embed/v2/ID
+ * - Others: returned as-is (use Instagram's native embed URL)
+ */
+function toEmbedUrl(url: string): string {
+    try {
+        const u = new URL(url);
+        if (u.hostname.includes("youtube.com") && u.searchParams.get("v")) {
+            return `https://www.youtube.com/embed/${u.searchParams.get("v")}?rel=0&modestbranding=1`;
+        }
+        if (u.hostname === "youtu.be") {
+            return `https://www.youtube.com/embed${u.pathname}?rel=0&modestbranding=1`;
+        }
+        if (u.hostname.includes("tiktok.com")) {
+            const videoId = u.pathname.split("/video/")[1]?.split("?")[0];
+            if (videoId) return `https://www.tiktok.com/embed/v2/${videoId}`;
+        }
+    } catch { /* invalid URL — pass through */ }
+    return url;
+}
+
 // Helper to check if a URL points to a video
 const isVideoUrl = (url: string) => {
     if (!url) return false;
@@ -550,6 +575,37 @@ export default function ProductDetails({
             </div>
           </div>
         </section>
+
+        {/* ── Remote Video Section ── */}
+        {product.videoUrl && (
+          <section className="max-w-6xl mx-auto px-4 pb-16">
+            {/* Section header */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-primary">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Product Video</h2>
+                <p className="text-sm text-gray-500">Watch this product in action</p>
+              </div>
+            </div>
+
+            {/* Responsive 16:9 iframe wrapper */}
+            <div className="relative w-full rounded-2xl overflow-hidden shadow-lg bg-black" style={{ paddingBottom: "56.25%" }}>
+              <iframe
+                src={toEmbedUrl(product.videoUrl)}
+                title={`${product.name} product video`}
+                className="absolute inset-0 w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+              />
+            </div>
+          </section>
+        )}
+
       </main>
     );
 }

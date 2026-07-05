@@ -98,6 +98,12 @@ const productSchema = new mongoose.Schema(
             default: "",
             trim: true,
         },
+        /** Optional external video URL (YouTube, Instagram, TikTok, etc.) */
+        videoUrl: {
+            type: String,
+            default: "",
+            trim: true,
+        },
         isActive: {
             type: Boolean,
             default: true,

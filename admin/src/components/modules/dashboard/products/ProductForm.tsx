@@ -27,6 +27,36 @@ import { Plus, X, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+/* ─── URL → Embed URL Converter ─── */
+/**
+ * Converts a watch URL to the appropriate embed URL for iframes.
+ * YouTube: https://www.youtube.com/watch?v=ID → https://www.youtube.com/embed/ID
+ * YouTube short: https://youtu.be/ID           → https://www.youtube.com/embed/ID
+ * TikTok: https://www.tiktok.com/@x/video/ID  → https://www.tiktok.com/embed/v2/ID
+ * Others: returned as-is (Instagram, etc. use their own embed URLs)
+ */
+function toEmbedUrl(url: string): string {
+    try {
+        const u = new URL(url);
+        // YouTube full  
+        if (u.hostname.includes("youtube.com") && u.searchParams.get("v")) {
+            return `https://www.youtube.com/embed/${u.searchParams.get("v")}`;
+        }
+        // YouTube short  
+        if (u.hostname === "youtu.be") {
+            return `https://www.youtube.com/embed${u.pathname}`;
+        }
+        // TikTok  
+        if (u.hostname.includes("tiktok.com")) {
+            const videoId = u.pathname.split("/video/")[1]?.split("?")[0];
+            if (videoId) return `https://www.tiktok.com/embed/v2/${videoId}`;
+        }
+    } catch {
+        // not a valid URL — return as-is
+    }
+    return url;
+}
+
 /* ─── Props ─── */
 interface ProductFormProps {
     /** Pre-existing product data (for edit mode). Null/undefined for create mode. */
@@ -44,6 +74,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
     const [category, setCategory] = useState("");
+    const [videoUrl, setVideoUrl] = useState("");
     const [price, setPrice] = useState<number | "">("");
     const [originalPrice, setOriginalPrice] = useState<number | "">("");
     const [stock, setStock] = useState<number>(10);
@@ -82,6 +113,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             setName(initialData.name || "");
             setSlug(initialData.slug || "");
             setCategory(initialData.category || "");
+            setVideoUrl(initialData.videoUrl || "");
             setPrice(initialData.price ?? "");
             setOriginalPrice(initialData.originalPrice ?? "");
             setStock(initialData.stock || 0);
@@ -198,6 +230,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             name: name.trim(),
             slug: slug.trim(),
             category: category.trim(),
+            videoUrl: videoUrl.trim() || undefined,
             price: price as number,
             originalPrice: originalPrice !== "" ? originalPrice : undefined,
             stock,
@@ -318,6 +351,37 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                     className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary"
                                 />
                                 <p className="text-[11px] text-muted-foreground">Assign this product to a category for dynamic sections in the storefront.</p>
+                            </div>
+
+                            {/* Product Video URL */}
+                            <div className="space-y-2">
+                                <Label htmlFor="videoUrl" className="text-foreground/80">
+                                    Product Video URL
+                                    <span className="ml-2 text-[10px] font-normal text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Optional</span>
+                                </Label>
+                                <Input
+                                    id="videoUrl"
+                                    type="url"
+                                    value={videoUrl}
+                                    onChange={(e) => setVideoUrl(e.target.value)}
+                                    placeholder="https://www.youtube.com/watch?v=... or https://www.instagram.com/reel/..."
+                                    className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary"
+                                />
+                                <p className="text-[11px] text-muted-foreground">
+                                    Paste a YouTube, Instagram Reel, or TikTok URL. The video will be embedded on the product page — no file upload needed.
+                                </p>
+                                {/* Live embed preview */}
+                                {videoUrl.trim() && (
+                                    <div className="mt-2 rounded-lg overflow-hidden border border-border aspect-video bg-black/10">
+                                        <iframe
+                                            src={toEmbedUrl(videoUrl.trim())}
+                                            className="w-full h-full"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                            title="Video Preview"
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Full product description */}
