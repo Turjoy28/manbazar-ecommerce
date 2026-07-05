@@ -36,13 +36,25 @@ export default async function CategoryPage({ params }: PageProps) {
   ]);
 
   const uiRecord = uiData?.data?.[0] || DEFAULT_UI_DATA;
-  const { banner, footer, chatbot } = uiRecord;
+  const { banner, footer, chatbot, categoryLabels } = uiRecord;
+
+  let displayTitle = categoryName;
+  if (categoryName === "TOP" && categoryLabels?.topCategoryLabel) displayTitle = categoryLabels.topCategoryLabel;
+  if (categoryName === "MIDDLE" && categoryLabels?.middleCategoryLabel) displayTitle = categoryLabels.middleCategoryLabel;
+  if (categoryName === "BOTTOM" && categoryLabels?.bottomCategoryLabel) displayTitle = categoryLabels.bottomCategoryLabel;
 
   const allProducts: Product[] = productsData?.data?.products || [];
 
-  // Filter products by category (case-insensitive trim match)
+  // Filter products by categoryAssignment (or fallback to old category)
   const filteredProducts = allProducts.filter(
-    (p: Product) => (p.category || "").trim().toLowerCase() === categoryName.toLowerCase()
+    (p: Product) => {
+       if (["TOP", "MIDDLE", "BOTTOM"].includes(categoryName)) {
+           if (categoryName === "TOP" && !p.categoryAssignment) return true;
+           return p.categoryAssignment === categoryName;
+       }
+       // Fallback for old free-text categories
+       return (p.category || "").trim().toLowerCase() === categoryName.toLowerCase();
+    }
   );
 
   return (
@@ -60,7 +72,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
       {/* Category products grid */}
       <ProductSection
-        productsCaption={categoryName}
+        productsCaption={displayTitle}
         products={filteredProducts}
         isCategorySection={false}
       />

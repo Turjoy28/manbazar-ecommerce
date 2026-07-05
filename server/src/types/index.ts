@@ -76,6 +76,12 @@ export interface IUI {
         instagram?: string;
     };
 
+    categoryLabels: {
+        topCategoryLabel: string;
+        middleCategoryLabel: string;
+        bottomCategoryLabel: string;
+    };
+
     createdAt?: Date;
     updatedAt?: Date;
 }

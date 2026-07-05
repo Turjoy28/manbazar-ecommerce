@@ -7,6 +7,7 @@ import WhyWe from "@/components/modules/dashboard/settings/WhyWe";
 import CTASection from "@/components/modules/dashboard/settings/CTASection";
 import ThemeColors from "@/components/modules/dashboard/settings/ThemeColors";
 import ChatbotSettings from "@/components/modules/dashboard/settings/ChatbotSettings";
+import CategoryLabels from "@/components/modules/dashboard/settings/CategoryLabels";
 import { getUiData } from "@/services/ui";
 import React from "react";
 
@@ -42,7 +43,10 @@ export default async function SettingsPage() {
         specialty={uiData?.data?.[0].specialty}
       />
       <CTASection id={uiData?.data?.[0]._id} cta={uiData?.data?.[0].cta} />
-       <ThemeColors id={uiData?.data?.[0]._id} theme={uiData?.data?.[0].theme} />
+       <ThemeColors theme={uiData?.data?.[0].theme} id={uiData?.data?.[0]._id} />
+
+      <CategoryLabels labels={uiData?.data?.[0].categoryLabels} id={uiData?.data?.[0]._id} />
+
       <ChatbotSettings id={uiData?.data?.[0]._id} chatbot={uiData?.data?.[0].chatbot} />
       <Footer id={uiData?.data?.[0]._id} footer={uiData?.data?.[0].footer} />
     </div>

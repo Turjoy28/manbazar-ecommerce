@@ -201,6 +201,20 @@ const uiSchema = new mongoose.Schema(
                 type: String,
                 default: "",
             }
+        },
+        categoryLabels: {
+            topCategoryLabel: {
+                type: String,
+                default: "Trending Now",
+            },
+            middleCategoryLabel: {
+                type: String,
+                default: "Seasonal Essentials",
+            },
+            bottomCategoryLabel: {
+                type: String,
+                default: "Clearance & Steals",
+            }
         }
     },
     { timestamps: true }

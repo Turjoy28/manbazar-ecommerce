@@ -22,6 +22,7 @@ export interface Product {
   stock: number;
   isActive: boolean;
   category?: string;
+  categoryAssignment?: "TOP" | "MIDDLE" | "BOTTOM";
   /** External video URL (YouTube, Instagram Reel, TikTok, etc.) */
   videoUrl?: string;
 }
@@ -47,4 +48,5 @@ export interface Feature {
   title: string;
   description: string;
   number: string;
+}
 }

@@ -93,10 +93,10 @@ const productSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
-        category: {
+        categoryAssignment: {
             type: String,
-            default: "",
-            trim: true,
+            enum: ['TOP', 'MIDDLE', 'BOTTOM'],
+            default: "TOP",
         },
         /** Optional external video URL (YouTube, Instagram, TikTok, etc.) */
         videoUrl: {

@@ -70,10 +70,12 @@ export default function ProductSection({
   productsCaption,
   products,
   isCategorySection = false,
+  categoryAssignmentId,
 }: {
   productsCaption: string;
   products: Product[];
   isCategorySection?: boolean;
+  categoryAssignmentId?: string;
 }) {
   const [showAll, setShowAll] = useState(false);
 
@@ -107,7 +109,7 @@ export default function ProductSection({
       {(isCategorySection || (products && products.length > 8)) && (
         <div className="flex justify-center mt-10">
           {isCategorySection ? (
-            <Link href={`/category/${encodeURIComponent(productsCaption)}`}>
+            <Link href={`/category/${encodeURIComponent(categoryAssignmentId || productsCaption)}`}>
               <Button
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-xl transition-all duration-300 font-semibold cursor-pointer shadow-xs"

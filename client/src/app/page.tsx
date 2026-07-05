@@ -108,36 +108,35 @@ export default async function Home() {
 
   const products: Product[] = productsData?.data?.products || [];
 
-  // Group products by category dynamically (case-insensitive and space-trimmed)
-  const categoriesMap: Record<string, Product[]> = {};
-  products.forEach((product: Product) => {
-    const cat = (product.category || "").trim();
-    if (cat) {
-      // Find if we already have a key matching this case-insensitively
-      const existingKey = Object.keys(categoriesMap).find(
-        (key) => key.toLowerCase() === cat.toLowerCase()
-      );
-      const keyToUse = existingKey || cat; // Keep casing of the first item found
-      if (!categoriesMap[keyToUse]) {
-        categoriesMap[keyToUse] = [];
-      }
-      categoriesMap[keyToUse].push(product);
-    }
-  });
+  const uiLabels = uiData?.categoryLabels || {
+    topCategoryLabel: "Trending Now",
+    middleCategoryLabel: "Seasonal Essentials",
+    bottomCategoryLabel: "Clearance & Steals"
+  };
 
-  const categoryNames = Object.keys(categoriesMap).slice(0, 3);
+  // Group products by categoryAssignment
+  const topProducts = products.filter((p: Product) => p.categoryAssignment === "TOP" || !p.categoryAssignment);
+  const middleProducts = products.filter((p: Product) => p.categoryAssignment === "MIDDLE");
+  const bottomProducts = products.filter((p: Product) => p.categoryAssignment === "BOTTOM");
+
+  const categoriesToRender = [
+    { label: uiLabels.topCategoryLabel, id: "TOP", products: topProducts },
+    { label: uiLabels.middleCategoryLabel, id: "MIDDLE", products: middleProducts },
+    { label: uiLabels.bottomCategoryLabel, id: "BOTTOM", products: bottomProducts }
+  ].filter(cat => cat.products.length > 0);
 
   return (
     <main className="bg-white min-h-screen font-sans">
       <HeroSection banner={banner} />
 
-      {/* 2. Products — Dynamic categories or single grid fallback */}
-      {categoryNames.length > 0 ? (
-        categoryNames.map((categoryName) => (
-          <div key={categoryName} className="my-2">
+      {/* 2. Products — Dynamic layout tiers or single grid fallback */}
+      {categoriesToRender.length > 0 ? (
+        categoriesToRender.map((cat) => (
+          <div key={cat.id} className="my-2">
             <ProductSection
-              productsCaption={categoryName}
-              products={categoriesMap[categoryName]}
+              productsCaption={cat.label}
+              categoryAssignmentId={cat.id}
+              products={cat.products}
               isCategorySection={true}
             />
             {/* Divider between sections */}

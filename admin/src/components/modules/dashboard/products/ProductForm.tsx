@@ -17,6 +17,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { ProductData, DeliveryChargeItem } from "@/services/product";
+import { getUiData } from "@/services/ui";
 import ImageUpload from "@/components/shared/imageUpload";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,6 @@ import { useRouter } from "next/navigation";
 /**
  * Converts a watch URL to the appropriate embed URL for iframes.
  * YouTube: https://www.youtube.com/watch?v=ID → https://www.youtube.com/embed/ID
- * YouTube short: /shorts/ID → /embed/ID
  * YouTube short: https://youtu.be/ID           → https://www.youtube.com/embed/ID
  * TikTok: https://www.tiktok.com/@x/video/ID  → https://www.tiktok.com/embed/v2/ID
  * Others: returned as-is (Instagram, etc. use their own embed URLs)
@@ -39,17 +39,11 @@ import { useRouter } from "next/navigation";
 function toEmbedUrl(url: string): string {
     try {
         const u = new URL(url);
-        // YouTube full or shorts
-        if (u.hostname.includes("youtube.com")) {
-            if (u.searchParams.get("v")) {
-                return `https://www.youtube.com/embed/${u.searchParams.get("v")}`;
-            }
-            if (u.pathname.startsWith("/shorts/")) {
-                const videoId = u.pathname.split("/shorts/")[1]?.split("?")[0];
-                if (videoId) return `https://www.youtube.com/embed/${videoId}`;
-            }
+        // YouTube full  
+        if (u.hostname.includes("youtube.com") && u.searchParams.get("v")) {
+            return `https://www.youtube.com/embed/${u.searchParams.get("v")}`;
         }
-        // YouTube short (youtu.be)
+        // YouTube short  
         if (u.hostname === "youtu.be") {
             return `https://www.youtube.com/embed${u.pathname}`;
         }
@@ -80,7 +74,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     /* ─── General Info State ─── */
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
-    const [category, setCategory] = useState("");
+    const [categoryAssignment, setCategoryAssignment] = useState<"TOP" | "MIDDLE" | "BOTTOM">("TOP");
     const [videoUrl, setVideoUrl] = useState("");
     const [price, setPrice] = useState<number | "">("");
     const [originalPrice, setOriginalPrice] = useState<number | "">("");
@@ -114,12 +108,32 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     const [insideDhakaPrice, setInsideDhakaPrice] = useState<number>(80);
     const [outsideDhakaPrice, setOutsideDhakaPrice] = useState<number>(150);
 
+    /* ─── Dynamic Layout Labels ─── */
+    const [uiLabels, setUiLabels] = useState({
+        TOP: "Trending Now",
+        MIDDLE: "Seasonal Essentials",
+        BOTTOM: "Clearance & Steals"
+    });
+
+    useEffect(() => {
+        getUiData().then(res => {
+            if (res?.data?.[0]?.categoryLabels) {
+                const labels = res.data[0].categoryLabels;
+                setUiLabels({
+                    TOP: labels.topCategoryLabel || "Trending Now",
+                    MIDDLE: labels.middleCategoryLabel || "Seasonal Essentials",
+                    BOTTOM: labels.bottomCategoryLabel || "Clearance & Steals"
+                });
+            }
+        }).catch(console.error);
+    }, []);
+
     /* ─── Populate form fields when editing an existing product ─── */
     useEffect(() => {
         if (initialData) {
             setName(initialData.name || "");
             setSlug(initialData.slug || "");
-            setCategory(initialData.category || "");
+            setCategoryAssignment(initialData.categoryAssignment || "TOP");
             setVideoUrl(initialData.videoUrl || "");
             setPrice(initialData.price ?? "");
             setOriginalPrice(initialData.originalPrice ?? "");
@@ -236,7 +250,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         const payload: Omit<ProductData, "_id"> = {
             name: name.trim(),
             slug: slug.trim(),
-            category: category.trim(),
+            categoryAssignment,
             videoUrl: videoUrl.trim() || undefined,
             price: price as number,
             originalPrice: originalPrice !== "" ? originalPrice : undefined,
@@ -349,15 +363,18 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
 
                             {/* Category input */}
                             <div className="space-y-2">
-                                <Label htmlFor="category" className="text-foreground/80">Category</Label>
-                                <Input
-                                    id="category"
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    placeholder="e.g. T-Shirt, Shirt, Polo"
-                                    className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary"
-                                />
-                                <p className="text-[11px] text-muted-foreground">Assign this product to a category for dynamic sections in the storefront.</p>
+                                <Label htmlFor="categoryAssignment" className="text-foreground/80">Layout Category Tier</Label>
+                                <select
+                                    id="categoryAssignment"
+                                    value={categoryAssignment}
+                                    onChange={(e) => setCategoryAssignment(e.target.value as any)}
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    <option value="TOP">{uiLabels.TOP}</option>
+                                    <option value="MIDDLE">{uiLabels.MIDDLE}</option>
+                                    <option value="BOTTOM">{uiLabels.BOTTOM}</option>
+                                </select>
+                                <p className="text-[11px] text-muted-foreground">Assign this product to a category tier for dynamic sections in the storefront.</p>
                             </div>
 
                             {/* Product Video URL */}
