@@ -4,7 +4,7 @@ const orderSchema = new mongoose.Schema(
     {
         products: [
             {
-                id: { type: String, required: true },
+                id: { type: String, default: "" },
                 name: { type: String, required: true },
                 price: { type: Number, required: true },
                 quantity: { type: Number, required: true },
@@ -17,10 +17,36 @@ const orderSchema = new mongoose.Schema(
             phone: { type: String, required: true },
             address: { type: String, required: true },
             location: { type: String, default: "dhaka" },
-            paymentMethod: { type: String, default: "cod" },
+            // Legacy fields kept for backward-compat reads on old orders
+            paymentMethod: { type: String, default: "" },
             transactionId: { type: String, default: "" },
             senderNumber: { type: String, default: "" },
         },
+
+        // ── Top-level payment fields ──────────────────────────────────────────
+        /** 'bkash' | 'cod' */
+        paymentMethod: {
+            type: String,
+            enum: ["bkash", "cod"],
+            default: "cod",
+        },
+        /** Lifecycle state of the payment */
+        paymentStatus: {
+            type: String,
+            enum: ["pending", "completed", "failed", "refunded"],
+            default: "pending",
+        },
+        /**
+         * Transaction ID for bKash payments. Null for COD.
+         * Validated at the service layer — no schema-level validator
+         * to avoid 'this' context issues during Order.create().
+         */
+        bkashTxnId: {
+            type: mongoose.Schema.Types.Mixed,
+            default: null,
+        },
+        // ─────────────────────────────────────────────────────────────────────
+
         coupon: { type: String, default: "" },
         subtotal: { type: Number, required: true },
         deliveryCharge: { type: Number, default: 0 },
@@ -39,3 +65,4 @@ const orderSchema = new mongoose.Schema(
 );
 
 export const Order = mongoose.model("Order", orderSchema);
+

@@ -237,7 +237,7 @@ export default function BillingSection() {
     address: "",
     phone: "",
     paymentMethod: "",
-    transactionId: "",
+    bkashTxnId: "",
     senderNumber: "",
     location: "dhaka",
   });
@@ -282,6 +282,10 @@ export default function BillingSection() {
   const orderPayload = {
     customer: billing,
 
+    // Top-level payment fields for lifecycle management
+    paymentMethod: billing.paymentMethod || "cod",
+    bkashTxnId: billing.paymentMethod === "bkash" ? billing.bkashTxnId : null,
+
     products: cartItems.map((item) => ({
       productId: item.product._id,
       name: item.product.name,
@@ -304,12 +308,17 @@ export default function BillingSection() {
       !billing.address.trim() ||
       !billing.phone.trim()
     ) {
-      alert("Please fill in all required billing fields.");
+      toast.error("Please fill in all required billing fields.");
       return;
     }
 
     if (cartItems.length === 0) {
       toast.error("Please select a product before placing your order.");
+      return;
+    }
+
+    if (billing.paymentMethod === "bkash" && !billing.bkashTxnId.trim()) {
+      toast.error("Please enter your bKash Transaction ID before placing the order.");
       return;
     }
 
@@ -321,7 +330,7 @@ export default function BillingSection() {
         address: "",
         phone: "",
         paymentMethod: "",
-        transactionId: "",
+        bkashTxnId: "",
         senderNumber: "",
         location: "dhaka",
       });
@@ -440,48 +449,48 @@ export default function BillingSection() {
                   <RadioGroupItem value="cod" id="COD" />
                 </Field>
               </FieldLabel>
-              <FieldLabel htmlFor="online">
+              <FieldLabel htmlFor="bkash">
                 <Field orientation="horizontal">
                   <FieldContent className="flex items-center justify-center h-12.5">
                     <Image
                       src="https://dailyinqilab.com/mediaStorage/content/images/2025November/7-20251104001021.jpg"
-                      alt="online payment"
+                      alt="bKash payment"
                       width={100}
                       height={10}
                     />
                   </FieldContent>
-                  <RadioGroupItem value="online" id="online" />
+                  <RadioGroupItem value="bkash" id="bkash" />
                 </Field>
               </FieldLabel>
             </RadioGroup>
 
-            {billing.paymentMethod === "online" && (
-              <div className="p-3 border border-amber-500 rounded-2xl mt-5">
-                <p className="mb-3 text-red-400">
-                  এই নাম্বারে টাকা পাঠান: 024254254540
+            {billing.paymentMethod === "bkash" && (
+              <div className="p-3 border border-pink-400 rounded-2xl mt-5">
+                <p className="mb-3 text-red-400 font-medium">
+                  এই bKash নাম্বারে টাকা পাঠান: 01XXXXXXXXX
                 </p>
                 <div className="mb-3">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    আপনার ফোন নম্বর <span className="text-red-500">*</span>
+                    আপনার bKash নম্বর <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="number"
+                    type="tel"
                     value={billing.senderNumber}
                     onChange={handleBillingChange("senderNumber")}
-                    placeholder="যে নাম্বার থেকে টাকা পাঠিয়েছেন সেটি লিখুন"
-                    className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                    placeholder="যে নাম্বার থেকে টাকা পাঠিয়েছেন সেটি লিখুন"
+                    className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    ট্রানজেকশন আইডি <span className="text-red-500">*</span>
+                    bKash ট্রানজেকশন আইডি <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="number"
-                    value={billing.transactionId}
-                    onChange={handleBillingChange("transactionId")}
-                    placeholder="পেমেন্ট করার পর যেই ট্রানজেকশন আইডি পেয়েছেন সেটি লিখুন"
-                    className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                    type="text"
+                    value={billing.bkashTxnId}
+                    onChange={handleBillingChange("bkashTxnId")}
+                    placeholder="পেমেন্ট করার পর যেই ট্রানজেকশন আইডি পেয়েছেন সেটি লিখুন"
+                    className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition"
                   />
                 </div>
               </div>

@@ -56,6 +56,20 @@ const deleteOrders = async (req: Request, res: Response, next: NextFunction) => 
     } catch (error) { next(error); }
 };
 
+/** PATCH /orders/:id/reconcile — Mark COD order payment as completed (admin) */
+const reconcilePayment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await orderService.reconcilePayment(req.params.id as string);
+        sendResponse(res, { statusCode: 200, success: true, message: "Payment reconciled successfully", data: result });
+    } catch (error: any) {
+        if (error.statusCode) {
+            res.status(error.statusCode).json({ success: false, message: error.message });
+            return;
+        }
+        next(error);
+    }
+};
+
 export const orderController = {
     createOrder,
     getOrders,
@@ -63,4 +77,5 @@ export const orderController = {
     getMonthlyData,
     updateOrderStatus,
     deleteOrders,
+    reconcilePayment,
 };

@@ -33,6 +33,8 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  CheckCircle2,
+  ShoppingBag,
 } from "lucide-react";
 
 export default function OrdersPage() {
@@ -53,6 +55,7 @@ export default function OrdersPage() {
   const [isCourierSending, setIsCourierSending] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+  const [reconcilingId, setReconcilingId] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     setIsLoading(true);
@@ -92,6 +95,27 @@ export default function OrdersPage() {
       toast.error(err.message || "Something went wrong.");
     } finally {
       setUpdatingStatusId(null);
+    }
+  };
+
+  const handleReconcilePayment = async (orderId: string) => {
+    setReconcilingId(orderId);
+    try {
+      const res = await orderService.reconcilePayment(orderId);
+      if (res.success) {
+        toast.success("Payment marked as completed.");
+        setOrders(
+          orders.map((o) =>
+            o._id === orderId ? { ...o, paymentStatus: "completed" } : o,
+          ),
+        );
+      } else {
+        toast.error(res.message || "Failed to reconcile payment.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong.");
+    } finally {
+      setReconcilingId(null);
     }
   };
 
@@ -219,6 +243,16 @@ export default function OrdersPage() {
     return map[status] ?? "bg-muted text-muted-foreground border-border";
   };
 
+  const getPaymentStatusColor = (ps: string) => {
+    const map: Record<string, string> = {
+      pending:   "bg-amber-500/10 text-amber-400 border-amber-500/20",
+      completed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+      failed:    "bg-rose-500/10 text-rose-400 border-rose-500/20",
+      refunded:  "bg-purple-500/10 text-purple-400 border-purple-500/20",
+    };
+    return map[ps] ?? "bg-muted text-muted-foreground border-border";
+  };
+
   // ── Shared order card for mobile ─────────────────────────────────────────
   const OrderCard = ({ order }: { order: OrderData }) => (
     <div
@@ -289,14 +323,40 @@ export default function OrdersPage() {
         <span className="text-muted-foreground">
           +৳{order.deliveryCharge} delivery
         </span>
-        <Badge variant="outline" className="text-[10px] uppercase">
-          {order.customer.paymentMethod}
+        {/* Payment method badge */}
+        <Badge
+          variant="outline"
+          className={`text-[10px] uppercase font-semibold ${
+            order.paymentMethod === "bkash"
+              ? "bg-pink-500/10 text-pink-400 border-pink-500/20"
+              : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+          }`}
+        >
+          {order.paymentMethod === "bkash" ? "bKash" : "COD"}
+        </Badge>
+        {/* Payment status badge */}
+        <Badge
+          variant="outline"
+          className={`text-[10px] capitalize ${getPaymentStatusColor(order.paymentStatus)}`}
+        >
+          {order.paymentStatus}
         </Badge>
         {order.coupon && (
           <Badge variant="outline" className="text-[10px]">
             {order.coupon}
           </Badge>
         )}
+      </div>
+
+      {/* bKash TxnID or COD placeholder */}
+      <div className="text-xs">
+        {order.paymentMethod === "bkash" && order.bkashTxnId ? (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 border border-pink-500/20 font-mono">
+            TxnID: {order.bkashTxnId}
+          </span>
+        ) : order.paymentMethod === "cod" ? (
+          <span className="text-muted-foreground italic">N/A – Cash on Delivery</span>
+        ) : null}
       </div>
 
       {/* Courier info */}
@@ -315,8 +375,8 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Status selector */}
-      <div className="flex items-center gap-2">
+      {/* Status selector + Mark as Paid */}
+      <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs text-muted-foreground shrink-0">Status:</span>
         {updatingStatusId === order._id ? (
           <Loader2 className="h-4 w-4 animate-spin text-primary" />
@@ -339,6 +399,22 @@ export default function OrdersPage() {
               <SelectItem value="cancelled">Cancelled</SelectItem>
             </SelectContent>
           </Select>
+        )}
+        {/* Mark as Paid — only for COD + pending payment */}
+        {order.paymentMethod === "cod" && order.paymentStatus === "pending" && (
+          <Button
+            size="sm"
+            className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+            disabled={reconcilingId === order._id}
+            onClick={() => handleReconcilePayment(order._id)}
+          >
+            {reconcilingId === order._id ? (
+              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+            ) : (
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+            )}
+            Mark as Paid
+          </Button>
         )}
       </div>
     </div>
@@ -365,6 +441,41 @@ export default function OrdersPage() {
           <RefreshCw className="h-4 w-4 sm:mr-2" />
           <span className="hidden sm:inline">Refresh</span>
         </Button>
+      </div>
+
+      {/* ── Metrics Ribbon ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="flex items-center gap-4 rounded-xl border border-border bg-card/40 px-5 py-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+            <ShoppingBag className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Total Orders</p>
+            <p className="text-2xl font-bold text-foreground">{totalOrders}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 rounded-xl border border-border bg-card/40 px-5 py-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
+            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">bKash Paid</p>
+            <p className="text-2xl font-bold text-foreground">
+              {orders.filter((o) => o.paymentMethod === "bkash" && o.paymentStatus === "completed").length}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 rounded-xl border border-border bg-card/40 px-5 py-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10">
+            <Truck className="h-5 w-5 text-amber-400" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">COD Pending Payment</p>
+            <p className="text-2xl font-bold text-foreground">
+              {orders.filter((o) => o.paymentMethod === "cod" && o.paymentStatus === "pending").length}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Filters */}
@@ -516,6 +627,9 @@ export default function OrdersPage() {
                       Payment
                     </TableHead>
                     <TableHead className="text-muted-foreground">
+                      Txn ID
+                    </TableHead>
+                    <TableHead className="text-muted-foreground">
                       Status
                     </TableHead>
                     <TableHead className="text-muted-foreground">
@@ -592,9 +706,35 @@ export default function OrdersPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-xs uppercase">
-                          {order.customer.paymentMethod}
-                        </Badge>
+                        {/* Payment method badge */}
+                        <div className="space-y-1">
+                          <Badge
+                            variant="outline"
+                            className={`text-xs uppercase font-semibold ${
+                              order.paymentMethod === "bkash"
+                                ? "bg-pink-500/10 text-pink-400 border-pink-500/20"
+                                : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                            }`}
+                          >
+                            {order.paymentMethod === "bkash" ? "bKash" : "COD"}
+                          </Badge>
+                          {/* Payment status badge */}
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] capitalize block w-fit ${getPaymentStatusColor(order.paymentStatus)}`}
+                          >
+                            {order.paymentStatus}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-[160px]">
+                        {order.paymentMethod === "bkash" && order.bkashTxnId ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 border border-pink-500/20 font-mono text-[10px]">
+                            TxnID: {order.bkashTxnId}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground italic">N/A – Cash on Delivery</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         {updatingStatusId === order._id ? (
@@ -650,14 +790,31 @@ export default function OrdersPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
-                          onClick={() => handleDeleteOrder(order._id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          {/* Mark as Paid — COD + pending only */}
+                          {order.paymentMethod === "cod" && order.paymentStatus === "pending" && (
+                            <Button
+                              size="sm"
+                              className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2"
+                              disabled={reconcilingId === order._id}
+                              onClick={() => handleReconcilePayment(order._id)}
+                            >
+                              {reconcilingId === order._id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <><CheckCircle2 className="h-3 w-3 mr-1" />Mark as Paid</>
+                              )}
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
+                            onClick={() => handleDeleteOrder(order._id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

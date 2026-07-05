@@ -30,6 +30,12 @@ export interface OrderData {
     subtotal: number;
     deliveryCharge: number;
     total: number;
+    /** Top-level payment method: 'bkash' or 'cod' */
+    paymentMethod: "bkash" | "cod";
+    /** Lifecycle state of the payment */
+    paymentStatus: "pending" | "completed" | "failed" | "refunded";
+    /** Transaction ID (bKash orders only) */
+    bkashTxnId?: string | null;
     status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
     courierName?: string;
     courierTrackingCode?: string;
@@ -130,6 +136,14 @@ export const orderService = {
      */
     getMonthlyData: async (token?: string): Promise<OrderMonthlyResponse> => {
         return secureFetch<OrderMonthlyResponse>(`${BASE_URL}/orders/monthly`, {
+            ...(token && { token }),
+        });
+    },
+
+    /** Mark a COD order as paid (admin reconciliation) */
+    reconcilePayment: async (id: string, token?: string): Promise<any> => {
+        return secureFetch<any>(`${BASE_URL}/orders/${id}/reconcile`, {
+            method: "PATCH",
             ...(token && { token }),
         });
     },

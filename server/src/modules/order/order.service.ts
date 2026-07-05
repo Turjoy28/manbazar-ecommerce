@@ -1,7 +1,26 @@
 import { Order } from "../../models/order.model.js";
 
-/** Place a new order (public) */
+/** Place a new order (public) — with payment routing */
 const createOrder = async (payload: Record<string, unknown>) => {
+    const method = (payload.paymentMethod as string | undefined) || "cod";
+
+    if (method === "bkash") {
+        const txn = (payload.bkashTxnId as string | undefined)?.trim();
+        if (!txn) {
+            throw Object.assign(
+                new Error("bkashTxnId is required for bKash payments."),
+                { statusCode: 400 }
+            );
+        }
+        payload.paymentStatus = "completed";
+        payload.bkashTxnId = txn;
+    } else {
+        // COD
+        payload.paymentMethod = "cod";
+        payload.paymentStatus = "pending";
+        payload.bkashTxnId = null;
+    }
+
     return Order.create(payload);
 };
 
@@ -89,6 +108,31 @@ const getMonthlyData = async () => {
     ]);
 };
 
+/** Reconcile a COD order — mark paymentStatus as 'completed' (admin only) */
+const reconcilePayment = async (id: string) => {
+    const order = await Order.findById(id);
+    if (!order) {
+        throw Object.assign(new Error("Order not found."), { statusCode: 404 });
+    }
+    if (order.paymentMethod !== "cod") {
+        throw Object.assign(
+            new Error("Reconciliation is only allowed for Cash-on-Delivery orders."),
+            { statusCode: 400 }
+        );
+    }
+    if (order.paymentStatus !== "pending") {
+        throw Object.assign(
+            new Error("Order payment is not in a pending state."),
+            { statusCode: 400 }
+        );
+    }
+    return Order.findByIdAndUpdate(
+        id,
+        { $set: { paymentStatus: "completed" } },
+        { new: true }
+    );
+};
+
 export const orderService = {
     createOrder,
     getOrders,
@@ -98,4 +142,5 @@ export const orderService = {
     updateCourierInfo,
     getStats,
     getMonthlyData,
+    reconcilePayment,
 };
