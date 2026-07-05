@@ -43,18 +43,18 @@ export default function FloatingCartButton() {
             <div className="flex flex-col items-center justify-center pt-2.5 pb-2 px-1 w-full text-center">
                 <ShoppingBag 
                     size={22} 
-                    className="text-secondary mb-1 stroke-[1.8]" 
+                    className="text-black mb-1 stroke-[1.8]" 
                 />
-                <span className="text-base font-bold text-secondary leading-none">
+                <span className="text-base font-bold text-black leading-none">
                     {totalQuantity}
                 </span>
-                <span className="text-[9px] font-semibold text-secondary/80 tracking-wider uppercase mt-0.5 leading-none">
+                <span className="text-[9px] font-semibold text-black/80 tracking-wider uppercase mt-0.5 leading-none">
                     ITEMS
                 </span>
             </div>
  
             {/* Bottom section: Price banner */}
-            <div className="w-full bg-primary text-white py-1 px-1 text-xs font-bold border-t border-primary/20 text-center flex items-center justify-center gap-0.5">
+            <div className="w-full bg-primary text-black py-1 px-1 text-xs font-bold border-t border-primary/20 text-center flex items-center justify-center gap-0.5">
                 <span>৳</span>
                 <span>{totalPrice}</span>
             </div>

@@ -90,15 +90,22 @@ function RefreshIcon() {
 /**
  * Converts standard watch URLs into embeddable iframe src URLs.
  * - YouTube: /watch?v=ID → /embed/ID
- * - YouTube short: youtu.be/ID → /embed/ID
+ * - YouTube short: /shorts/ID → /embed/ID
+ * - YouTube short youtu.be: youtu.be/ID → /embed/ID
  * - TikTok: /video/ID → /embed/v2/ID
- * - Others: returned as-is (use Instagram's native embed URL)
+ * - Others: returned as-is
  */
 function toEmbedUrl(url: string): string {
     try {
         const u = new URL(url);
-        if (u.hostname.includes("youtube.com") && u.searchParams.get("v")) {
-            return `https://www.youtube.com/embed/${u.searchParams.get("v")}?rel=0&modestbranding=1`;
+        if (u.hostname.includes("youtube.com")) {
+            if (u.searchParams.get("v")) {
+                return `https://www.youtube.com/embed/${u.searchParams.get("v")}?rel=0&modestbranding=1`;
+            }
+            if (u.pathname.startsWith("/shorts/")) {
+                const videoId = u.pathname.split("/shorts/")[1]?.split("?")[0];
+                if (videoId) return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+            }
         }
         if (u.hostname === "youtu.be") {
             return `https://www.youtube.com/embed${u.pathname}?rel=0&modestbranding=1`;
@@ -111,10 +118,21 @@ function toEmbedUrl(url: string): string {
     return url;
 }
 
-// Helper to check if a URL points to a video
+// Helper to check if a URL points to a video file (mp4, webm, etc.)
 const isVideoUrl = (url: string) => {
     if (!url) return false;
     return url.includes("/video/upload/") || url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov") || url.endsWith(".avi");
+};
+
+// Helper to check if a URL is an external video embed (YouTube, TikTok)
+const isExternalVideoUrl = (url: string) => {
+    if (!url) return false;
+    try {
+        const u = new URL(url);
+        return u.hostname.includes("youtube.com") || u.hostname === "youtu.be" || u.hostname.includes("tiktok.com");
+    } catch {
+        return false;
+    }
 };
 
 // ── Image Gallery ─────────────────────────────────────────────────────────────
@@ -136,6 +154,13 @@ function ImageGallery({ images = [], name }: { images: string[]; name: string })
               src={displayImages[activeIndex]}
               controls
               className="w-full h-full object-cover"
+            />
+          ) : isExternalVideoUrl(displayImages[activeIndex]) ? (
+            <iframe
+              src={toEmbedUrl(displayImages[activeIndex])}
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
             />
           ) : (
             <Image
@@ -166,9 +191,13 @@ function ImageGallery({ images = [], name }: { images: string[]; name: string })
                   : "border-gray-200 hover:border-gray-400"
               }`}
             >
-              {isVideoUrl(img) ? (
+              {isVideoUrl(img) || isExternalVideoUrl(img) ? (
                 <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center relative">
-                  <video src={img} className="w-full h-full object-cover opacity-80" muted />
+                  {isVideoUrl(img) ? (
+                    <video src={img} className="w-full h-full object-cover opacity-80" muted />
+                  ) : (
+                    <div className="w-full h-full bg-black/80" />
+                  )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                     <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white">
                       <path d="M8 5v14l11-7z" />
@@ -301,7 +330,14 @@ export default function ProductDetails({
         <section className="max-w-6xl mx-auto px-4 pb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             {/* LEFT: Image Gallery */}
-            <ImageGallery images={[product.thumbnail, ...(product.images || [])]} name={product.name} />
+            <ImageGallery 
+              images={[
+                product.thumbnail, 
+                ...(product.images || []), 
+                ...(product.videoUrl ? [product.videoUrl] : [])
+              ]} 
+              name={product.name} 
+            />
 
             {/* RIGHT: Product Details */}
             <div className="flex flex-col gap-5">
@@ -418,11 +454,17 @@ export default function ProductDetails({
 
               {/* Trust badges */}
               <div className="grid grid-cols-3 gap-3 text-(--primary-text)">
-                {[
-                  { icon: <ShieldIcon />, label: "100% অরিজিনাল" },
-                  { icon: <TruckIcon />, label: "ফ্রি ডেলিভারি" },
-                  { icon: <RefreshIcon />, label: "৭ দিন রিটার্ন" },
-                ].map((badge, idx) => (
+                {(product.highlights && product.highlights.length > 0
+                  ? product.highlights.slice(0, 3).map((text, idx) => ({
+                      icon: idx === 0 ? <ShieldIcon /> : idx === 1 ? <TruckIcon /> : <RefreshIcon />,
+                      label: text
+                    }))
+                  : [
+                      { icon: <ShieldIcon />, label: "100% অরিজিনাল" },
+                      { icon: <TruckIcon />, label: "ফ্রি ডেলিভারি" },
+                      { icon: <RefreshIcon />, label: "৭ দিন রিটার্ন" },
+                    ]
+                ).map((badge, idx) => (
                   <div
                     key={idx}
                     className="flex flex-col items-center gap-1 bg-primary/20 rounded-lg p-3 text-center border border-primary/70 text-(--primary-text)"
@@ -575,37 +617,6 @@ export default function ProductDetails({
             </div>
           </div>
         </section>
-
-        {/* ── Remote Video Section ── */}
-        {product.videoUrl && (
-          <section className="max-w-6xl mx-auto px-4 pb-16">
-            {/* Section header */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-primary">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Product Video</h2>
-                <p className="text-sm text-gray-500">Watch this product in action</p>
-              </div>
-            </div>
-
-            {/* Responsive 16:9 iframe wrapper */}
-            <div className="relative w-full rounded-2xl overflow-hidden shadow-lg bg-black" style={{ paddingBottom: "56.25%" }}>
-              <iframe
-                src={toEmbedUrl(product.videoUrl)}
-                title={`${product.name} product video`}
-                className="absolute inset-0 w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                loading="lazy"
-              />
-            </div>
-          </section>
-        )}
-
       </main>
     );
 }

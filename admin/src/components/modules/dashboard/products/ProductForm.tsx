@@ -31,6 +31,7 @@ import { useRouter } from "next/navigation";
 /**
  * Converts a watch URL to the appropriate embed URL for iframes.
  * YouTube: https://www.youtube.com/watch?v=ID → https://www.youtube.com/embed/ID
+ * YouTube short: /shorts/ID → /embed/ID
  * YouTube short: https://youtu.be/ID           → https://www.youtube.com/embed/ID
  * TikTok: https://www.tiktok.com/@x/video/ID  → https://www.tiktok.com/embed/v2/ID
  * Others: returned as-is (Instagram, etc. use their own embed URLs)
@@ -38,11 +39,17 @@ import { useRouter } from "next/navigation";
 function toEmbedUrl(url: string): string {
     try {
         const u = new URL(url);
-        // YouTube full  
-        if (u.hostname.includes("youtube.com") && u.searchParams.get("v")) {
-            return `https://www.youtube.com/embed/${u.searchParams.get("v")}`;
+        // YouTube full or shorts
+        if (u.hostname.includes("youtube.com")) {
+            if (u.searchParams.get("v")) {
+                return `https://www.youtube.com/embed/${u.searchParams.get("v")}`;
+            }
+            if (u.pathname.startsWith("/shorts/")) {
+                const videoId = u.pathname.split("/shorts/")[1]?.split("?")[0];
+                if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+            }
         }
-        // YouTube short  
+        // YouTube short (youtu.be)
         if (u.hostname === "youtu.be") {
             return `https://www.youtube.com/embed${u.pathname}`;
         }
