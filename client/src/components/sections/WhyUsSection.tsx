@@ -60,12 +60,12 @@ function FeatureCard({ feature, number }: { feature: Feature, number: number }) 
 
 export default function WhyUsSection({ specialty }: { specialty: any }) {
   return (
-    <section className="py-12 px-4 max-w-5xl mx-auto">
-      {/* Label */}
-      <div className="flex flex-col items-center mb-8">
-        <p className="text-primary text-sm font-medium mb-1">
-          {specialty?.subTitle}
-        </p>
+    <section className="py-4 px-4 max-w-5xl mx-auto">
+      {/* Title */}
+      <div className="flex flex-col items-center mb-4">
+        <h3 className="text-primary font-bold text-sm tracking-widest uppercase mb-1">
+          {specialty.subTitle}
+        </h3>
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2 text-center">
           {specialty?.title}
         </h2>

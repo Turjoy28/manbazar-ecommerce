@@ -19,7 +19,7 @@ export default function PromotionalBanners({ banners }: { banners: PromotionalBa
   };
 
   return (
-    <section className="w-full max-w-5xl mx-auto px-4 py-6">
+    <section className="w-full max-w-5xl mx-auto px-4 py-3">
       <div className={`grid gap-6 ${getGridColsClass(activeBanners.length)}`}>
         {activeBanners.map((banner) => {
           const content = (

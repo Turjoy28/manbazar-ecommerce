@@ -231,6 +231,8 @@ export default function BillingSection() {
     clearCart,
   } = useContext(OrderContext);
 
+  const [isSuccess, setIsSuccess] = useState(false);
+
   // Billing form state
   const [billing, setBilling] = useState({
     name: "",
@@ -334,6 +336,7 @@ export default function BillingSection() {
         senderNumber: "",
         location: "dhaka",
       });
+      setIsSuccess(true);
       toast.success(`অর্ডার দেওয়া হয়েছে! মোট: ৳${grandTotal.toFixed(2)}`);
     } catch (err: any) {
       toast.error(
@@ -344,8 +347,34 @@ export default function BillingSection() {
   };
 
   return (
-    <section id="billing" className="py-10 px-4 max-w-5xl mx-auto">
-      {cartItems.length > 0 ? (
+    <section id="billing" className="py-4 px-4 max-w-5xl mx-auto">
+      {isSuccess ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
+          <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-6 shadow-sm">
+             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+             </svg>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-3">Order Placed Successfully!</h2>
+          <p className="text-gray-600 max-w-md mx-auto text-lg mb-8">
+             Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
+          </p>
+          <button 
+             onClick={() => {
+                setIsSuccess(false);
+                const productsSection = document.getElementById("products");
+                if (productsSection) {
+                   productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                   window.location.href = "/#products";
+                }
+             }}
+             className="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+          >
+             Continue Shopping
+          </button>
+        </div>
+      ) : cartItems.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {/* ── Left: Billing form ── */}
           <form>

@@ -19,7 +19,7 @@ interface CTAData {
 
 export default function CTABanner({ cta }: { cta?: CTAData }) {
   return (
-    <section className="mx-4 md:mx-auto max-w-5xl my-8 bg-secondary text-(--secondary-text) rounded-xl px-6 py-7 flex flex-col md:flex-row items-center justify-between gap-4">
+    <section className="mx-4 md:mx-auto max-w-5xl my-3 bg-secondary text-(--secondary-text) rounded-xl px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
       {/* Left side — CTA headline and description text */}
       <div className="text-center md:text-left">
         <h3 className="font-bold text-lg md:text-xl mb-1">

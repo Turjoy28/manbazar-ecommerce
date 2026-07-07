@@ -99,9 +99,9 @@ export default function ProductSection({
     : (showAll ? products : products?.slice(0, 8));
 
   return (
-    <section id="products" className="py-10 px-4 md:px-6 max-w-7xl mx-auto">
+    <section id="products" className="py-4 px-4 md:px-6 max-w-7xl mx-auto">
       {/* Section title */}
-      <div className="flex flex-col items-center mb-8">
+      <div className="flex flex-col items-center mb-4">
         <div className="border border-gray-300 rounded-xl px-6 py-3 text-sm md:text-4xl font-bold mb-1">
           {productsCaption}
           <div className="flex items-center justify-center gap-3 pt-3">
@@ -120,7 +120,7 @@ export default function ProductSection({
 
       {/* See All Button */}
       {(isCategorySection || (products && products.length > 8)) && (
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center mt-4">
           {isCategorySection ? (
             <Link href={`/category/${encodeURIComponent(categoryAssignmentId || productsCaption)}`}>
               <Button

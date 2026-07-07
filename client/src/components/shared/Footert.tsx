@@ -29,38 +29,38 @@ export default function Footer({ logo, footerInfo, chatbot }: FooterProps) {
   };
 
   return (
-    <footer className="bg-tertiary text-(--tertiary-text) mt-10 relative">
-      <div className="max-w-7xl mx-auto px-6 pt-8 pb-6">
-        <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-4">
+    <footer className="bg-tertiary text-(--tertiary-text) mt-4 relative">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           {/* 1. Brand & Logo */}
-          <div className="max-w-xs space-y-2">
+          <div className="max-w-xs space-y-1">
             <div className="scale-90 origin-left -mb-2">
               <Logo logo={logo} />
             </div>
-            <p className="leading-6 text-xs md:text-sm opacity-90">
+            <p className="leading-5 text-xs md:text-sm opacity-90">
               {footerInfo?.shortDescription}
             </p>
           </div>
 
           {/* 2. Contact info */}
-          <div className="space-y-2.5">
+          <div className="space-y-1.5 mt-20 md:mt-10">
             <h3 className="underline font-bold text-xs uppercase tracking-wider opacity-90">Contact information</h3>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {footerInfo?.contactInfo?.number && (
                 <p className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 shrink-0 opacity-80" /> 
+                  <Phone className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="font-sans text-xs md:text-sm">{footerInfo.contactInfo.number}</span>
                 </p>
               )}
               {footerInfo?.contactInfo?.email && (
                 <p className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 shrink-0 opacity-80" /> 
+                  <Mail className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="text-xs md:text-sm">{footerInfo.contactInfo.email}</span>
                 </p>
               )}
               {footerInfo?.contactInfo?.website && (
                 <p className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 shrink-0 opacity-80" /> 
+                  <Globe className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="text-xs md:text-sm">{footerInfo.contactInfo.website}</span>
                 </p>
               )}
@@ -68,17 +68,17 @@ export default function Footer({ logo, footerInfo, chatbot }: FooterProps) {
           </div>
 
           {/* 3. Office location */}
-          <div className="space-y-2.5">
+          <div className="space-y-1.5 mt-20 md:mt-10">
             <h3 className="underline font-bold text-xs uppercase tracking-wider opacity-90">Office location</h3>
             <p className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 shrink-0 opacity-80" /> 
+              <MapPin className="h-4 w-4 shrink-0 opacity-80" />
               <span className="text-xs md:text-sm">{footerInfo.location}</span>
             </p>
           </div>
 
           {/* 4. Social Links (Static Round Icons next to Location) */}
           {hasLinks && (
-            <div className="space-y-2.5">
+            <div className="space-y-1.5 mt-20 md:mt-10">
               <h3 className="underline font-bold text-xs uppercase tracking-wider opacity-90">Social Links</h3>
               <div className="flex flex-wrap gap-2 items-center">
                 {chatbot?.facebook && (
@@ -140,7 +140,7 @@ export default function Footer({ logo, footerInfo, chatbot }: FooterProps) {
       </div>
 
       {/* Bottom full amber-brown bar */}
-      <div className="bg-[#6b3512] text-amber-50/95 py-3.5 border-t border-amber-900/40 font-sans">
+      <div className="bg-[#6b3512] text-amber-50/95 py-2 border-t border-amber-900/40 font-sans">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
           <p className="opacity-90">
             © {new Date().getFullYear()} {footerInfo?.copyright}

@@ -124,9 +124,9 @@ export default async function Home() {
   const bottomProducts = products.filter((p: Product) => p.categoryAssignment === "BOTTOM");
 
   const categoriesToRender = [
-    { label: uiLabels.topCategoryLabel, id: "TOP", products: topProducts },
-    { label: uiLabels.middleCategoryLabel, id: "MIDDLE", products: middleProducts },
-    { label: uiLabels.bottomCategoryLabel, id: "BOTTOM", products: bottomProducts }
+    { label: uiLabels.topCategoryLabel, id: "TOP", products: topProducts.slice(0, 4) },
+    { label: uiLabels.middleCategoryLabel, id: "MIDDLE", products: middleProducts.slice(0, 4) },
+    { label: uiLabels.bottomCategoryLabel, id: "BOTTOM", products: bottomProducts.slice(0, 4) }
   ].filter(cat => cat.products.length > 0);
 
   return (
@@ -137,33 +137,35 @@ export default async function Home() {
       <PromotionalBanners banners={banners} />
 
       {/* 2. Products — Dynamic tiers or single grid fallback */}
-      {categoriesToRender.length > 0 ? (
-        categoriesToRender.map((cat) => (
-          <div key={cat.id} className="my-2">
+      <div id="products">
+        {categoriesToRender.length > 0 ? (
+          categoriesToRender.map((cat) => (
+            <div key={cat.id} className="my-2">
+              <ProductSection
+                productsCaption={cat.label}
+                categoryAssignmentId={cat.id}
+                products={cat.products}
+                isCategorySection={true}
+              />
+              {/* Divider between sections */}
+              <div className="max-w-5xl mx-auto px-4 my-2">
+                <hr className="border-gray-100" />
+              </div>
+            </div>
+          ))
+        ) : (
+          <>
             <ProductSection
-              productsCaption={cat.label}
-              categoryAssignmentId={cat.id}
-              products={cat.products}
-              isCategorySection={true}
+              productsCaption={productsCaption?.title || "আমাদের হট সেলিং প্রোডাক্টস"}
+              products={products.slice(0, 4)}
             />
-            {/* Divider between sections */}
-            <div className="max-w-5xl mx-auto px-4 my-2">
+            {/* Divider */}
+            <div className="max-w-5xl mx-auto px-4">
               <hr className="border-gray-100" />
             </div>
-          </div>
-        ))
-      ) : (
-        <>
-          <ProductSection
-            productsCaption={productsCaption?.title || "আমাদের হট সেলিং প্রোডাক্টস"}
-            products={products}
-          />
-          {/* Divider */}
-          <div className="max-w-5xl mx-auto px-4">
-            <hr className="border-gray-100" />
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
 
 
       {/* 4. Why Us — Specialty cards showcasing product benefits */}
