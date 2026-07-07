@@ -9,6 +9,7 @@ export interface DeliveryChargeItem {
 
 export interface ProductData {
     _id?: string;
+    productId?: string;
     name: string;
     slug: string;
     price: number;

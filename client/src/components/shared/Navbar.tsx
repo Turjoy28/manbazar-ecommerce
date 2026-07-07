@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Home, Sparkles } from "lucide-react";
 
 interface NavbarProps {
@@ -14,8 +15,16 @@ interface NavbarProps {
 }
 
 export default function Navbar({ banner }: NavbarProps) {
+  const pathname = usePathname();
   const noticeText = banner?.navbarText?.trim() || "";
   const marqueeText = banner?.marqueeText?.trim() || "";
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    if (pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#FCFBF2] border-b border-amber-100/80 shadow-xs transition-all duration-300">
@@ -24,6 +33,7 @@ export default function Navbar({ banner }: NavbarProps) {
         <div className="shrink-0">
           <Link
             href="/"
+            onClick={handleHomeClick}
             className="flex items-center gap-2 text-secondary hover:text-primary transition-all duration-200 font-semibold text-base md:text-lg py-1.5 px-3.5 rounded-lg hover:bg-amber-100/30 border border-transparent hover:border-amber-200/35 active:scale-95"
           >
             <Home className="h-5 w-5 text-primary" />

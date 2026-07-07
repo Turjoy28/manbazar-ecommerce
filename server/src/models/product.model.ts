@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
     {
+        productId: {
+            type: String,
+            default: "",
+            trim: true,
+        },
         name: {
             type: String,
             required: true,
@@ -135,4 +140,11 @@ const productSchema = new mongoose.Schema(
     }
 );
 
-export const Product = mongoose.model("Product", productSchema);
+productSchema.pre("save", async function () {
+    const doc = this as any;
+    if (doc.isNew && !doc.productId) {
+        doc.productId = "MB-" + Math.floor(100000 + Math.random() * 900000).toString();
+    }
+});
+
+export const Product = mongoose.models.Product || mongoose.model("Product", productSchema);

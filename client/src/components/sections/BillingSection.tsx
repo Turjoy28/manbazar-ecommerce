@@ -289,7 +289,8 @@ export default function BillingSection() {
     bkashTxnId: billing.paymentMethod === "bkash" ? billing.bkashTxnId : null,
 
     products: cartItems.map((item) => ({
-      productId: item.product._id,
+      id: item.product._id,
+      productId: item.product.productId,
       name: item.product.name,
       price: item.product.price,
       quantity: item.quantity,

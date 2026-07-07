@@ -92,21 +92,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="pt-4 pb-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5! hover:bg-transparent"
-              render={<Link href="/"></Link>}
-            >
+            <Link href="/" className="block px-2 pt-2 pb-4 hover:opacity-90 transition-opacity">
               {logo && (
                 logo.startsWith("/") || logo.startsWith("http://") || logo.startsWith("https://") ? (
-                  <Image src={logo} alt="logo" width={150} height={150} className="object-contain" />
+                  <div className="relative w-full h-24 flex items-center justify-center">
+                    <Image src={logo} alt="logo" fill className="object-contain" />
+                  </div>
                 ) : (
-                  <span className="text-foreground font-extrabold text-xl tracking-wider">{logo}</span>
+                  <div className="flex justify-center w-full">
+                    <span className="text-foreground font-extrabold text-2xl tracking-wider text-center">{logo}</span>
+                  </div>
                 )
               )}
-            </SidebarMenuButton>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

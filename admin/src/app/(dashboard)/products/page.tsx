@@ -14,9 +14,10 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { productService, ProductData } from "@/services/product";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit2, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, Image as ImageIcon, Search } from "lucide-react";
 
 export default function ProductsPage() {
     /* State for the products list fetched from the API */
@@ -25,6 +26,8 @@ export default function ProductsPage() {
     const [isLoading, setIsLoading] = useState(true);
     /* Tracks which product is currently being deleted (for spinner) */
     const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+    /* State for searching products by name */
+    const [searchQuery, setSearchQuery] = useState("");
 
     /* Fetch all products from the admin API endpoint */
     const fetchProducts = async () => {
@@ -67,10 +70,14 @@ export default function ProductsPage() {
         }
     };
 
+    const filteredProducts = products.filter((product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
             {/* Page header — title and Add Product button */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     {/* Title uses foreground color from theme */}
                     <h2 className="text-3xl font-bold tracking-tight text-foreground">Products</h2>
@@ -78,12 +85,24 @@ export default function ProductsPage() {
                         Manage your store&apos;s inventory, details, and pricing.
                     </p>
                 </div>
-                {/* Link to the "New Product" form */}
-                <Link href="/products/new">
-                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20">
-                        <Plus className="mr-2 h-4 w-4" /> Add Product
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                    {/* Search Bar */}
+                    <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search products..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-8 bg-card"
+                        />
+                    </div>
+                    {/* Link to the "New Product" form */}
+                    <Link href="/products/new">
+                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20 whitespace-nowrap">
+                            <Plus className="mr-2 h-4 w-4" /> Add Product
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Products table container */}
@@ -93,11 +112,11 @@ export default function ProductsPage() {
                     <div className="flex h-[300px] items-center justify-center">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
-                ) : products.length === 0 ? (
-                    /* Empty state when no products exist */
+                ) : filteredProducts.length === 0 ? (
+                    /* Empty state when no products exist or no search results */
                     <div className="flex h-[200px] flex-col items-center justify-center text-muted-foreground">
                         <ImageIcon className="h-12 w-12 mb-2" />
-                        <p>No products found. Create your first product!</p>
+                        <p>{searchQuery ? "No products match your search." : "No products found. Create your first product!"}</p>
                     </div>
                 ) : (
                     /* Products table */
@@ -114,7 +133,7 @@ export default function ProductsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {products.map((product) => (
+                                {filteredProducts.map((product) => (
                                     <TableRow key={product._id} className="border-b border-border hover:bg-muted/20">
                                         {/* Product thumbnail */}
                                         <TableCell>
@@ -133,11 +152,16 @@ export default function ProductsPage() {
                                                 )}
                                             </div>
                                         </TableCell>
-                                        {/* Product name and slug */}
+                                        {/* Product name, ID, and slug */}
                                         <TableCell className="font-semibold text-foreground">
-                                            <div>
-                                                <div>{product.name}</div>
-                                                <div className="text-xs text-muted-foreground font-normal">slug: {product.slug}</div>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-2">
+                                                    <span>{product.name}</span>
+                                                    {product.productId && (
+                                                        <span className="text-[10px] text-primary font-mono">[{product.productId}]</span>
+                                                    )}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground font-normal mt-0.5">slug: {product.slug}</div>
                                             </div>
                                         </TableCell>
                                         {/* Price with optional original price strikethrough */}

@@ -301,6 +301,9 @@ export default function OrdersPage() {
       <div className="space-y-0.5">
         {order.products.map((p, i) => (
           <div key={i} className="text-xs">
+            {p.productId && (
+              <span className="font-mono text-primary mr-1">[{p.productId}]</span>
+            )}
             <span className="font-medium text-foreground">{p.name}</span>
             <span className="text-muted-foreground"> ×{p.quantity}</span>
             {p.size && (
@@ -676,6 +679,9 @@ export default function OrdersPage() {
                       <TableCell className="max-w-[200px]">
                         {order.products.map((p, i) => (
                           <div key={i} className="text-xs mb-0.5">
+                            {p.productId && (
+                              <span className="font-mono text-primary mr-1">[{p.productId}]</span>
+                            )}
                             <span className="font-medium text-foreground">
                               {p.name}
                             </span>
