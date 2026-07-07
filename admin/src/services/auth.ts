@@ -29,4 +29,26 @@ export const authService = {
     getMe: async (): Promise<AdminMeResponse> => {
         return secureFetch<AdminMeResponse>(`${BASE_URL}/auth/me`);
     },
+
+    createManager: async (name: string, email: string): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/managers`, {
+            method: "POST",
+            body: { name, email },
+        });
+    },
+
+    listManagers: async (): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/managers`);
+    },
+
+    verifyOnboarding: async (token: string): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/verify-onboarding?token=${token}`);
+    },
+
+    setPassword: async (token: string, password: string): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/set-password`, {
+            method: "POST",
+            body: { token, password },
+        });
+    },
 };

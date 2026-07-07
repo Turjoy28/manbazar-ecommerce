@@ -62,4 +62,95 @@ const me = (req: Request, res: Response) => {
     sendResponse(res, { statusCode: 200, success: true, message: "Admin info", data: admin });
 };
 
-export const authController = { login, logout, me };
+/**
+ * POST /api/v1/auth/managers
+ * Creates/Invites a new Sub-Admin Manager (Admin Only).
+ */
+const createManager = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { name, email } = req.body;
+        if (!name || !email) {
+            res.status(400).json({ success: false, message: "Name and email are required" });
+            return;
+        }
+
+        const result = await authService.createManager({ name, email });
+        sendResponse(res, {
+            statusCode: 201,
+            success: true,
+            message: "Manager created and onboarding email dispatched",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "Invitation failed" });
+    }
+};
+
+/**
+ * GET /api/v1/auth/managers
+ * Lists all Sub-Admin Managers (Admin Only).
+ */
+const listManagers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await authService.listManagers();
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Managers retrieved successfully",
+            data: result,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * GET /api/v1/auth/verify-onboarding
+ * Verifies if onboarding token is valid (Public).
+ */
+const verifyOnboarding = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { token } = req.query;
+        if (!token) {
+            res.status(400).json({ success: false, message: "Token is required" });
+            return;
+        }
+
+        const result = await authService.verifyOnboardingToken(token as string);
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Onboarding link is valid",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+/**
+ * POST /api/v1/auth/set-password
+ * Configures the password using invitation token (Public).
+ */
+const setPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { token, password } = req.body;
+        if (!token || !password) {
+            res.status(400).json({ success: false, message: "Token and password are required" });
+            return;
+        }
+
+        const result = await authService.setPassword(token, password);
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Password configured successfully",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "Failed to set password" });
+    }
+};
+
+export const authController = { login, logout, me, createManager, listManagers, verifyOnboarding, setPassword };
+

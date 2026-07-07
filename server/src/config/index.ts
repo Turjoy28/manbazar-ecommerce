@@ -10,8 +10,20 @@ export default {
     env: process.env.NODE_ENV || "development",
     admin_email: process.env.ADMIN_EMAIL,
     admin_password: process.env.ADMIN_PASSWORD,
+    user_password: process.env.USER_PASSWORD,
+    user_email: process.env.USER_EMAIL,
     jwt_secret: process.env.JWT_ACCESS_SECRET,
     jwt_expires_in: process.env.JWT_ACCESS_EXPIRES_IN || "1d",
+
+    // SMTP Configuration for Onboarding
+    smtp: {
+        host: process.env.SMTP_HOST || "",
+        port: Number(process.env.SMTP_PORT) || 587,
+        user: process.env.SMTP_USER || "",
+        pass: process.env.SMTP_PASS || "",
+        from: process.env.SMTP_FROM || "no-reply@manbazar.com",
+    },
+    admin_url: process.env.ADMIN_URL || "http://localhost:3003",
 
     // Courier API Credentials
     steadfast: {

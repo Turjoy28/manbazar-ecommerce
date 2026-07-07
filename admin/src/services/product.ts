@@ -13,6 +13,11 @@ export interface ProductData {
     slug: string;
     price: number;
     originalPrice?: number;
+    base_price?: number;
+    offerType?: "NONE" | "PERCENTAGE" | "DIRECT";
+    offerValue?: number;
+    sale_price?: number;
+    is_on_sale?: boolean;
     images: string[];
     thumbnail: string;
     description: string;

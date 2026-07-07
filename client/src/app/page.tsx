@@ -6,6 +6,8 @@ import CTABanner from "@/components/sections/CTABanner";
 import BillingSection from "@/components/sections/BillingSection";
 import { getUiData } from "@/services/ui";
 import { getProducts } from "@/services/product";
+import { getBanners } from "@/services/banners";
+import PromotionalBanners from "@/components/sections/PromotionalBanners";
 import Footer from "@/components/shared/Footert";
 import { Product } from "@/types";
 
@@ -99,16 +101,18 @@ const DEFAULT_UI_DATA = {
 };
 
 export default async function Home() {
-  const [uiData, productsData] = await Promise.all([
+  const [uiData, productsData, bannersData] = await Promise.all([
     getUiData().catch(() => null),
     getProducts(1, 100).catch(() => ({ data: { products: [] } })),
+    getBanners().catch(() => null),
   ]);
   const uiRecord = uiData?.data?.[0] || DEFAULT_UI_DATA;
   const { banner, chart, productsCaption, specialty, footer, theme, cta, chatbot } = uiRecord;
 
   const products: Product[] = productsData?.data?.products || [];
+  const banners = bannersData?.data || [];
 
-  const uiLabels = uiData?.categoryLabels || {
+  const uiLabels = uiRecord?.categoryLabels || {
     topCategoryLabel: "Trending Now",
     middleCategoryLabel: "Seasonal Essentials",
     bottomCategoryLabel: "Clearance & Steals"
@@ -129,7 +133,10 @@ export default async function Home() {
     <main className="bg-white min-h-screen font-sans">
       <HeroSection banner={banner} />
 
-      {/* 2. Products — Dynamic layout tiers or single grid fallback */}
+      {/* Promotional Offers Grid */}
+      <PromotionalBanners banners={banners} />
+
+      {/* 2. Products — Dynamic tiers or single grid fallback */}
       {categoriesToRender.length > 0 ? (
         categoriesToRender.map((cat) => (
           <div key={cat.id} className="my-2">

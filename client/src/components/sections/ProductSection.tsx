@@ -25,6 +25,19 @@ function ProductCard({ product }: { product: Product }) {
         className="p-3 pb-0 transition-all hover:opacity-95"
       >
         <div className="relative w-full aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden">
+          {product.is_on_sale && (
+            <div className="absolute top-2.5 left-2.5 bg-red-500 text-white text-[10px] md:text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-md z-10 uppercase tracking-wide">
+              {product.offerType === "PERCENTAGE" && product.offerValue ? (
+                `${product.offerValue}% OFF`
+              ) : product.offerType === "DIRECT" && product.offerValue ? (
+                `৳${product.offerValue} OFF`
+              ) : product.originalPrice && product.originalPrice > product.price ? (
+                `${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF`
+              ) : (
+                "SALE"
+              )}
+            </div>
+          )}
           <Image
             src={product.thumbnail || product.images?.[0] || "/placeholder.png"}
             alt={product.name}

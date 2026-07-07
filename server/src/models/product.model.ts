@@ -24,6 +24,27 @@ const productSchema = new mongoose.Schema(
             type: Number,
             default: null,
         },
+        base_price: {
+            type: Number,
+            default: 0,
+        },
+        offerType: {
+            type: String,
+            enum: ['NONE', 'PERCENTAGE', 'DIRECT'],
+            default: 'NONE',
+        },
+        offerValue: {
+            type: Number,
+            default: 0,
+        },
+        sale_price: {
+            type: Number,
+            default: 0,
+        },
+        is_on_sale: {
+            type: Boolean,
+            default: false,
+        },
         deliveryCharge: [
             {
                 text: {

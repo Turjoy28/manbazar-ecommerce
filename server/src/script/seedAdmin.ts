@@ -4,34 +4,42 @@ import { Admin } from '../models/admin.model';
 
 export const seedAdmin = async () => {
     try {
-        if (!config.admin_email) {
-            console.log("❌ Please add admin email in env")
-            return
-        } else if (!config.admin_password) {
-            console.log("❌ Please add admin password in env")
-            return
+        // 1. Seed Super Admin
+        if (config.admin_email && config.admin_password) {
+            const adminExists = await Admin.findOne({ email: config.admin_email });
+            if (!adminExists) {
+                const hashedAdminPassword = await bcrypt.hash(config.admin_password as string, 10);
+                await Admin.create({
+                    email: config.admin_email,
+                    password: hashedAdminPassword,
+                    role: "ADMIN",
+                });
+                console.log("✅ Admin seeded successfully");
+            } else {
+                console.log("ℹ️ Admin already exists");
+            }
+        } else {
+            console.log("❌ Missing config.admin_email or config.admin_password in configuration");
         }
 
-        const isAdminExists = await Admin.findOne({
-            email: config.admin_email,
-        });
-
-        if (isAdminExists) {
-            console.log("✅ Admin already exists");
-            return;
+        // 2. Seed Regular User
+        if (config.user_email && config.user_password) {
+            const userExists = await Admin.findOne({ email: config.user_email });
+            if (!userExists) {
+                const hashedUserPassword = await bcrypt.hash(config.user_password as string, 10);
+                await Admin.create({
+                    email: config.user_email,
+                    password: hashedUserPassword,
+                    role: "USER",
+                });
+                console.log("✅ User seeded successfully");
+            } else {
+                console.log("ℹ️ User already exists");
+            }
+        } else {
+            console.log("❌ Missing config.user_email or config.user_password in configuration");
         }
-
-        // hash password
-        const hashedPassword = await bcrypt.hash(config.admin_password as string, Number(10));
-
-
-        await Admin.create({
-            email: config.admin_email,
-            password: hashedPassword,
-            role: "ADMIN",
-        });
-        console.log("Admin created successfully")
     } catch (error) {
-        console.log("❌ Admin seed failed", error);
+        console.log("❌ Seeding failed:", error);
     }
-}
+};

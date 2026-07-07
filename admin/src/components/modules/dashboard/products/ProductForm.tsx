@@ -78,6 +78,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     const [videoUrl, setVideoUrl] = useState("");
     const [price, setPrice] = useState<number | "">("");
     const [originalPrice, setOriginalPrice] = useState<number | "">("");
+    const [offerType, setOfferType] = useState<"NONE" | "PERCENTAGE" | "DIRECT">("NONE");
+    const [offerValue, setOfferValue] = useState<number | "">("");
     const [stock, setStock] = useState<number>(10);
     const [description, setDescription] = useState("");
     const [fabric, setFabric] = useState("");
@@ -135,8 +137,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             setSlug(initialData.slug || "");
             setCategoryAssignment(initialData.categoryAssignment || "TOP");
             setVideoUrl(initialData.videoUrl || "");
-            setPrice(initialData.price ?? "");
+            setPrice(initialData.base_price ?? initialData.price ?? "");
             setOriginalPrice(initialData.originalPrice ?? "");
+            setOfferType(initialData.offerType || "NONE");
+            setOfferValue(initialData.offerValue ?? "");
             setStock(initialData.stock || 0);
             setDescription(initialData.description || "");
             setFabric(initialData.fabric || "");
@@ -240,6 +244,22 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             return;
         }
 
+        /* Client-side validation for promotional pricing */
+        if (offerType !== "NONE") {
+            if (offerValue === "" || Number(offerValue) <= 0) {
+                toast.error("Please enter a valid offer value greater than 0.");
+                return;
+            }
+            if (offerType === "PERCENTAGE" && Number(offerValue) > 100) {
+                toast.error("Percentage discount cannot exceed 100%.");
+                return;
+            }
+            if (offerType === "DIRECT" && Number(offerValue) > Number(price)) {
+                toast.error("Direct discount amount cannot exceed the Base Price.");
+                return;
+            }
+        }
+
         /* Build delivery charge array */
         const deliveryCharge: DeliveryChargeItem[] = [
             { text: "Inside Dhaka", price: insideDhakaPrice },
@@ -254,6 +274,9 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             videoUrl: videoUrl.trim() || undefined,
             price: price as number,
             originalPrice: originalPrice !== "" ? originalPrice : undefined,
+            base_price: price as number,
+            offerType,
+            offerValue: offerValue !== "" ? Number(offerValue) : 0,
             stock,
             description: description.trim(),
             fabric: fabric.trim() || undefined,
@@ -570,9 +593,9 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                             <CardTitle className="text-lg text-foreground">Pricing & Stock</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {/* Selling price */}
+                            {/* Base price */}
                             <div className="space-y-2">
-                                <Label htmlFor="price" className="text-foreground/80">Price (৳)</Label>
+                                <Label htmlFor="price" className="text-foreground/80">Base Price (৳)</Label>
                                 <Input
                                     id="price"
                                     type="number"
@@ -586,20 +609,66 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                 />
                             </div>
 
-                            {/* Original price (shown as strikethrough on storefront) */}
+                            {/* Offer Type */}
                             <div className="space-y-2">
-                                <Label htmlFor="originalPrice" className="text-foreground/80">Original Price (৳) (Optional)</Label>
+                                <Label htmlFor="offerType" className="text-foreground/80">Offer Type</Label>
+                                <select
+                                    id="offerType"
+                                    value={offerType}
+                                    onChange={(e) => {
+                                        const val = e.target.value as any;
+                                        setOfferType(val);
+                                        if (val === "NONE") {
+                                            setOfferValue("");
+                                        }
+                                    }}
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    <option value="NONE">None</option>
+                                    <option value="PERCENTAGE">Percentage Reduction (%)</option>
+                                    <option value="DIRECT">Direct Amount Reduction (৳)</option>
+                                </select>
+                            </div>
+
+                            {/* Offer Value */}
+                            <div className="space-y-2">
+                                <Label htmlFor="offerValue" className="text-foreground/80">Offer Value</Label>
                                 <Input
-                                    id="originalPrice"
+                                    id="offerValue"
                                     type="number"
-                                    value={originalPrice}
+                                    value={offerValue}
+                                    disabled={offerType === "NONE"}
                                     onChange={(e) => {
                                         const val = e.target.value;
-                                        setOriginalPrice(val === "" ? "" : Number(val));
+                                        setOfferValue(val === "" ? "" : Number(val));
                                     }}
-                                    className="border-border bg-background/40 text-foreground"
+                                    className="border-border bg-background/40 text-foreground disabled:opacity-50"
+                                    placeholder={
+                                        offerType === "NONE"
+                                            ? "Select an offer type first"
+                                            : offerType === "PERCENTAGE"
+                                            ? "e.g. 10 (for 10% off)"
+                                            : "e.g. 50 (for ৳50 off)"
+                                    }
                                 />
                             </div>
+
+                            {/* Dynamic final sale price display */}
+                            {price !== "" && offerType !== "NONE" && offerValue !== "" && (
+                                <div className="p-3 bg-primary/10 rounded-lg border border-primary/20 text-sm">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-muted-foreground font-medium">Final Sale Price:</span>
+                                        <span className="text-primary font-bold text-base">
+                                            ৳
+                                            {Math.round(
+                                                offerType === "PERCENTAGE"
+                                                    ? Number(price) * (1 - Number(offerValue) / 100)
+                                                    : Number(price) - Number(offerValue)
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Stock count */}
                             <div className="space-y-2">

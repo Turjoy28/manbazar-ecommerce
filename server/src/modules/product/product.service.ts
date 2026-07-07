@@ -1,8 +1,46 @@
 import { Product } from "../../models/product.model.js";
 
+export const computeProductPricing = (payload: any) => {
+    let base = payload.base_price !== undefined ? Number(payload.base_price) : Number(payload.price || 0);
+    if (isNaN(base) || base === null) {
+        base = 0;
+    }
+
+    const offerType = payload.offerType || 'NONE';
+    let offerValue = Number(payload.offerValue) || 0;
+    if (offerType === 'NONE') {
+        offerValue = 0;
+    }
+
+    let sale_price = base;
+    let is_on_sale = false;
+
+    if (offerType === 'PERCENTAGE') {
+        is_on_sale = offerValue > 0;
+        sale_price = Math.round(base * (1 - offerValue / 100));
+    } else if (offerType === 'DIRECT') {
+        is_on_sale = offerValue > 0;
+        sale_price = Math.round(base - offerValue);
+    } else {
+        is_on_sale = false;
+        sale_price = base;
+    }
+
+    return {
+        base_price: base,
+        offerType,
+        offerValue,
+        sale_price,
+        is_on_sale,
+        price: sale_price,
+        originalPrice: is_on_sale ? base : null
+    };
+};
+
 /** Create a new product */
 const createProduct = async (payload: Record<string, unknown>) => {
-    const product = await Product.create(payload);
+    const pricing = computeProductPricing(payload);
+    const product = await Product.create({ ...payload, ...pricing });
     return product;
 };
 
@@ -38,7 +76,18 @@ const getProductById = async (id: string) => {
 
 /** Update a product by ID */
 const updateProduct = async (id: string, payload: Record<string, unknown>) => {
-    return Product.findByIdAndUpdate(id, { $set: payload }, { new: true, runValidators: true });
+    const existing = await Product.findById(id);
+    if (!existing) return null;
+
+    const combined = {
+        price: payload.price !== undefined ? payload.price : existing.price,
+        base_price: payload.base_price !== undefined ? payload.base_price : existing.base_price,
+        offerType: payload.offerType !== undefined ? payload.offerType : existing.offerType,
+        offerValue: payload.offerValue !== undefined ? payload.offerValue : existing.offerValue,
+    };
+
+    const pricing = computeProductPricing(combined);
+    return Product.findByIdAndUpdate(id, { $set: { ...payload, ...pricing } }, { new: true, runValidators: true });
 };
 
 /** Delete a product by ID */

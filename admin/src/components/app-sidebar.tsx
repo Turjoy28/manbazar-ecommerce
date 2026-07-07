@@ -18,8 +18,11 @@ import {
   Settings,
   Package,
   ShoppingCart,
+  Users,
+  Image as ImageIcon,
 } from "lucide-react";
 import { getUiData } from "@/services/ui";
+import { authService } from "@/services/auth";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -29,42 +32,63 @@ const data = {
     email: "admin@gmail.com",
     avatar: "",
   },
-  navMain: [
+};
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [logo, setLogo] = React.useState<string>("");
+  const [role, setRole] = React.useState<string>("");
+
+  useEffect(() => {
+    const fetchLogoAndRole = async () => {
+      try {
+        const uiRes = await getUiData();
+        if (uiRes?.data?.[0]?.banner?.logo) {
+          setLogo(uiRes.data[0].banner.logo);
+        }
+
+        const authRes = await authService.getMe();
+        if (authRes.success && authRes.data) {
+          setRole(authRes.data.role);
+        }
+      } catch (err) {
+        console.error("Failed to load sidebar configuration:", err);
+      }
+    };
+    fetchLogoAndRole();
+  }, []);
+
+  const navMain = [
     {
       title: "Dashboard",
       url: "/",
-      icon: <LayoutDashboardIcon />,
+      icon: <LayoutDashboardIcon className="size-4" />,
     },
     {
       title: "Products",
       url: "/products",
-      icon: <Package />,
+      icon: <Package className="size-4" />,
     },
     {
       title: "Orders",
       url: "/orders",
-      icon: <ShoppingCart />,
+      icon: <ShoppingCart className="size-4" />,
     },
-    {
+  ];
+
+  if (role === "MANAGER" || role === "USER") {
+    navMain.push({
+      title: "Change Banners",
+      url: "/banners",
+      icon: <ImageIcon className="size-4" />,
+    });
+  } else {
+    // Default to ADMIN links or admin settings fallback
+    navMain.push({
       title: "Settings",
       url: "/settings",
-      icon: <Settings />,
-    },
-  ],
-};
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [logo, setLogo] = React.useState<string>("");
-
-  useEffect(() => {
-    const fetchLogo = async () => {
-      const res = await getUiData();
-
-      if (res?.data?.[0]?.banner?.logo) {
-        setLogo(res.data[0].banner.logo);
-      }
-    };
-    fetchLogo();
-  }, []);
+      icon: <Settings className="size-4" />,
+    });
+  }
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -87,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

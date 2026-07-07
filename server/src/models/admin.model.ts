@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const adminSchema = new mongoose.Schema(
     {
+        name: {
+            type: String,
+            required: false,
+        },
         email: {
             type: String,
             required: true,
@@ -11,13 +15,24 @@ const adminSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: true,
+            required: false,
             select: false,
         },
         role: {
             type: String,
-            enum: ["ADMIN"],
+            enum: ["ADMIN", "USER", "MANAGER"],
             default: "ADMIN",
+        },
+        onboardingToken: {
+            type: String,
+            select: false,
+        },
+        onboardingTokenExpires: {
+            type: Date,
+        },
+        onboardingTokenUsed: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true }

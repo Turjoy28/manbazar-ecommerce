@@ -305,6 +305,21 @@ export default function ProductDetails({
           <div className="flex flex-col gap-5">
             {/* Name */}
             <div>
+              {product.is_on_sale && (
+                <div className="mb-2">
+                  <span className="inline-flex bg-red-500 text-white text-[10px] md:text-xs font-extrabold px-3 py-1 rounded-lg shadow-md uppercase tracking-wider">
+                    {product.offerType === "PERCENTAGE" && product.offerValue ? (
+                      `${product.offerValue}% OFF`
+                    ) : product.offerType === "DIRECT" && product.offerValue ? (
+                      `৳${product.offerValue} OFF`
+                    ) : product.originalPrice && product.originalPrice > product.price ? (
+                      `${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF`
+                    ) : (
+                      "SALE"
+                    )}
+                  </span>
+                </div>
+              )}
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
                 {product.name}
               </h1>
