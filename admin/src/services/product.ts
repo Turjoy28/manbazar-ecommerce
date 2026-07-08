@@ -7,23 +7,44 @@ export interface DeliveryChargeItem {
     price: number;
 }
 
+/** A single color variant with its own image gallery and optional price/stock overrides. */
+export interface ProductVariant {
+    _id?: string;
+    color: {
+        name: string;
+        hex: string;
+    };
+    sku?: string;
+    stock: number;
+    /** If set, overrides the base product price for this variant. */
+    price?: number | null;
+    /** If set, overrides the base product sale_price for this variant. */
+    sale_price?: number | null;
+    images: string[];
+}
+
 export interface ProductData {
     _id?: string;
     productId?: string;
     name: string;
     slug: string;
     price: number;
+    vatPercentage?: number;
     originalPrice?: number;
     base_price?: number;
     offerType?: "NONE" | "PERCENTAGE" | "DIRECT";
     offerValue?: number;
     sale_price?: number;
     is_on_sale?: boolean;
+    /** New structured variant system. */
+    variants?: ProductVariant[];
+    /** Legacy flat gallery — used when variants[] is empty or absent. */
     images: string[];
     thumbnail: string;
     description: string;
     fabric?: string;
     fit?: string;
+    /** Legacy flat color list — used when variants[] is empty or absent. */
     colors: string[];
     sizes: string[];
     highlights: string[];

@@ -8,6 +8,8 @@ const orderSchema = new mongoose.Schema(
                 productId: { type: String, default: "" },
                 name: { type: String, required: true },
                 price: { type: Number, required: true },
+                purchasedPrice: { type: Number, required: true },
+                appliedVatPercentage: { type: Number, default: 0 },
                 quantity: { type: Number, required: true },
                 size: { type: String, default: "" },
                 color: { type: String, default: "" },
@@ -50,8 +52,10 @@ const orderSchema = new mongoose.Schema(
 
         coupon: { type: String, default: "" },
         subtotal: { type: Number, required: true },
+        totalVat: { type: Number, default: 0 },
         deliveryCharge: { type: Number, default: 0 },
         total: { type: Number, required: true },
+        grandTotal: { type: Number, required: true },
         status: {
             type: String,
             enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"],

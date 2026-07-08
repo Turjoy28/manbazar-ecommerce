@@ -1,12 +1,13 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Product } from "@/types";
+import { Product, ProductVariant } from "@/types";
 import { SIZE_CHART } from "@/data";
 import { OrderContext } from "@/providers/OrderProvider";
-import { Truck } from 'lucide-react';
+import { Truck, ThumbsUp, Banknote, PhoneCall } from 'lucide-react';
+import { getUiData } from "@/services/ui";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 function ChevronLeft() {
@@ -39,7 +40,7 @@ function TruckIcon() {
 }
 
 
-// ── Color Selector ───────────────────────────────────────────────────────────
+// ── Color Selector (Legacy flat colors[] fallback) ───────────────────────────
 function ColorSelector({
   colors,
   selected,
@@ -68,6 +69,47 @@ function ColorSelector({
             {!isHex && (
               <span className={`text-xs font-semibold ${selected === c ? "font-bold" : "text-gray-700"}`}>
                 {c}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Variant Color Selector (New hex-based swatch system) ─────────────────────
+function VariantColorSelector({
+  variants,
+  selectedVariantId,
+  onSelect,
+}: {
+  variants: ProductVariant[];
+  selectedVariantId: string | undefined;
+  onSelect: (v: ProductVariant) => void;
+}) {
+  return (
+    <div className="flex gap-3 items-center flex-wrap">
+      {variants.map((v) => {
+        const isSelected = v._id === selectedVariantId || (!selectedVariantId && variants[0]?._id === v._id);
+        return (
+          <button
+            key={v._id || v.color.name}
+            onClick={() => onSelect(v)}
+            title={v.color.name}
+            aria-label={`color-${v.color.name}`}
+            className={`relative w-8 h-8 rounded-full border-2 cursor-pointer transition-all duration-150 focus:outline-none ${isSelected
+                ? "ring-2 ring-offset-2 ring-primary border-primary scale-110 shadow-md"
+                : "border-gray-300 hover:scale-105 hover:border-primary/60"
+              }`}
+            style={{ backgroundColor: v.color.hex || "#e5e7eb" }}
+          >
+            {/* Checkmark for selected */}
+            {isSelected && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} className="w-3.5 h-3.5 drop-shadow">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
               </span>
             )}
           </button>
@@ -118,8 +160,17 @@ const isVideoUrl = (url: string) => {
 };
 
 // ── Image Gallery ─────────────────────────────────────────────────────────────
-function ImageGallery({ images = [], name }: { images: string[]; name: string }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+function ImageGallery({
+  images = [],
+  name,
+  activeIndex,
+  setActiveIndex
+}: {
+  images: string[];
+  name: string;
+  activeIndex: number;
+  setActiveIndex: (index: number) => void;
+}) {
 
   // Filter out invalid/empty/whitespace-only image URLs
   const displayImages = images?.filter((img) => img && img.trim() !== "") || [];
@@ -154,15 +205,15 @@ function ImageGallery({ images = [], name }: { images: string[]; name: string })
         </div>
       </div>
 
-      {/* Thumbnail row */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      {/* All images grid — always visible, shows all photos for active variant */}
+      <div className="flex flex-wrap gap-2">
         {displayImages.map((img, idx) => (
           <button
             key={idx}
             onClick={() => setActiveIndex(idx)}
             className={`relative w-16 h-20 md:w-20 md:h-24 shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 ${activeIndex === idx
-                ? "border-primary shadow-md scale-105"
-                : "border-gray-200 hover:border-gray-400"
+                ? "border-primary shadow-md ring-2 ring-primary/30 scale-105"
+                : "border-gray-200 hover:border-primary/60 hover:shadow-sm"
               }`}
           >
             {isVideoUrl(img) ? (
@@ -180,8 +231,12 @@ function ImageGallery({ images = [], name }: { images: string[]; name: string })
                 alt={`${name} view ${idx + 1}`}
                 fill
                 className="object-cover"
-                sizes="80px"
+                sizes="(max-width: 768px) 80px, 100px"
               />
+            )}
+            {/* Active overlay indicator */}
+            {activeIndex === idx && (
+              <div className="absolute inset-0 bg-primary/10 pointer-events-none" />
             )}
           </button>
         ))}
@@ -242,8 +297,8 @@ function SizeSelector({
           key={size}
           onClick={() => onChange(size)}
           className={`w-12 h-12 rounded-lg border-2 font-semibold text-sm transition-all duration-200 ${selected === size
-              ? "border-primary bg-primary text-(--primary-text) shadow"
-              : "border-gray-300 text-gray-700 hover:border-primary hover:text-primary"
+            ? "border-primary bg-primary text-(--primary-text) shadow"
+            : "border-gray-300 text-gray-700 hover:border-primary hover:text-primary"
             }`}
         >
           {size}
@@ -261,15 +316,70 @@ export default function ProductDetails({
 }: {
   product: Product;
 }) {
+  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
+
+  // ── Selected Variant State ─────────────────────────────────────────────────
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+    hasVariants ? (product.variants![0]) : null
+  );
+  // ── Legacy color state (used only when no variants exist) ─────────────────
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || "");
+
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "");
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"description" | "size" | "care">("description");
+  const [contactNumber, setContactNumber] = useState("+8801577498985");
+
+  // Lifted gallery state
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Derived: ALL images from ALL variants
+  const galleryImages: string[] = (() => {
+    let imgs: string[] = [];
+    if (hasVariants) {
+      product.variants!.forEach(v => {
+        imgs = [...imgs, ...(v.images || []).filter(Boolean)];
+      });
+    } else {
+      imgs = [product.thumbnail, ...(product.images || [])].filter(Boolean);
+    }
+    if (imgs.length === 0) imgs.push("/placeholder.png");
+    return imgs;
+  })();
+
+  // Handle color selection: update variant AND scroll gallery to its first image
+  const handleSelectVariant = (v: ProductVariant) => {
+    setSelectedVariant(v);
+    if (v.images && v.images.length > 0) {
+      const firstImg = v.images[0];
+      const idx = galleryImages.indexOf(firstImg);
+      if (idx !== -1) {
+        setActiveIndex(idx);
+      }
+    }
+  };
+
+  // Derived: current active color name for display
+  const activeColorName = hasVariants && selectedVariant
+    ? selectedVariant.color.name
+    : selectedColor;
+
+  useEffect(() => {
+    getUiData().then(res => {
+      if (res?.data?.[0]?.footer?.contactInfo?.number) {
+        setContactNumber(res.data[0].footer.contactInfo.number);
+      }
+    }).catch(console.error);
+  }, []);
 
   const { addToCart } = useContext(OrderContext);
 
   const handleOrderNow = () => {
-    addToCart(product, quantity, selectedSize, selectedColor);
+    if (hasVariants && selectedVariant) {
+      addToCart(product, quantity, selectedSize, selectedVariant.color.name, selectedVariant);
+    } else {
+      addToCart(product, quantity, selectedSize, selectedColor);
+    }
   };
 
   const discount = product.originalPrice
@@ -279,7 +389,7 @@ export default function ProductDetails({
   return (
     <main className="bg-white min-h-screen">
       {/* ── Breadcrumb ── */}
-      <div className="max-w-6xl mx-auto px-4 py-4">
+      <div className="max-w-[1400px] mx-auto px-4 xl:px-8 py-4">
         <nav className="flex items-center gap-2 text-sm text-gray-500">
           <Link
             href="/"
@@ -296,13 +406,20 @@ export default function ProductDetails({
       </div>
 
       {/* ── Product Section ── */}
-      <section className="max-w-6xl mx-auto px-4 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+      <section className="max-w-[1400px] mx-auto px-4 xl:px-8 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12">
           {/* LEFT: Image Gallery */}
-          <ImageGallery images={[product.thumbnail, ...(product.images || [])]} name={product.name} />
+          <div className="lg:col-span-5">
+            <ImageGallery
+              images={galleryImages}
+              name={product.name}
+              activeIndex={activeIndex}
+              setActiveIndex={setActiveIndex}
+            />
+          </div>
 
-          {/* RIGHT: Product Details */}
-          <div className="flex flex-col gap-5">
+          {/* MIDDLE: Product Details */}
+          <div className="lg:col-span-4 flex flex-col gap-5 w-full">
             {/* Name */}
             <div>
               {product.is_on_sale && (
@@ -323,16 +440,6 @@ export default function ProductDetails({
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
                 {product.name}
               </h1>
-
-              {/* Stars */}
-              {/* <div className="flex items-center gap-2 mt-2">
-                                <div className="flex items-center gap-0.5">
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <StarIcon key={i} filled={i <= 4} />
-                                    ))}
-                                </div>
-                                <span className="text-sm text-gray-500">(৪.০) · ১২৮টি রিভিউ</span>
-                            </div> */}
             </div>
 
             {/* Price */}
@@ -379,18 +486,39 @@ export default function ProductDetails({
                 sizes={product.sizes}
               />
 
-              {/* color selection */}
+              {/* Color / Variant selection */}
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-semibold text-gray-800">
-                    কালার বেছে নিন
-                  </p>
+                  <p className="font-semibold text-gray-800">কালার বেছে নিন</p>
+                  {activeColorName && (
+                    <span className="text-sm text-gray-500 font-medium">{activeColorName}</span>
+                  )}
                 </div>
-                <ColorSelector
-                  colors={product.colors}
-                  selected={selectedColor}
-                  onChange={setSelectedColor}
-                />
+                {hasVariants ? (
+                  <>
+                    <VariantColorSelector
+                      variants={product.variants!}
+                      selectedVariantId={selectedVariant?._id}
+                      onSelect={handleSelectVariant}
+                    />
+                    {/* Stock indicator for selected variant */}
+                    {selectedVariant && (
+                      <p className={`mt-2 text-xs font-medium ${selectedVariant.stock <= 0 ? "text-red-500" :
+                          selectedVariant.stock <= 5 ? "text-orange-500" : "text-green-600"
+                        }`}>
+                        {selectedVariant.stock <= 0 ? "স্টক শেষ" :
+                          selectedVariant.stock <= 5 ? `মাত্র ${selectedVariant.stock}টি বাকি!` :
+                            `${selectedVariant.stock}টি স্টকে আছে`}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <ColorSelector
+                    colors={product.colors}
+                    selected={selectedColor}
+                    onChange={setSelectedColor}
+                  />
+                )}
               </div>
             </div>
 
@@ -399,24 +527,6 @@ export default function ProductDetails({
               <p className="font-semibold text-gray-800 mb-3">পরিমাণ</p>
               <QuantitySelector value={quantity} onChange={setQuantity} />
             </div>
-
-            {(() => {
-              const charges = product?.deliveryCharge || [];
-              const inside = charges.find((d) => d.text.toLowerCase().includes("inside"))?.price ?? 50;
-              const outside = charges.find((d) => d.text.toLowerCase().includes("outside"))?.price ?? 150;
-              return (
-                <div className="text-black/50 border border-primary/70 p-5 rounded-2xl text-sm">
-                  <p className="flex gap-2 items-center">
-                    <Truck size={20} /> ঢাকার ভেতরে ডেলিভারি চার্জ:{" "}
-                    <span className="font-bold text-black">৳{inside}</span> টাকা
-                  </p>
-                  <p className="flex gap-2 items-center">
-                    <Truck size={20} /> ঢাকার বাহিরে ডেলিভারি চার্জ:{" "}
-                    <span className="font-bold text-black">৳{outside}</span> টাকা
-                  </p>
-                </div>
-              );
-            })()}
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
@@ -473,6 +583,68 @@ export default function ProductDetails({
               </div>
             )}
           </div>
+
+          {/* RIGHT: Dashed Info Boxes */}
+          <div className="lg:col-span-3 w-full shrink-0 flex flex-col gap-5 mt-6 lg:mt-0">
+            {/* Delivery Info Box (Dashed Border) */}
+            {(() => {
+              const charges = product?.deliveryCharge || [];
+              const inside = charges.find((d) => d.text.toLowerCase().includes("inside"))?.price ?? 50;
+              const outside = charges.find((d) => d.text.toLowerCase().includes("outside"))?.price ?? 150;
+
+              return (
+                <div className="border border-dashed border-gray-500 rounded-lg p-3 text-[12px] space-y-2.5">
+                  <p className="flex items-start gap-2">
+                    <CheckIcon />
+                    <span className="text-gray-700 leading-snug">আজই অর্ডার করুন এবং ০১ - ০২ দিনের মধ্যে ডেলিভারি নিন।</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <ThumbsUp className="w-3.5 h-3.5 text-gray-700 shrink-0 mt-0.5" />
+                    <span className="text-gray-700 leading-snug">গুণগত মানসম্পন্ন পণ্য।</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <Banknote className="w-3.5 h-3.5 text-gray-700 shrink-0 mt-0.5" />
+                    <span className="text-gray-700 leading-snug">ক্যাশ অন ডেলিভারি সুবিধা।</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <Truck className="w-3.5 h-3.5 text-gray-700 shrink-0 mt-0.5" />
+                    <span className="text-gray-700 leading-snug">ঢাকার ভিতরে ডেলিভারি চার্জ {inside} টাকা।</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <Truck className="w-3.5 h-3.5 text-gray-700 shrink-0 mt-0.5" />
+                    <span className="text-gray-700 leading-snug">ঢাকার বাইরে ডেলিভারি চার্জ {outside} টাকা।</span>
+                  </p>
+                </div>
+              );
+            })()}
+
+            {/* Contact Info Box (Dashed Border) */}
+            <div className="border border-dashed border-gray-500 rounded-lg p-3 text-[12px]">
+              <p className="text-gray-800 font-semibold mb-2.5 leading-snug">
+                এই পণ্যটি সম্পর্কে আপনার কোনো প্রশ্ন থাকলে অনুগ্রহ করে কল করুন
+              </p>
+
+              <div className="space-y-2">
+                <a href={`tel:${contactNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors">
+                  <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
+                  <span>{contactNumber}</span>
+                </a>
+
+                <a href={`tel:${contactNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors flex-wrap">
+                  <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
+                  <span>{contactNumber}</span>
+                  <span className="text-red-500 border border-dashed border-red-500 rounded px-1 py-0.5 text-[9px] font-medium shrink-0 tracking-wide">Bkash Personal</span>
+                </a>
+
+                <a href={`tel:${contactNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors flex-wrap">
+                  <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
+                  <span>{contactNumber}</span>
+                  <span className="text-orange-500 border border-dashed border-orange-500 rounded px-1 py-0.5 text-[9px] font-medium shrink-0 tracking-wide">Nagad Personal</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* ── Tabs: Description / Size Chart / Care ── */}
@@ -490,8 +662,8 @@ export default function ProductDetails({
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`flex-1 py-4 text-sm font-semibold transition-colors duration-200 ${activeTab === tab
-                      ? "bg-primary text-(--primary-text)"
-                      : "bg-white text-gray-600 hover:bg-gray-50"
+                    ? "bg-primary text-(--primary-text)"
+                    : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   {labels[tab]}
@@ -590,7 +762,7 @@ export default function ProductDetails({
 
       {/* ── Remote Video Section ── */}
       {product.videoUrl && (
-        <section className="max-w-6xl mx-auto px-4 pb-16">
+        <section className="max-w-[1400px] mx-auto px-4 xl:px-8 pb-16">
           {/* Section header */}
           <div className="flex items-center gap-3 mb-6">
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">

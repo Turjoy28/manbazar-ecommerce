@@ -1,7 +1,7 @@
 import { Order } from "../../models/order.model.js";
 
-/** Place a new order (public) — with payment routing */
-const createOrder = async (payload: Record<string, unknown>) => {
+/** Place a new order (public) — with payment routing and server-side calculation */
+const createOrder = async (payload: Record<string, any>) => {
     const method = (payload.paymentMethod as string | undefined) || "cod";
 
     if (method === "bkash") {
@@ -20,6 +20,80 @@ const createOrder = async (payload: Record<string, unknown>) => {
         payload.paymentStatus = "pending";
         payload.bkashTxnId = null;
     }
+
+    // Import Product inline to avoid circular dependencies
+    const Product = (await import("../../models/product.model.js")).Product;
+
+    if (!payload.products || !Array.isArray(payload.products) || payload.products.length === 0) {
+        throw Object.assign(new Error("Products are required to place an order."), { statusCode: 400 });
+    }
+
+    // Fetch fresh product data from DB
+    const productIds = payload.products.map((p: any) => p.id);
+    const dbProducts = await Product.find({ _id: { $in: productIds } });
+
+    if (dbProducts.length !== productIds.length) {
+        throw Object.assign(new Error("One or more products could not be found."), { statusCode: 400 });
+    }
+
+    let subtotal = 0;
+    let totalVat = 0;
+    const finalProducts = [];
+
+    const isDhaka = payload.customer?.location === "dhaka";
+    let highestDeliveryCharge = 0;
+
+    for (const p of payload.products) {
+        const dbProduct = dbProducts.find((dbp: any) => dbp._id.toString() === p.id);
+        if (!dbProduct) continue;
+
+        const qty = Number(p.quantity);
+        if (!qty || qty <= 0) {
+            throw Object.assign(new Error(`Invalid quantity for product ${dbProduct.name}`), { statusCode: 400 });
+        }
+
+        const price = dbProduct.price;
+        const vatPercentage = dbProduct.vatPercentage || 0;
+
+        const itemSubtotal = price * qty;
+        const itemVat = itemSubtotal * (vatPercentage / 100);
+
+        subtotal += itemSubtotal;
+        totalVat += itemVat;
+
+        finalProducts.push({
+            id: dbProduct._id.toString(),
+            productId: dbProduct.productId,
+            name: dbProduct.name,
+            price: price, // Legacy field
+            purchasedPrice: price, // Snapshotted real cost
+            appliedVatPercentage: vatPercentage, // Snapshotted VAT %
+            quantity: qty,
+            size: p.size || "",
+            color: p.color || "",
+        });
+
+        const charges = dbProduct.deliveryCharge || [];
+        const match = charges.find((d: any) =>
+            d.text.toLowerCase().includes(isDhaka ? "inside" : "outside")
+        );
+        const chargeForProduct = match ? match.price : (isDhaka ? 50 : 150);
+        if (chargeForProduct > highestDeliveryCharge) {
+            highestDeliveryCharge = chargeForProduct;
+        }
+    }
+
+    const deliveryCharge = highestDeliveryCharge;
+    const total = subtotal + totalVat;
+    const grandTotal = total + deliveryCharge;
+
+    // Overwrite payload with securely calculated values
+    payload.products = finalProducts;
+    payload.subtotal = Number(subtotal.toFixed(2));
+    payload.totalVat = Number(totalVat.toFixed(2));
+    payload.total = Number(total.toFixed(2));
+    payload.deliveryCharge = Number(deliveryCharge.toFixed(2));
+    payload.grandTotal = Number(grandTotal.toFixed(2));
 
     return Order.create(payload);
 };

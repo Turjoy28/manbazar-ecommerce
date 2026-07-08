@@ -155,65 +155,109 @@ function OrderSummary({
     0,
   );
 
+  const totalVat = cart.reduce((sum, item, idx) => {
+    const vatPercent = item?.product?.vatPercentage || 0;
+    return sum + (item?.product?.price * item.quantity * (vatPercent / 100));
+  }, 0);
+
+  const total = subtotal + totalVat;
+  const grandTotal = total + deliveryCharge;
+
   return (
-    <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden text-sm">
+    <div className="mt-4 border border-gray-200 rounded-xl overflow-hidden text-sm bg-white shadow-sm">
       {/* Header row */}
-      <div className="flex justify-between bg-gray-50 px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">
+      <div className="flex justify-between bg-gray-50/80 px-5 py-3 font-semibold text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
         <span>Product</span>
         <span>Subtotal</span>
       </div>
 
-      {/* Items */}
-      {cart.map((item, idx) => (
-        <div
-          key={idx}
-          className="flex items-center justify-between px-4 py-3 border-b border-gray-100 gap-3"
-        >
-          <div className="flex items-center gap-2">
-            <div className="relative w-8 h-8 rounded overflow-hidden border border-gray-200 shrink-0">
-              <Image
-                src={
-                  item.product.thumbnail ||
-                  item.product.images?.[0] ||
-                  "/placeholder.png"
-                }
-                alt={item.product.name}
-                fill
-                className="object-cover"
-                sizes="32px"
-              />
-            </div>
-            <span className="text-gray-700">
-              {item.product.name}
-              <span className="text-gray-400 text-xs ml-1">
-                × {item.quantity}
+      {/* Items List */}
+      <div className="divide-y divide-gray-100">
+        {cart.map((item, idx) => {
+          const itemVatPercent = item?.product?.vatPercentage || 0;
+          return (
+            <div
+              key={idx}
+              className="flex items-center justify-between px-5 py-4 gap-4 bg-white"
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative w-10 h-10 rounded-md overflow-hidden border border-gray-100 shrink-0 shadow-sm">
+                  <Image
+                    src={
+                      item.product.thumbnail ||
+                      item.product.images?.[0] ||
+                      "/placeholder.png"
+                    }
+                    alt={item.product.name}
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-gray-800 font-medium leading-tight">
+                    {item.product.name}
+                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-gray-500 text-xs">
+                      Qty: {item.quantity}
+                    </span>
+                    {itemVatPercent > 0 && (
+                      <span className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                        VAT {itemVatPercent}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <span className="text-gray-900 font-medium tabular-nums">
+                ৳ {(item.product.price * item.quantity).toFixed(2)}
               </span>
-            </span>
-          </div>
-          <span className="text-gray-800 font-medium">
-            ৳ {(item.product.price * item.quantity).toFixed(2)}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Breakdown Section */}
+      <div className="bg-gray-50/50 px-5 py-4 space-y-3 border-t border-gray-200">
+        {/* Subtotal Row */}
+        <div className="flex justify-between items-center text-gray-600">
+          <span>Subtotal</span>
+          <span className="font-medium tabular-nums">
+            ৳ {subtotal.toFixed(2)}
           </span>
         </div>
-      ))}
 
-      {/* Subtotal */}
-      <div className="flex justify-between px-4 py-2 border-b border-gray-200">
-        <span className="text-gray-600">Subtotal</span>
-        <span className="font-medium text-gray-800">
-          ৳ {subtotal.toFixed(2)}
-        </span>
+        {/* VAT Row */}
+        <div className="flex justify-between items-center text-gray-600">
+          <span>VAT Amount</span>
+          <span className="font-medium tabular-nums">
+            ৳ {totalVat.toFixed(2)}
+          </span>
+        </div>
+
+        {/* Midway Total Row */}
+        <div className="flex justify-between items-center text-gray-800 font-semibold pt-2 border-t border-gray-200/60">
+          <span>Total (incl. VAT)</span>
+          <span className="tabular-nums">
+            ৳ {total.toFixed(2)}
+          </span>
+        </div>
+
+        {/* Delivery Charge Row */}
+        <div className="flex justify-between items-center text-gray-600">
+          <span>Delivery Charge</span>
+          <span className="font-medium tabular-nums">
+            ৳ {deliveryCharge.toFixed(2)}
+          </span>
+        </div>
       </div>
 
-      <div className="flex justify-between px-4 py-2 border-b border-gray-200">
-        <span>Delivery Charge</span>
-        <span>৳ {deliveryCharge.toFixed(2)}</span>
-      </div>
-
-      {/* Total */}
-      <div className="flex justify-between px-4 py-3 bg-gray-50">
-        <span className="font-bold text-gray-800">Total</span>
-        <span className="font-bold text-gray-900">
-          ৳ {(subtotal + deliveryCharge).toFixed(2)}
+      {/* Grand Total Row */}
+      <div className="flex justify-between items-center px-5 py-4 bg-gray-50 border-t border-gray-200">
+        <span className="font-bold text-gray-900 text-base">Grand Total</span>
+        <span className="font-bold text-primary text-xl tabular-nums">
+          ৳ {grandTotal.toFixed(2)}
         </span>
       </div>
     </div>
@@ -274,10 +318,17 @@ export default function BillingSection() {
     })
   );
 
-  const totalAmount = cartItems.reduce(
+  const subtotal = cartItems.reduce(
     (sum, item) => sum + item?.product?.price * item.quantity,
     0,
   );
+
+  const totalVat = cartItems.reduce((sum, item, idx) => {
+    const vatPercent = item?.product?.vatPercentage || 0;
+    return sum + (item?.product?.price * item.quantity * (vatPercent / 100));
+  }, 0);
+
+  const totalAmount = subtotal + totalVat; // Total including VAT
 
   const grandTotal = totalAmount + deliveryCharge;
 
@@ -298,10 +349,9 @@ export default function BillingSection() {
       color: item.color,
     })),
 
-    subtotal: totalAmount,
-
+    subtotal: subtotal,
+    vat: totalVat,
     deliveryCharge,
-
     total: grandTotal,
   };
 
@@ -342,7 +392,7 @@ export default function BillingSection() {
     } catch (err: any) {
       toast.error(
         err.message ||
-          "Sorry, we could not place your order. Please try again.",
+        "Sorry, we could not place your order. Please try again.",
       );
     }
   };
@@ -352,27 +402,27 @@ export default function BillingSection() {
       {isSuccess ? (
         <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
           <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-6 shadow-sm">
-             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-             </svg>
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
           </div>
           <h2 className="text-3xl font-bold text-gray-800 mb-3">Order Placed Successfully!</h2>
           <p className="text-gray-600 max-w-md mx-auto text-lg mb-8">
-             Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
+            Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
           </p>
-          <button 
-             onClick={() => {
-                setIsSuccess(false);
-                const productsSection = document.getElementById("products");
-                if (productsSection) {
-                   productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                   window.location.href = "/#products";
-                }
-             }}
-             className="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+          <button
+            onClick={() => {
+              setIsSuccess(false);
+              const productsSection = document.getElementById("products");
+              if (productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              } else {
+                window.location.href = "/#products";
+              }
+            }}
+            className="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors"
           >
-             Continue Shopping
+            Continue Shopping
           </button>
         </div>
       ) : cartItems.length > 0 ? (
@@ -555,15 +605,7 @@ export default function BillingSection() {
             </h2>
             <OrderSummary cart={cartItems} deliveryCharge={deliveryCharge} />
 
-            {/* Payment warning */}
-            <div className="mt-4 bg-orange-50 border border-orange-200 rounded p-3 text-xs text-orange-700 flex gap-2 items-start">
-              <span className="text-orange-400 mt-0.5 shrink-0">ℹ️</span>
-              <span>
-                Sorry, it seems that there are no available payment methods for
-                your state. Please contact us if you require assistance or wish
-                to make alternative arrangements.
-              </span>
-            </div>
+
 
             {/* Privacy note */}
             <p className="text-xs text-gray-400 mt-3 leading-relaxed">
@@ -573,15 +615,15 @@ export default function BillingSection() {
               <a href="#" className="underline hover:text-gray-600">
                 Privacy Policy
               </a>
-              .
+
             </p>
 
             {/* Place order button */}
             <button
               onClick={handlePlaceOrder}
-              className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg text-base transition-all duration-200 flex items-center justify-center gap-2 animate-cta-bounce"
+              className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg text-lg shadow-md transition-all duration-300 flex items-center justify-center gap-2 animate-cta-bounce hover:shadow-lg"
             >
-              🔒 Place Order — ৳ {grandTotal.toFixed(2)}
+              🔒 Proceed to Payment — ৳ {grandTotal.toFixed(2)}
             </button>
           </div>
         </div>

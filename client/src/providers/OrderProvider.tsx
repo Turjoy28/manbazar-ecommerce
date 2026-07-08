@@ -1,11 +1,11 @@
 "use client";
 
 import { createContext, ReactNode, useState, useEffect } from "react";
-import { CartItem, Product } from "@/types";
+import { CartItem, Product, ProductVariant } from "@/types";
 
 interface OrderContextType {
     cartItems: CartItem[];
-    addToCart: (product: Product, quantity?: number, size?: string, color?: string) => void;
+    addToCart: (product: Product, quantity?: number, size?: string, color?: string, variant?: ProductVariant) => void;
     removeFromCart: (productId: string, size?: string, color?: string) => void;
     updateQuantity: (productId: string, size: string | undefined, color: string | undefined, quantity: number) => void;
     updateItemSize: (productId: string, oldSize: string | undefined, color: string | undefined, newSize: string) => void;
@@ -43,17 +43,20 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem("manbazar-cart", JSON.stringify(cartItems));
     }, [cartItems]);
 
-    const addToCart = (product: Product, quantity = 1, size?: string, color?: string) => {
+    const addToCart = (product: Product, quantity = 1, size?: string, color?: string, variant?: ProductVariant) => {
         setCartItems(prev => {
             const existingIndex = prev.findIndex(item =>
                 item.product._id === product._id && item.size === size && item.color === color
             );
             if (existingIndex >= 0) {
                 const newItems = [...prev];
-                newItems[existingIndex].quantity += quantity;
+                newItems[existingIndex] = {
+                    ...newItems[existingIndex],
+                    quantity: newItems[existingIndex].quantity + quantity
+                };
                 return newItems;
             }
-            return [...prev, { product, quantity, size, color }];
+            return [...prev, { product, quantity, size, color, variant }];
         });
     };
 
@@ -69,7 +72,10 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
             const newItems = [...prev];
             const idx = newItems.findIndex(item => item.product._id === productId && item.size === size && item.color === color);
             if (idx >= 0) {
-                newItems[idx].quantity = quantity;
+                newItems[idx] = {
+                    ...newItems[idx],
+                    quantity: quantity
+                };
             }
             return newItems;
         });
@@ -80,7 +86,10 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
             const newItems = [...prev];
             const idx = newItems.findIndex(item => item.product._id === productId && item.size === oldSize && item.color === color);
             if (idx >= 0) {
-                newItems[idx].size = newSize;
+                newItems[idx] = {
+                    ...newItems[idx],
+                    size: newSize
+                };
             }
             return newItems;
         });
@@ -91,7 +100,10 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
             const newItems = [...prev];
             const idx = newItems.findIndex(item => item.product._id === productId && item.size === size && item.color === oldColor);
             if (idx >= 0) {
-                newItems[idx].color = newColor;
+                newItems[idx] = {
+                    ...newItems[idx],
+                    color: newColor
+                };
             }
             return newItems;
         });
