@@ -290,7 +290,7 @@ export default function BillingSection() {
 
     products: cartItems.map((item) => ({
       id: item.product._id,
-      productId: item.product.productId,
+      productId: item.product.productId || item.product._id || "",
       name: item.product.name,
       price: item.product.price,
       quantity: item.quantity,
