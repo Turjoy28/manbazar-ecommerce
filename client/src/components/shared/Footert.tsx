@@ -47,22 +47,22 @@ export default function Footer({ logo, footerInfo, chatbot }: FooterProps) {
             <h3 className="underline font-bold text-xs uppercase tracking-wider opacity-90">Contact information</h3>
             <div className="space-y-1.5">
               {footerInfo?.contactInfo?.number && (
-                <p className="flex items-center gap-2">
+                <a href={`tel:${footerInfo.contactInfo.number}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                   <Phone className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="font-sans text-xs md:text-sm">{footerInfo.contactInfo.number}</span>
-                </p>
+                </a>
               )}
               {footerInfo?.contactInfo?.email && (
-                <p className="flex items-center gap-2">
+                <a href={`mailto:${footerInfo.contactInfo.email}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                   <Mail className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="text-xs md:text-sm">{footerInfo.contactInfo.email}</span>
-                </p>
+                </a>
               )}
               {footerInfo?.contactInfo?.website && (
-                <p className="flex items-center gap-2">
+                <a href={formatExternalLink(footerInfo.contactInfo.website)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
                   <Globe className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="text-xs md:text-sm">{footerInfo.contactInfo.website}</span>
-                </p>
+                </a>
               )}
             </div>
           </div>
@@ -70,10 +70,15 @@ export default function Footer({ logo, footerInfo, chatbot }: FooterProps) {
           {/* 3. Office location */}
           <div className="space-y-1.5 mt-20 md:mt-10">
             <h3 className="underline font-bold text-xs uppercase tracking-wider opacity-90">Office location</h3>
-            <p className="flex items-center gap-2">
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(footerInfo.location)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <MapPin className="h-4 w-4 shrink-0 opacity-80" />
               <span className="text-xs md:text-sm">{footerInfo.location}</span>
-            </p>
+            </a>
           </div>
 
           {/* 4. Social Links (Static Round Icons next to Location) */}
