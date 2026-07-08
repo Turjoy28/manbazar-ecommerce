@@ -66,16 +66,20 @@ export default function Navbar({ banner }: NavbarProps) {
 
         {/* 3. Right Portion: Announcement/Notice Box from Admin */}
         {noticeText && (
-          <div className="shrink-0 flex items-center gap-2 bg-primary/8 text-primary border border-primary/20 px-4 py-2 rounded-full text-xs md:text-sm font-bold shadow-xs transition-all duration-300">
+          <a
+            href={`tel:${noticeText.replace(/[^\d+]/g, '')}`}
+            className="shrink-0 flex items-center gap-2 bg-primary/8 text-primary border border-primary/20 px-4 py-2 rounded-full text-xs md:text-sm font-bold shadow-xs transition-all duration-300 hover:bg-primary/20 cursor-pointer"
+            title="Click to call"
+          >
             <span className="flex h-2 w-2 relative shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
             <Sparkles className="h-3.5 w-3.5 text-primary/90 shrink-0" />
-            <span className="truncate select-none font-sans max-w-[120px] sm:max-w-[200px] md:max-w-[280px] tracking-wide" title={noticeText}>
+            <span className="truncate select-none font-sans max-w-[120px] sm:max-w-[200px] md:max-w-[280px] tracking-wide">
               {noticeText}
             </span>
-          </div>
+          </a>
         )}
       </div>
     </header>

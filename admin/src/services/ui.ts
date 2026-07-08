@@ -1,21 +1,13 @@
+import { secureFetch } from "../lib/secureFetch";
+
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001/api/v1'
 
 
 export const getUiData = async () => {
     const url = `${baseUrl}/ui/all-data`;
     try {
-        const res = await fetch(url, { cache: "no-cache" });
-        if (!res.ok) {
-            console.error(`[getUiData] Fetch failed. URL: ${url}, Status: ${res.status} ${res.statusText}`);
-            return null;
-        }
-        const contentType = res.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            const bodyText = await res.text();
-            console.error(`[getUiData] Non-JSON response received. URL: ${url}, Content-Type: ${contentType}. Body preview: ${bodyText.substring(0, 300)}`);
-            return null;
-        }
-        return await res.json();
+        const res = await secureFetch<any>(url, { cache: "no-store" });
+        return res;
     } catch (error: any) {
         if (
             error.name === 'DynamicServerError' ||
@@ -32,21 +24,14 @@ export const getUiData = async () => {
 
 export const updateUiData = async (id: string, payload: any) => {
     const url = `${baseUrl}/ui/update-ui/${id}`;
-    const res = await fetch(url, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-        throw new Error(`Failed to update UI: ${res.status} ${res.statusText}`);
+    try {
+        const res = await secureFetch<any>(url, {
+            method: "PATCH",
+            body: payload
+        });
+        return res;
+    } catch (error: any) {
+        console.error(`[updateUiData] Error updating UI data. URL: ${url}, Error:`, error.message || error);
+        throw new Error(error.message || `Failed to update UI`);
     }
-    const contentType = res.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-        const bodyText = await res.text();
-        console.error(`[updateUiData] Non-JSON response received. URL: ${url}, Content-Type: ${contentType}. Body preview: ${bodyText.substring(0, 300)}`);
-        throw new Error("Received non-JSON response from server");
-    }
-    return res.json();
 };

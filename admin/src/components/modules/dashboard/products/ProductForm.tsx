@@ -133,7 +133,6 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     /* ─── Populate form fields when editing an existing product ─── */
     useEffect(() => {
         if (initialData) {
-            setProductId(initialData.productId || "");
             setName(initialData.name || "");
             setSlug(initialData.slug || "");
             setCategoryAssignment(initialData.categoryAssignment || "TOP");
