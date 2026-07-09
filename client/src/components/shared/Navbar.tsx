@@ -29,15 +29,22 @@ export default function Navbar({ banner }: NavbarProps) {
   return (
     <header className="sticky top-0 z-50 w-full bg-[#FCFBF2] border-b border-amber-100/80 shadow-xs transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 min-h-[64px] py-2 md:py-0 flex flex-wrap md:flex-nowrap items-center justify-between gap-2 md:gap-4">
-        {/* 1. Left Portion: Home Button */}
+        {/* 1. Left Portion: Logo Button */}
         <div className="shrink-0">
           <Link
             href="/"
             onClick={handleHomeClick}
-            className="flex items-center gap-2 text-secondary hover:text-primary transition-all duration-200 font-semibold text-base md:text-lg py-1.5 px-3.5 rounded-lg hover:bg-amber-100/30 border border-transparent hover:border-amber-200/35 active:scale-95"
+            className="flex items-center hover:opacity-80 transition-opacity active:scale-95"
           >
-            <Home className="h-5 w-5 text-primary" />
-            <span>হোম</span>
+            {banner?.logo ? (
+              <img
+                src={banner.logo}
+                alt="Manbazar Logo"
+                className="h-12 md:h-14 w-auto object-contain"
+              />
+            ) : (
+              <span className="font-bold text-xl text-primary tracking-tight">Manbazar</span>
+            )}
           </Link>
         </div>
 

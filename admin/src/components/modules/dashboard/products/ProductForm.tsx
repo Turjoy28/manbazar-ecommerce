@@ -107,8 +107,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     const [newCareInstruction, setNewCareInstruction] = useState("");
 
     /* ─── Delivery charges ─── */
-    const [insideDhakaPrice, setInsideDhakaPrice] = useState<number>(80);
-    const [outsideDhakaPrice, setOutsideDhakaPrice] = useState<number>(150);
+    const [insideDhakaPrice, setInsideDhakaPrice] = useState<number | "">(80);
+    const [outsideDhakaPrice, setOutsideDhakaPrice] = useState<number | "">(150);
 
     /* ─── Dynamic Layout Labels ─── */
     const [uiLabels, setUiLabels] = useState({
@@ -351,7 +351,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                 <Label htmlFor="name" className="text-foreground/80">Product Name</Label>
                                 <Input id="name" value={name} onChange={handleNameChange} placeholder="Premium Polo T-Shirt" className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary" required />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 hidden">
                                 <Label htmlFor="slug" className="text-foreground/80">Slug URL</Label>
                                 <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="premium-polo-t-shirt" className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary" required />
                             </div>
@@ -701,11 +701,11 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="insideDhaka" className="text-foreground/80">Inside Dhaka (৳)</Label>
-                                <Input id="insideDhaka" type="number" value={insideDhakaPrice} onChange={(e) => { const val = e.target.value; setInsideDhakaPrice(val === "" ? 0 : Number(val)); }} className="border-border bg-background/40 text-foreground" required />
+                                <Input id="insideDhaka" type="number" value={insideDhakaPrice} onChange={(e) => { const val = e.target.value; setInsideDhakaPrice(val === "" ? "" : Number(val)); }} className="border-border bg-background/40 text-foreground" required />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="outsideDhaka" className="text-foreground/80">Outside Dhaka (৳)</Label>
-                                <Input id="outsideDhaka" type="number" value={outsideDhakaPrice} onChange={(e) => { const val = e.target.value; setOutsideDhakaPrice(val === "" ? 0 : Number(val)); }} className="border-border bg-background/40 text-foreground" required />
+                                <Input id="outsideDhaka" type="number" value={outsideDhakaPrice} onChange={(e) => { const val = e.target.value; setOutsideDhakaPrice(val === "" ? "" : Number(val)); }} className="border-border bg-background/40 text-foreground" required />
                             </div>
                         </CardContent>
                     </Card>
