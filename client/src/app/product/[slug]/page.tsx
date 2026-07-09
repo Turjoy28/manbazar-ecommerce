@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps) {
             openGraph: {
                 title: product ? `${product.name} | Fashion T-Shirts` : "Product Not Found",
                 description: product?.description?.substring(0, 160) || "Explore our premium collection of T-shirts.",
-                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://menbazar.com'}/product/${slug}`,
+                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://manbazar.com'}/product/${slug}`,
                 siteName: "Menbazar",
                 images: [
                     {

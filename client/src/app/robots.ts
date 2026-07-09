@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin', '/api/'],
     },
-    sitemap: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://menbazar.com'}/sitemap.xml`,
+    sitemap: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://manbazar.com'}/sitemap.xml`,
   }
 }

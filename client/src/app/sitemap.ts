@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { getProducts } from '@/services/product'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://menbazar.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://manbazar.com'
 
   try {
     // Fetch products to include in the sitemap
