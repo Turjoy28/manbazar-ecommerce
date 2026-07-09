@@ -50,7 +50,32 @@ export default async function ProductPage({ params }: PageProps) {
         const productData = await getProductBySlug(slug);
         const product = productData?.data;
         if (!product) notFound();
-        return <ProductDetails product={product} />;
+
+        const jsonLd = {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.name,
+            image: product.thumbnail || product.images?.[0],
+            description: product.description,
+            sku: product.variants?.[0]?.sku || product._id,
+            offers: {
+                '@type': 'Offer',
+                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://manbazar.com'}/product/${slug}`,
+                priceCurrency: 'BDT',
+                price: product.sale_price || product.price,
+                availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            },
+        };
+
+        return (
+            <>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+                <ProductDetails product={product} />
+            </>
+        );
     } catch (e) {
         notFound();
     }
