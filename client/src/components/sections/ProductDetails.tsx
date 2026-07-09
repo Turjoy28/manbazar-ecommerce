@@ -252,9 +252,11 @@ function ImageGallery({
 function QuantitySelector({
   value,
   onChange,
+  max,
 }: {
   value: number;
   onChange: (v: number) => void;
+  max?: number;
 }) {
   return (
     <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden w-fit">
@@ -268,7 +270,10 @@ function QuantitySelector({
         {value}
       </span>
       <button
-        onClick={() => onChange(value + 1)}
+        onClick={() => {
+          if (max !== undefined && value >= max) return;
+          onChange(value + 1);
+        }}
         className="px-4 py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-lg transition-colors"
       >
         +
@@ -384,7 +389,7 @@ export default function ProductDetails({
     }).catch(console.error);
   }, []);
 
-  const { addToCart } = useContext(OrderContext);
+  const { addToCart, cartItems } = useContext(OrderContext);
 
   const handleOrderNow = () => {
     if (hasVariants && selectedVariant) {
@@ -397,6 +402,37 @@ export default function ProductDetails({
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+
+  const availableStock = hasVariants && selectedVariant ? (selectedVariant.stock ?? 0) : (product.stock ?? 0);
+  
+  const currentCartQty = cartItems
+    .filter(item => {
+      if (item.product._id !== product._id) return false;
+      if (hasVariants) return item.color === activeColorName;
+      return true; // No variants = shared global stock across all sizes and colors
+    })
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  const remainingStock = availableStock - currentCartQty;
+  const isOutOfStock = remainingStock <= 0;
+
+  useEffect(() => {
+    if (quantity > remainingStock && remainingStock > 0) {
+      setQuantity(remainingStock);
+    }
+  }, [remainingStock, quantity]);
+
+  const stockText = remainingStock <= 0 
+    ? "স্টক শেষ" 
+    : remainingStock <= 5 
+      ? `মাত্র ${remainingStock}টি বাকি!` 
+      : `${remainingStock}টি স্টকে আছে`;
+  
+  const stockColor = remainingStock <= 0 
+    ? "text-red-500" 
+    : remainingStock <= 5 
+      ? "text-orange-500" 
+      : "text-green-600";
 
   return (
     <main className="bg-white min-h-screen">
@@ -513,16 +549,6 @@ export default function ProductDetails({
                       selectedVariantId={selectedVariant?._id}
                       onSelect={handleSelectVariant}
                     />
-                    {/* Stock indicator for selected variant */}
-                    {selectedVariant && (
-                      <p className={`mt-2 text-xs font-medium ${selectedVariant.stock <= 0 ? "text-red-500" :
-                          selectedVariant.stock <= 5 ? "text-orange-500" : "text-green-600"
-                        }`}>
-                        {selectedVariant.stock <= 0 ? "স্টক শেষ" :
-                          selectedVariant.stock <= 5 ? `মাত্র ${selectedVariant.stock}টি বাকি!` :
-                            `${selectedVariant.stock}টি স্টকে আছে`}
-                      </p>
-                    )}
                   </>
                 ) : (
                   <ColorSelector
@@ -536,19 +562,33 @@ export default function ProductDetails({
 
             {/* Quantity */}
             <div>
-              <p className="font-semibold text-gray-800 mb-3">পরিমাণ</p>
-              <QuantitySelector value={quantity} onChange={setQuantity} />
+              <div className="flex items-center justify-between mb-3">
+                <p className="font-semibold text-gray-800">পরিমাণ</p>
+                <p className={`text-xs font-medium ${stockColor}`}>
+                  {stockText}
+                </p>
+              </div>
+              <QuantitySelector value={quantity} onChange={setQuantity} max={remainingStock} />
             </div>
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                href="/#billing"
-                onClick={handleOrderNow}
-                className="flex-1 py-4 rounded-xl font-bold text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
-              >
-                🔒 এখনই অর্ডার করুন
-              </Link>
+              {isOutOfStock ? (
+                <button
+                  disabled
+                  className="flex-1 py-4 rounded-xl font-bold text-base bg-gray-300 text-gray-500 text-center cursor-not-allowed"
+                >
+                  স্টক শেষ (Out of Stock)
+                </button>
+              ) : (
+                <Link
+                  href="/#billing"
+                  onClick={handleOrderNow}
+                  className="flex-1 py-4 rounded-xl font-bold text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
+                >
+                  🔒 এখনই অর্ডার করুন
+                </Link>
+              )}
             </div>
 
             {/* Trust badges */}

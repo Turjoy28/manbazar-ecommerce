@@ -23,6 +23,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Loader2,
   Trash2,
   Send,
@@ -35,7 +41,10 @@ import {
   ChevronsRight,
   CheckCircle2,
   ShoppingBag,
+  MoreHorizontal,
+  Eye,
 } from "lucide-react";
+import { OrderDetailsModal } from "./OrderDetailsModal";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderData[]>([]);
@@ -56,6 +65,7 @@ export default function OrdersPage() {
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
   const [reconcilingId, setReconcilingId] = useState<string | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<OrderData | null>(null);
 
   const fetchOrders = async () => {
     setIsLoading(true);
@@ -274,14 +284,26 @@ export default function OrdersPage() {
             </div>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 shrink-0"
-          onClick={() => handleDeleteOrder(order._id)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground shrink-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setViewingOrder(order)}>
+              <Eye className="mr-2 h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              className="text-red-600 focus:text-red-600"
+              onClick={() => handleDeleteOrder(order._id)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Order
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Customer */}
@@ -812,14 +834,26 @@ export default function OrdersPage() {
                               )}
                             </Button>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
-                            onClick={() => handleDeleteOrder(order._id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => setViewingOrder(order)}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600 focus:text-red-600"
+                                onClick={() => handleDeleteOrder(order._id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Order
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -906,6 +940,11 @@ export default function OrdersPage() {
           </div>
         </div>
       )}
+      <OrderDetailsModal 
+        order={viewingOrder} 
+        isOpen={!!viewingOrder} 
+        onClose={() => setViewingOrder(null)} 
+      />
     </div>
   );
 }

@@ -39,6 +39,7 @@ const createOrder = async (payload: Record<string, any>) => {
     let subtotal = 0;
     let totalVat = 0;
     const finalProducts = [];
+    const bulkInventoryUpdates: any[] = [];
 
     const isDhaka = payload.customer?.location === "dhaka";
     let highestDeliveryCharge = 0;
@@ -57,6 +58,44 @@ const createOrder = async (payload: Record<string, any>) => {
 
         const itemSubtotal = price * qty;
         const itemVat = itemSubtotal * (vatPercentage / 100);
+
+        // -- Inventory Validation and Reservation Logic --
+        let variantMatch = null;
+        let variantIndex = -1;
+        if (dbProduct.variants && dbProduct.variants.length > 0) {
+            variantIndex = dbProduct.variants.findIndex((v: any) => v.color?.name === p.color);
+            if (variantIndex !== -1) variantMatch = dbProduct.variants[variantIndex];
+        }
+
+        const onHand = variantMatch ? (variantMatch.quantity_on_hand || 0) : (dbProduct.quantity_on_hand || 0);
+        const reserved = variantMatch ? (variantMatch.quantity_reserved || 0) : (dbProduct.quantity_reserved || 0);
+        const available = onHand - reserved;
+
+        if (qty > available) {
+            throw Object.assign(
+                new Error(`Only ${available} items left in stock for ${dbProduct.name} ${variantMatch ? `(${variantMatch.color.name})` : ''}. Please adjust your cart.`),
+                { statusCode: 400 }
+            );
+        }
+
+        // Prepare atomic bulk update to reserve stock
+        if (variantMatch) {
+            const updateKey = `variants.${variantIndex}.quantity_reserved`;
+            bulkInventoryUpdates.push({
+                updateOne: {
+                    filter: { _id: dbProduct._id },
+                    update: { $inc: { [updateKey]: qty } }
+                }
+            });
+        } else {
+            bulkInventoryUpdates.push({
+                updateOne: {
+                    filter: { _id: dbProduct._id },
+                    update: { $inc: { quantity_reserved: qty } }
+                }
+            });
+        }
+        // ----------------------------------------------
 
         subtotal += itemSubtotal;
         totalVat += itemVat;
@@ -95,6 +134,11 @@ const createOrder = async (payload: Record<string, any>) => {
     payload.deliveryCharge = Number(deliveryCharge.toFixed(2));
     payload.grandTotal = Number(grandTotal.toFixed(2));
 
+    // Execute all reservations atomically
+    if (bulkInventoryUpdates.length > 0) {
+        await Product.bulkWrite(bulkInventoryUpdates);
+    }
+
     return Order.create(payload);
 };
 
@@ -115,7 +159,67 @@ const getOrderById = async (id: string) => {
 
 /** Update order status */
 const updateOrderStatus = async (id: string, status: string) => {
-    return Order.findByIdAndUpdate(id, { $set: { status } }, { new: true });
+    const order = await Order.findById(id);
+    if (!order) return null;
+
+    const oldStatus = order.status;
+    const updatedOrder = await Order.findByIdAndUpdate(id, { $set: { status } }, { new: true });
+
+    // Inventory Lifecycle Management
+    if (oldStatus !== status) {
+        const Product = (await import("../../models/product.model.js")).Product;
+        const bulkUpdates: any[] = [];
+
+        for (const item of order.products) {
+            const qty = item.quantity;
+            
+            // Re-fetch product to find correct variant index based on color
+            const dbProduct = await Product.findById(item.id);
+            if (!dbProduct) continue;
+
+            let variantIndex = -1;
+            if (item.color && dbProduct.variants && dbProduct.variants.length > 0) {
+                variantIndex = dbProduct.variants.findIndex((v: any) => v.color?.name === item.color);
+            }
+
+            const isVariant = variantIndex !== -1;
+
+            if (status === "shipped") {
+                // Physically left warehouse: decrement both reserved and on_hand
+                const incObj = isVariant 
+                    ? { [`variants.${variantIndex}.quantity_on_hand`]: -qty, [`variants.${variantIndex}.quantity_reserved`]: -qty }
+                    : { quantity_on_hand: -qty, quantity_reserved: -qty };
+                
+                bulkUpdates.push({
+                    updateOne: { filter: { _id: item.id }, update: { $inc: incObj } }
+                });
+            } else if (status === "cancelled" && oldStatus !== "shipped" && oldStatus !== "delivered") {
+                // Free up reserved stock immediately
+                const incObj = isVariant 
+                    ? { [`variants.${variantIndex}.quantity_reserved`]: -qty }
+                    : { quantity_reserved: -qty };
+                
+                bulkUpdates.push({
+                    updateOne: { filter: { _id: item.id }, update: { $inc: incObj } }
+                });
+            } else if (status === "returned") {
+                // Return items physically back to the warehouse
+                const incObj = isVariant 
+                    ? { [`variants.${variantIndex}.quantity_on_hand`]: qty }
+                    : { quantity_on_hand: qty };
+                
+                bulkUpdates.push({
+                    updateOne: { filter: { _id: item.id }, update: { $inc: incObj } }
+                });
+            }
+        }
+
+        if (bulkUpdates.length > 0) {
+            await Product.bulkWrite(bulkUpdates);
+        }
+    }
+
+    return updatedOrder;
 };
 
 /** Bulk delete orders */

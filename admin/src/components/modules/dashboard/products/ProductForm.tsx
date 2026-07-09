@@ -54,6 +54,7 @@ const createEmptyVariant = (): ProductVariant => ({
     color: { name: "", hex: "#3B82F6" },
     sku: "",
     stock: 0,
+    quantity_on_hand: 0,
     price: null,
     sale_price: null,
     images: [],
@@ -79,7 +80,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     const [originalPrice, setOriginalPrice] = useState<number | "">("");
     const [offerType, setOfferType] = useState<"NONE" | "PERCENTAGE" | "DIRECT">("NONE");
     const [offerValue, setOfferValue] = useState<number | "">("");
-    const [stock, setStock] = useState<number | "">("");
+    const [quantityOnHand, setQuantityOnHand] = useState<number | "">("");
     const [description, setDescription] = useState("");
     const [fabric, setFabric] = useState("");
     const [fit, setFit] = useState("");
@@ -141,7 +142,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             setOriginalPrice(initialData.originalPrice ?? "");
             setOfferType(initialData.offerType || "NONE");
             setOfferValue(initialData.offerValue ?? "");
-            setStock(initialData.stock ?? "");
+            setQuantityOnHand(initialData.quantity_on_hand ?? initialData.stock ?? "");
             setDescription(initialData.description || "");
             setFabric(initialData.fabric || "");
             setFit(initialData.fit || "");
@@ -286,7 +287,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             base_price: price as number,
             offerType,
             offerValue: offerValue !== "" ? Number(offerValue) : 0,
-            stock: stock !== "" ? Number(stock) : 0,
+            quantity_on_hand: quantityOnHand !== "" ? Number(quantityOnHand) : 0,
+            stock: quantityOnHand !== "" ? Number(quantityOnHand) : 0, // Fallback for clients expecting stock until full backend migration
             description: description.trim(),
             fabric: fabric.trim() || undefined,
             fit: fit.trim() || undefined,
@@ -435,7 +437,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                                 {variant.color.name || <span className="text-muted-foreground italic">Unnamed Color</span>}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                {variant.images.length} image{variant.images.length !== 1 ? "s" : ""} · Stock: {variant.stock}
+                                                {variant.images.length} image{variant.images.length !== 1 ? "s" : ""} · Stock: {variant.quantity_on_hand ?? variant.stock}
                                                 {variant.sku ? ` · SKU: ${variant.sku}` : ""}
                                             </p>
                                         </div>
@@ -501,11 +503,11 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <Label className="text-foreground/80 text-sm">Stock Count</Label>
+                                                    <Label className="text-foreground/80 text-sm">Physical Stock (On Hand)</Label>
                                                     <Input
                                                         type="number"
-                                                        value={variant.stock === 0 ? "" : variant.stock}
-                                                        onChange={(e) => updateVariant(index, { stock: e.target.value === "" ? 0 : Number(e.target.value) })}
+                                                        value={(variant.quantity_on_hand ?? variant.stock) === 0 ? "" : (variant.quantity_on_hand ?? variant.stock)}
+                                                        onChange={(e) => updateVariant(index, { quantity_on_hand: e.target.value === "" ? 0 : Number(e.target.value), stock: e.target.value === "" ? 0 : Number(e.target.value) })}
                                                         placeholder="0"
                                                         className="border-border bg-background/40 text-foreground text-sm"
                                                     />
@@ -670,11 +672,13 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                     </div>
                                 </div>
                             )}
-                            <div className="space-y-2">
-                                <Label htmlFor="stock" className="text-foreground/80">Global Stock Count</Label>
-                                <Input id="stock" type="number" value={stock} onChange={(e) => { const val = e.target.value; setStock(val === "" ? "" : Number(val)); }} className="border-border bg-background/40 text-foreground" />
-                                <p className="text-[11px] text-muted-foreground">Used as a fallback. Per-variant stock takes priority when variants are configured.</p>
-                            </div>
+                            {variants.length === 0 && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="quantityOnHand" className="text-foreground/80">Global Physical Stock (On Hand)</Label>
+                                    <Input id="quantityOnHand" type="number" value={quantityOnHand} onChange={(e) => { const val = e.target.value; setQuantityOnHand(val === "" ? "" : Number(val)); }} className="border-border bg-background/40 text-foreground" />
+                                    <p className="text-[11px] text-muted-foreground">Used since there are no color variants.</p>
+                                </div>
+                            )}
                             <div className="flex items-center justify-between rounded-lg bg-background/30 border border-border/80 p-3">
                                 <div className="flex flex-col">
                                     <span className="text-sm font-semibold text-foreground/80">Product Status</span>

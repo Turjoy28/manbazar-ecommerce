@@ -16,6 +16,8 @@ export interface ProductVariant {
     };
     sku?: string;
     stock: number;
+    quantity_on_hand: number;
+    quantity_reserved?: number;
     /** If set, overrides the base product price for this variant. */
     price?: number | null;
     /** If set, overrides the base product sale_price for this variant. */
@@ -51,6 +53,8 @@ export interface ProductData {
     careInstructions: string[];
     deliveryCharge: DeliveryChargeItem[];
     stock: number;
+    quantity_on_hand: number;
+    quantity_reserved?: number;
     isActive: boolean;
     categoryAssignment?: "TOP" | "MIDDLE" | "BOTTOM";
     /** Optional external video URL (YouTube, Instagram Reel, TikTok, etc.) */

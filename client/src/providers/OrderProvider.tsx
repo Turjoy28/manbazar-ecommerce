@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useState, useEffect } from "react";
 import { CartItem, Product, ProductVariant } from "@/types";
+import { toast } from "sonner";
 
 interface OrderContextType {
     cartItems: CartItem[];
@@ -44,19 +45,44 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     }, [cartItems]);
 
     const addToCart = (product: Product, quantity = 1, size?: string, color?: string, variant?: ProductVariant) => {
+        let matchedVariant = variant;
+        if (!matchedVariant && color && product.variants) {
+            matchedVariant = product.variants.find(v => v.color.name === color);
+        }
+        const availableStock = matchedVariant ? (matchedVariant.stock ?? 0) : (product.stock ?? 0);
+
         setCartItems(prev => {
             const existingIndex = prev.findIndex(item =>
                 item.product._id === product._id && item.size === size && item.color === color
             );
+            const totalQtyInCartForStockPool = prev
+                .filter(item => {
+                    if (item.product._id !== product._id) return false;
+                    if (product.variants && product.variants.length > 0) {
+                        return item.color === color;
+                    }
+                    return true;
+                })
+                .reduce((sum, item) => sum + item.quantity, 0);
+
+            const newTotalPoolQty = totalQtyInCartForStockPool + quantity;
+
+            if (newTotalPoolQty > availableStock) {
+                toast.error(`Only ${availableStock} items available in stock. Cannot add more.`);
+                return prev;
+            }
+
             if (existingIndex >= 0) {
                 const newItems = [...prev];
                 newItems[existingIndex] = {
                     ...newItems[existingIndex],
-                    quantity: newItems[existingIndex].quantity + quantity
+                    quantity: prev[existingIndex].quantity + quantity
                 };
+                toast.success("Cart updated!");
                 return newItems;
             }
-            return [...prev, { product, quantity, size, color, variant }];
+            toast.success("Added to cart!");
+            return [...prev, { product, quantity, size, color, variant: matchedVariant }];
         });
     };
 
@@ -72,8 +98,33 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
             const newItems = [...prev];
             const idx = newItems.findIndex(item => item.product._id === productId && item.size === size && item.color === color);
             if (idx >= 0) {
+                const item = newItems[idx];
+                let matchedVariant = item.variant;
+                if (!matchedVariant && item.color && item.product.variants) {
+                    matchedVariant = item.product.variants.find(v => v.color.name === item.color);
+                }
+                const availableStock = matchedVariant ? (matchedVariant.stock ?? 0) : (item.product.stock ?? 0);
+
+                const otherItemsInPoolQty = prev
+                    .filter((cartItem, i) => {
+                        if (i === idx) return false;
+                        if (cartItem.product._id !== productId) return false;
+                        if (cartItem.product.variants && cartItem.product.variants.length > 0) {
+                            return cartItem.color === item.color;
+                        }
+                        return true;
+                    })
+                    .reduce((sum, cartItem) => sum + cartItem.quantity, 0);
+
+                const newTotalPoolQty = otherItemsInPoolQty + quantity;
+
+                if (newTotalPoolQty > availableStock) {
+                    toast.error(`Only ${availableStock} items available in stock.`);
+                    return prev;
+                }
+
                 newItems[idx] = {
-                    ...newItems[idx],
+                    ...item,
                     quantity: quantity
                 };
             }

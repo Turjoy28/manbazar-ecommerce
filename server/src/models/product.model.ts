@@ -12,15 +12,24 @@ const variantSchema = new mongoose.Schema(
             hex: { type: String, default: "#000000", trim: true },
         },
         sku: { type: String, default: "", trim: true },
-        stock: { type: Number, default: 0 },
+        quantity_on_hand: { type: Number, default: 0 },
+        quantity_reserved: { type: Number, default: 0 },
         /** Optional per-variant price override. Falls back to product.price if null. */
         price: { type: Number, default: null },
         /** Optional per-variant sale price override. Falls back to product.sale_price if null. */
         sale_price: { type: Number, default: null },
         images: [{ type: String, trim: true }],
     },
-    { _id: true }
+    { 
+        _id: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
+    }
 );
+
+variantSchema.virtual("stock").get(function () {
+    return (this.quantity_on_hand || 0) - (this.quantity_reserved || 0);
+});
 
 const productSchema = new mongoose.Schema(
     {
@@ -108,8 +117,10 @@ const productSchema = new mongoose.Schema(
         fit: { type: String, default: "" },
         highlights: [{ type: String }],
         careInstructions: [{ type: String }],
-        /** Legacy global stock. Used when variants[] is empty. */
-        stock: { type: Number, default: 0 },
+        /** Physical total stock in warehouse. Used when variants[] is empty. */
+        quantity_on_hand: { type: Number, default: 0 },
+        /** Stock reserved for pending orders. */
+        quantity_reserved: { type: Number, default: 0 },
         categoryAssignment: {
             type: String,
             enum: ['TOP', 'MIDDLE', 'BOTTOM'],
@@ -119,8 +130,16 @@ const productSchema = new mongoose.Schema(
         videoUrl: { type: String, default: "", trim: true },
         isActive: { type: Boolean, default: true },
     },
-    { timestamps: true }
+    { 
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
+    }
 );
+
+productSchema.virtual("stock").get(function () {
+    return (this.quantity_on_hand || 0) - (this.quantity_reserved || 0);
+});
 
 productSchema.pre("save", async function () {
     const doc = this as any;

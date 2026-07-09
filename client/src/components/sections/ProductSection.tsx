@@ -10,12 +10,30 @@ import { toast } from "sonner";
 
 function ProductCard({ product }: { product: Product }) {
 
-  const { addToCart } = useContext(OrderContext);
+  const { addToCart, cartItems } = useContext(OrderContext);
 
-  const handleAddToCart = () => {
+  const defaultVariant = product.variants?.[0];
+  const availableStock = defaultVariant ? (defaultVariant.stock ?? 0) : (product.stock ?? 0);
+  const colorName = defaultVariant?.color?.name || product.colors?.[0];
+
+  const currentCartQty = cartItems
+    .filter(item => {
+      if (item.product._id !== product._id) return false;
+      if (product.variants && product.variants.length > 0) return item.color === colorName;
+      return true;
+    })
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  const isOutOfStock = availableStock - currentCartQty <= 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    if (isOutOfStock) {
+      e.preventDefault();
+      toast.error("স্টক শেষ (Out of stock)");
+      return;
+    }
     // Add to cart with default first size/color if available
     addToCart(product, 1, product.sizes?.[0], product.colors?.[0]);
-    toast.success("Item added to cart");
   };
 
   return (
@@ -63,17 +81,28 @@ function ProductCard({ product }: { product: Product }) {
 
       {/* Action Buttons */}
       <div className="flex gap-2 items-center w-full p-3 pt-2 mt-auto">
-        <Button
-          onClick={handleAddToCart}
-          className="w-1/2 cursor-pointer font-bold h-11 bg-secondary text-(--secondary-text) hover:bg-secondary/80 text-[10px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-normal"
-        >
-          কার্টে যোগ করুন
-        </Button>
-        <a href="/#billing" onClick={handleAddToCart} className="w-1/2">
-          <Button className="font-bold bg-primary text-(--primary-text) text-[10px] sm:text-xs md:text-sm transition-all duration-200 cursor-pointer w-full h-11 text-center justify-center items-center flex rounded-none whitespace-normal hover:bg-primary/90 animate-cta-bounce">
-            এখনই অর্ডার করুন
+        {isOutOfStock ? (
+          <Button
+            disabled
+            className="w-full font-bold h-11 bg-gray-300 text-gray-500 text-[10px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-normal cursor-not-allowed"
+          >
+            স্টক শেষ
           </Button>
-        </a>
+        ) : (
+          <>
+            <Button
+              onClick={handleAddToCart}
+              className="w-1/2 cursor-pointer font-bold h-11 bg-secondary text-(--secondary-text) hover:bg-secondary/80 text-[10px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-normal"
+            >
+              কার্টে যোগ করুন
+            </Button>
+            <a href="/#billing" onClick={handleAddToCart} className="w-1/2">
+              <Button className="font-bold bg-primary text-(--primary-text) text-[10px] sm:text-xs md:text-sm transition-all duration-200 cursor-pointer w-full h-11 text-center justify-center items-center flex rounded-none whitespace-normal hover:bg-primary/90 animate-cta-bounce">
+                এখনই অর্ডার করুন
+              </Button>
+            </a>
+          </>
+        )}
       </div>
     </div>
   );

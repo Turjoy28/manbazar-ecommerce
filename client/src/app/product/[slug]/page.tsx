@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/services/product";
 import ProductDetails from "@/components/sections/ProductDetails";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface PageProps {
     params: Promise<{ slug: string }>;
 }

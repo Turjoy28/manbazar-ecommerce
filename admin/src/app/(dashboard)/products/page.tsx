@@ -17,7 +17,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit2, Trash2, Loader2, Image as ImageIcon, Search } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Plus, Edit2, Trash2, Loader2, Image as ImageIcon, Search, MoreHorizontal, Eye } from "lucide-react";
+import { ProductDetailsModal } from "./ProductDetailsModal";
 
 export default function ProductsPage() {
     /* State for the products list fetched from the API */
@@ -28,6 +35,8 @@ export default function ProductsPage() {
     const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
     /* State for searching products by name */
     const [searchQuery, setSearchQuery] = useState("");
+    /* State for viewing product details */
+    const [viewingProduct, setViewingProduct] = useState<ProductData | null>(null);
 
     /* Fetch all products from the admin API endpoint */
     const fetchProducts = async () => {
@@ -127,7 +136,7 @@ export default function ProductsPage() {
                                     <TableHead className="w-[80px] text-muted-foreground">Image</TableHead>
                                     <TableHead className="text-muted-foreground">Name</TableHead>
                                     <TableHead className="text-muted-foreground">Price</TableHead>
-                                    <TableHead className="text-muted-foreground">Stock</TableHead>
+                                    <TableHead className="text-muted-foreground">Inventory</TableHead>
                                     <TableHead className="text-muted-foreground">Status</TableHead>
                                     <TableHead className="text-right text-muted-foreground">Actions</TableHead>
                                 </TableRow>
@@ -173,9 +182,31 @@ export default function ProductsPage() {
                                                 </span>
                                             )}
                                         </TableCell>
-                                        {/* Stock count */}
                                         <TableCell className="text-foreground/80">
-                                            {product.stock}
+                                            {(() => {
+                                                const hasVariants = product.variants && product.variants.length > 0;
+                                                const totalStock = hasVariants 
+                                                    ? product.variants.reduce((sum, v) => sum + (v.stock ?? 0), 0)
+                                                    : product.stock;
+                                                
+                                                const totalOnHand = hasVariants
+                                                    ? product.variants.reduce((sum, v) => sum + (v.quantity_on_hand ?? 0), 0)
+                                                    : (product.quantity_on_hand ?? product.stock);
+                                                    
+                                                const totalReserved = hasVariants
+                                                    ? product.variants.reduce((sum, v) => sum + (v.quantity_reserved ?? 0), 0)
+                                                    : (product.quantity_reserved ?? 0);
+
+                                                return (
+                                                    <div className="flex flex-col gap-0.5 whitespace-nowrap">
+                                                        <span className="font-semibold text-primary">{totalStock} Available</span>
+                                                        <span className="text-[10px] text-muted-foreground">
+                                                            On Hand: {totalOnHand} | Reserved: {totalReserved}
+                                                        </span>
+                                                        {hasVariants && <span className="text-[9px] text-muted-foreground/60 leading-none">Sum of {product.variants.length} colors</span>}
+                                                    </div>
+                                                );
+                                            })()}
                                         </TableCell>
                                         {/* Active/Inactive badge */}
                                         <TableCell>
@@ -193,26 +224,34 @@ export default function ProductsPage() {
                                         {/* Action buttons — Edit and Delete */}
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
-                                                {/* Navigate to product edit form */}
-                                                <Link href={`/products/${product._id}`}>
-                                                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-muted">
-                                                        <Edit2 className="h-4 w-4" />
-                                                    </Button>
-                                                </Link>
-                                                {/* Delete button with loading state */}
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
-                                                    onClick={() => product._id && handleDelete(product._id)}
-                                                    disabled={isDeletingId === product._id}
-                                                >
-                                                    {isDeletingId === product._id ? (
-                                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                                    ) : (
-                                                        <Trash2 className="h-4 w-4" />
-                                                    )}
-                                                </Button>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0 text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => setViewingProduct(product)}>
+                                                            <Eye className="mr-2 h-4 w-4" />
+                                                            View Details
+                                                        </DropdownMenuItem>
+                                                        <Link href={`/products/${product._id}`}>
+                                                            <DropdownMenuItem>
+                                                                <Edit2 className="mr-2 h-4 w-4" />
+                                                                Edit Product
+                                                            </DropdownMenuItem>
+                                                        </Link>
+                                                        <DropdownMenuItem 
+                                                            className="text-red-600 focus:text-red-600"
+                                                            onClick={() => product._id && handleDelete(product._id)}
+                                                        >
+                                                            {isDeletingId === product._id ? (
+                                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                            ) : (
+                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                            )}
+                                                            Delete Product
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -222,6 +261,13 @@ export default function ProductsPage() {
                     </div>
                 )}
             </div>
+            
+            {/* View Details Modal */}
+            <ProductDetailsModal 
+                product={viewingProduct} 
+                isOpen={!!viewingProduct} 
+                onClose={() => setViewingProduct(null)} 
+            />
         </div>
     );
 }
