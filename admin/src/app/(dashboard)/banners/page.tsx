@@ -7,16 +7,17 @@ import ImageUpload from "@/components/shared/imageUpload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { 
-  Sparkles, 
-  Trash2, 
-  ExternalLink, 
-  Eye, 
-  EyeOff, 
-  Plus, 
-  Loader2 
+import {
+  Sparkles,
+  Trash2,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Plus,
+  Loader2
 } from "lucide-react";
 import Image from "next/image";
+
 
 export default function BannersPage() {
   const [banners, setBanners] = useState<PromotionalBannerData[]>([]);
@@ -100,25 +101,25 @@ export default function BannersPage() {
   };
 
   return (
-    <div className="flex-1 space-y-6 p-8 pt-6 bg-[#0b0f19] text-white min-h-screen">
+    <div className="flex-1 space-y-6 p-8 pt-6 bg-gray-50 text-black min-h-screen">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Banner Management</h2>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-600">
           Upload and configure marketing/promotional banners displayed on the storefront.
         </p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 items-start">
         {/* Banner Upload Form */}
-        <div className="bg-[#111827]/60 border border-[#1e293b] rounded-xl p-5 backdrop-blur-xl shadow-2xl space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-[#1e293b]">
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
             <Sparkles className="h-5 w-5 text-[#e07b39]" />
             <h3 className="text-lg font-bold">New Promotional Banner</h3>
           </div>
 
           <form onSubmit={handleAddBanner} className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-300">Banner Asset</Label>
+              <Label className="text-sm font-medium text-gray-700">Banner Asset</Label>
               <ImageUpload
                 title=""
                 description="Upload promotional banner (.jpg, .png, .webp)"
@@ -129,18 +130,18 @@ export default function BannersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="destinationUrl" className="text-sm font-medium text-gray-300">
+              <Label htmlFor="destinationUrl" className="text-sm font-medium text-gray-700">
                 Destination Redirect URL (Optional)
               </Label>
               <div className="relative">
-                <ExternalLink className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <ExternalLink className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   id="destinationUrl"
                   type="text"
                   placeholder="e.g. /products or https://facebook.com"
                   value={destinationUrl}
                   onChange={(e) => setDestinationUrl(e.target.value)}
-                  className="border-[#1e293b] bg-[#0b0f19]/60 pl-10 text-white placeholder-gray-600 focus:border-[#e07b39] h-12"
+                  className="border-gray-200 bg-white pl-10 text-black placeholder-gray-400 focus:border-[#e07b39] focus:ring-[#e07b39] h-12"
                   disabled={isSubmitting}
                 />
               </div>
@@ -151,7 +152,7 @@ export default function BannersPage() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-[#e07b39] to-amber-500 hover:from-[#c96a2a] hover:to-amber-600 font-semibold py-6 shadow-lg shadow-[#e07b39]/10"
+              className="w-full bg-gradient-to-r from-[#e07b39] to-amber-500 hover:from-[#c96a2a] hover:to-amber-600 font-semibold py-6 text-white shadow-md shadow-[#e07b39]/20"
               disabled={isSubmitting || !imageUrl}
             >
               {isSubmitting ? (
@@ -171,22 +172,22 @@ export default function BannersPage() {
 
         {/* Active Banners List */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-[#111827]/60 border border-[#1e293b] rounded-xl p-5 backdrop-blur-xl shadow-2xl">
+          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <h3 className="text-lg font-bold mb-4">Active Banner Grid</h3>
 
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-12 space-y-4">
                 <Loader2 className="h-8 w-8 animate-spin text-[#e07b39]" />
-                <p className="text-sm text-gray-400">Loading banners...</p>
+                <p className="text-sm text-gray-500">Loading banners...</p>
               </div>
             ) : banners.length > 0 ? (
               <div className="grid sm:grid-cols-2 gap-4">
                 {banners.map((b) => (
                   <div
                     key={b._id}
-                    className="border border-[#1e293b] bg-[#0b0f19]/80 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col"
+                    className="border border-gray-200 bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
                   >
-                    <div className="relative h-40 w-full bg-gray-900">
+                    <div className="relative h-40 w-full bg-gray-100">
                       <Image
                         src={b.imageUrl}
                         alt="Storefront banner"
@@ -195,8 +196,8 @@ export default function BannersPage() {
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
                       {!b.isActive && (
-                        <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center">
-                          <span className="bg-red-500/25 border border-red-500/30 text-red-200 text-xs px-2.5 py-1 rounded-full font-semibold">
+                        <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center">
+                          <span className="bg-red-50 border border-red-200 text-red-600 text-xs px-2.5 py-1 rounded-full font-semibold">
                             Inactive / Hidden
                           </span>
                         </div>
@@ -205,7 +206,7 @@ export default function BannersPage() {
 
                     <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                       <div>
-                        <div className="text-xs text-gray-400 font-medium">Redirect URL</div>
+                        <div className="text-xs text-gray-500 font-medium">Redirect URL</div>
                         <div className="text-sm font-semibold truncate text-[#e07b39] flex items-center gap-1 mt-0.5">
                           {b.destinationUrl ? (
                             <>
@@ -213,21 +214,20 @@ export default function BannersPage() {
                               <span className="truncate">{b.destinationUrl}</span>
                             </>
                           ) : (
-                            <span className="text-gray-500 italic font-normal">None (static display)</span>
+                            <span className="text-gray-400 italic font-normal">None (static display)</span>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-[#1e293b] mt-auto">
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleToggleActive(b._id, b.isActive)}
-                          className={`text-xs flex items-center gap-1.5 ${
-                            b.isActive
-                              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
-                              : "bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700"
-                          }`}
+                          className={`text-xs flex items-center gap-1.5 ${b.isActive
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                            : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
+                            }`}
                         >
                           {b.isActive ? (
                             <>
@@ -246,7 +246,7 @@ export default function BannersPage() {
                           variant="destructive"
                           size="sm"
                           onClick={() => handleDeleteBanner(b._id)}
-                          className="bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/25 hover:text-white"
+                          className="bg-red-50 border border-red-200 text-red-600 hover:bg-red-500 hover:text-white"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -256,10 +256,10 @@ export default function BannersPage() {
                 ))}
               </div>
             ) : (
-              <div className="py-12 text-center text-gray-500 border-2 border-dashed border-[#1e293b] rounded-xl flex flex-col items-center justify-center space-y-2">
-                <EyeOff className="h-8 w-8 text-gray-600" />
+              <div className="py-12 text-center text-gray-500 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center space-y-2">
+                <EyeOff className="h-8 w-8 text-gray-400" />
                 <p>No promotional banners found.</p>
-                <p className="text-xs text-gray-600">Upload a banner using the left form to activate storefront promotions.</p>
+                <p className="text-xs text-gray-500">Upload a banner using the left form to activate storefront promotions.</p>
               </div>
             )}
           </div>

@@ -33,13 +33,19 @@ const ColorField = ({
         <div className="flex gap-2">
             <Input
                 type="color"
-                value={value}
+                value={value?.startsWith('#') && (value.length === 4 || value.length === 7) ? value : "#000000"}
                 onChange={(e) => onChange(e.target.value)}
                 className="w-12 h-10 p-1 cursor-pointer rounded-lg border"
             />
             <Input
                 value={value}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => {
+                    let val = e.target.value;
+                    if (val.length > 0 && !val.startsWith('#')) {
+                        val = '#' + val;
+                    }
+                    onChange(val);
+                }}
                 className="flex-1 font-mono uppercase"
                 placeholder="#000000"
                 required

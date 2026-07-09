@@ -359,6 +359,18 @@ export default function ProductDetails({
     }
   };
 
+  // Handle image thumbnail click: update active image AND find matching variant
+  const handleImageClick = (idx: number) => {
+    setActiveIndex(idx);
+    if (hasVariants && product.variants) {
+      const clickedImg = galleryImages[idx];
+      const matchingVariant = product.variants.find((v) => v.images?.includes(clickedImg));
+      if (matchingVariant && matchingVariant._id !== selectedVariant?._id) {
+        setSelectedVariant(matchingVariant);
+      }
+    }
+  };
+
   // Derived: current active color name for display
   const activeColorName = hasVariants && selectedVariant
     ? selectedVariant.color.name
@@ -414,7 +426,7 @@ export default function ProductDetails({
               images={galleryImages}
               name={product.name}
               activeIndex={activeIndex}
-              setActiveIndex={setActiveIndex}
+              setActiveIndex={handleImageClick}
             />
           </div>
 
