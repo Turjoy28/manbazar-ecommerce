@@ -28,7 +28,7 @@ export default function Navbar({ banner }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#FCFBF2] border-b border-amber-100/80 shadow-xs transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 min-h-[64px] py-2 md:py-0 flex flex-wrap md:flex-nowrap items-center justify-between gap-2 md:gap-4">
         {/* 1. Left Portion: Home Button */}
         <div className="shrink-0">
           <Link
@@ -43,7 +43,7 @@ export default function Navbar({ banner }: NavbarProps) {
 
         {/* 2. Middle Portion: Sliding Marquee Text Box (Right to Left) */}
         {marqueeText && (
-          <div className="flex-1 mx-2 sm:mx-4 max-w-[200px] sm:max-w-md md:max-w-lg lg:max-w-xl bg-amber-100/40 text-amber-950 border border-amber-200/80 px-4 py-2.5 rounded-lg text-sm md:text-[15px] font-bold shadow-2xs overflow-hidden select-none relative">
+          <div className="w-full order-last md:order-none mt-3 md:mt-0 md:flex-1 mx-0 md:mx-4 md:max-w-lg lg:max-w-xl bg-amber-100/40 text-amber-950 border border-amber-200/80 px-4 py-2.5 rounded-lg text-sm md:text-[15px] font-bold shadow-2xs overflow-hidden select-none relative">
             <style>{`
               @keyframes navMarqueeRL {
                 0% { transform: translateX(100%); }
