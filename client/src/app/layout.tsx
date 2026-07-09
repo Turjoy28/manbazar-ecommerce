@@ -43,15 +43,8 @@ export default async function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-      </head>
-      <body className="antialiased" suppressHydrationWarning>
-        <Script
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-HYFVPSRMJS"
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-HYFVPSRMJS"></script>
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -61,6 +54,8 @@ export default async function RootLayout({
             `,
           }}
         />
+      </head>
+      <body className="antialiased" suppressHydrationWarning>
         <style
           dangerouslySetInnerHTML={{
             __html: `
