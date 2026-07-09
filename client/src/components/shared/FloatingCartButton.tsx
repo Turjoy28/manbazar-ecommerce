@@ -102,28 +102,27 @@ export default function FloatingCartButton() {
             } : {}}
             className={`fixed z-50 touch-none
                 flex flex-col items-center justify-between
-                w-20 rounded-lg overflow-hidden border border-primary/90 shadow-xl
+                w-14 md:w-20 rounded-lg overflow-hidden border border-primary/90 shadow-xl
                 transition-all duration-300 hover:scale-105 active:scale-95
                 cursor-pointer select-none bg-primary/[0.04]
                 ${!isMoved ? 'bottom-1/2 translate-y-1/2 right-4 animate-bounce-slow' : ''}
             `}
         >
             {/* Top section: Icon and item count */}
-            <div className="flex flex-col items-center justify-center pt-2.5 pb-2 px-1 w-full text-center pointer-events-none">
+            <div className="flex flex-col items-center justify-center pt-2 md:pt-2.5 pb-1.5 md:pb-2 px-1 w-full text-center pointer-events-none">
                 <ShoppingBag
-                    size={22}
-                    className="text-secondary mb-1 stroke-[1.8]"
+                    className="w-5 h-5 md:w-[22px] md:h-[22px] text-secondary mb-1 stroke-[1.8]"
                 />
-                <span className="text-base font-bold text-secondary leading-none">
+                <span className="text-sm md:text-base font-bold text-secondary leading-none">
                     {totalQuantity}
                 </span>
-                <span className="text-[9px] font-semibold text-secondary/80 tracking-wider uppercase mt-0.5 leading-none">
+                <span className="text-[8px] md:text-[9px] font-semibold text-secondary/80 tracking-wider uppercase mt-0.5 leading-none">
                     ITEMS
                 </span>
             </div>
 
             {/* Bottom section: Price banner */}
-            <div className="w-full bg-primary text-white py-1 px-1 text-xs font-bold border-t border-primary/20 text-center flex items-center justify-center gap-0.5 pointer-events-none">
+            <div className="w-full bg-primary text-white py-1 px-1 text-[10px] md:text-xs font-bold border-t border-primary/20 text-center flex items-center justify-center gap-0.5 pointer-events-none">
                 <span>৳</span>
                 <span>{totalPrice}</span>
             </div>
