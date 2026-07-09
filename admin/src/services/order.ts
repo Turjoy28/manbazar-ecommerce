@@ -98,6 +98,15 @@ export const orderService = {
         });
     },
 
+    /** Fully update an order */
+    updateOrder: async (id: string, payload: any, token?: string): Promise<any> => {
+        return secureFetch<any>(`${BASE_URL}/orders/${id}`, {
+            method: "PUT",
+            body: payload,
+            ...(token && { token }),
+        });
+    },
+
     /** Bulk delete orders by IDs */
     deleteOrders: async (ids: string[], token?: string): Promise<any> => {
         return secureFetch<any>(`${BASE_URL}/orders`, {

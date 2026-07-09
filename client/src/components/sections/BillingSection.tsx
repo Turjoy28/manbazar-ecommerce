@@ -365,6 +365,12 @@ export default function BillingSection() {
       return;
     }
 
+    const phoneRegex = /^01[0-9]{9}$/;
+    if (!phoneRegex.test(billing.phone.trim())) {
+      toast.error("আপনার ফোন নম্বরটি সঠিক নয়। দয়া করে ১১ ডিজিটের সঠিক নম্বর দিন (যেমন: 01XXXXXXXXX)।");
+      return;
+    }
+
     if (cartItems.length === 0) {
       toast.error("Please select a product before placing your order.");
       return;
@@ -440,7 +446,7 @@ export default function BillingSection() {
                   আপনার নাম <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="name"
                   value={billing.name}
                   onChange={handleBillingChange("name")}
                   placeholder="আপনার পুরো নাম লিখুন"
@@ -454,7 +460,7 @@ export default function BillingSection() {
                   আপনার সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="address"
                   value={billing.address}
                   onChange={handleBillingChange("address")}
                   placeholder="House number and street name"
@@ -467,10 +473,15 @@ export default function BillingSection() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   আপনার ফোন নম্বর <span className="text-red-500">*</span>
                 </label>
+
                 <input
-                  type="tel"
+                  type="number"
                   value={billing.phone}
-                  onChange={handleBillingChange("phone")}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, "");
+                    handleBillingChange("phone")({ target: { value: val } } as any);
+                  }}
+                  maxLength={11}
                   placeholder="01XXXXXXXXX"
                   className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                 />

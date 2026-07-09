@@ -12,7 +12,7 @@ const createOrder = async (payload: Record<string, any>) => {
                 { statusCode: 400 }
             );
         }
-        payload.paymentStatus = "completed";
+        payload.paymentStatus = "pending";
         payload.bkashTxnId = txn;
     } else {
         // COD
@@ -292,12 +292,7 @@ const reconcilePayment = async (id: string) => {
     if (!order) {
         throw Object.assign(new Error("Order not found."), { statusCode: 404 });
     }
-    if (order.paymentMethod !== "cod") {
-        throw Object.assign(
-            new Error("Reconciliation is only allowed for Cash-on-Delivery orders."),
-            { statusCode: 400 }
-        );
-    }
+
     if (order.paymentStatus !== "pending") {
         throw Object.assign(
             new Error("Order payment is not in a pending state."),
@@ -311,10 +306,20 @@ const reconcilePayment = async (id: string) => {
     );
 };
 
+/** Fully update an order (admin only) */
+const updateOrder = async (id: string, payload: Partial<any>) => {
+    const order = await Order.findByIdAndUpdate(id, { $set: payload }, { new: true });
+    if (!order) {
+        throw Object.assign(new Error("Order not found."), { statusCode: 404 });
+    }
+    return order;
+};
+
 export const orderService = {
     createOrder,
     getOrders,
     getOrderById,
+    updateOrder,
     updateOrderStatus,
     deleteOrders,
     updateCourierInfo,

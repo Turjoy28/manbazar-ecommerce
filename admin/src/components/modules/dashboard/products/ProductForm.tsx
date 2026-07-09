@@ -177,6 +177,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
 
     /* ─── Variant Helpers ─── */
     const addVariant = () => {
+        if (variants.length >= 6) {
+            import("sonner").then(m => m.toast.error("You can add a maximum of 6 color variants."));
+            return;
+        }
         const newVariant = createEmptyVariant();
         setVariants(prev => [...prev, newVariant]);
         setExpandedVariant(variants.length); // auto-expand the new one
@@ -403,9 +407,9 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                         Each color variant has its own image gallery and stock count.
                                     </CardDescription>
                                 </div>
-                                <Button type="button" onClick={addVariant} variant="outline" className="border-primary text-primary hover:bg-primary/10 gap-1">
+                                <Button type="button" onClick={addVariant} variant="outline" disabled={variants.length >= 6} className="border-primary text-primary hover:bg-primary/10 gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
                                     <Plus className="h-4 w-4" />
-                                    Add Color
+                                    Add Color {variants.length >= 6 ? "(Max 6)" : ""}
                                 </Button>
                             </div>
                         </CardHeader>

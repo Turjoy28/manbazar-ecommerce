@@ -21,6 +21,9 @@ router.get("/monthly", authenticate, orderController.getMonthlyData);
 /** PATCH — Update a single order status */
 router.patch("/:id/status", authenticate, orderController.updateOrderStatus);
 
+/** PUT — Fully update order details */
+router.put("/:id", authenticate, orderController.updateOrder);
+
 /** PATCH — Reconcile a COD order payment → mark as 'completed' */
 router.patch("/:id/reconcile", authenticate, orderController.reconcilePayment);
 

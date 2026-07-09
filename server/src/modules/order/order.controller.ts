@@ -46,6 +46,14 @@ const updateOrderStatus = async (req: Request, res: Response, next: NextFunction
     } catch (error) { next(error); }
 };
 
+/** PUT /orders/:id — Fully update order details (admin) */
+const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await orderService.updateOrder(req.params.id as string, req.body);
+        sendResponse(res, { statusCode: 200, success: true, message: "Order updated successfully", data: result });
+    } catch (error) { next(error); }
+};
+
 /** DELETE /orders — Bulk delete orders (admin) */
 const deleteOrders = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -70,12 +78,23 @@ const reconcilePayment = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
+/** POST /orders/courier/send — Send orders to courier */
+const updateCourierInfo = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { orderIds, courier } = req.body;
+        const result = await orderService.updateCourierInfo(orderIds, courier);
+        sendResponse(res, { statusCode: 200, success: true, message: "Sent to courier successfully", data: result });
+    } catch (error) { next(error); }
+};
+
 export const orderController = {
     createOrder,
     getOrders,
     getStats,
     getMonthlyData,
     updateOrderStatus,
+    updateOrder,
     deleteOrders,
     reconcilePayment,
+    updateCourierInfo,
 };

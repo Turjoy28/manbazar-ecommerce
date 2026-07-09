@@ -123,8 +123,8 @@ export default function ProductSection({
 
   // For category section, always slice to 8 (and use the link to 'See All' page).
   // Otherwise, use state-based toggle.
-  const displayedProducts = isCategorySection 
-    ? products?.slice(0, 8) 
+  const displayedProducts = isCategorySection
+    ? products?.slice(0, 8)
     : (showAll ? products : products?.slice(0, 8));
 
   return (

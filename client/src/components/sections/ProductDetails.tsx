@@ -99,8 +99,8 @@ function VariantColorSelector({
             title={v.color.name}
             aria-label={`color-${v.color.name}`}
             className={`relative w-8 h-8 rounded-full border-2 cursor-pointer transition-all duration-150 focus:outline-none ${isSelected
-                ? "ring-2 ring-offset-2 ring-primary border-primary scale-110 shadow-md"
-                : "border-gray-300 hover:scale-105 hover:border-primary/60"
+              ? "ring-2 ring-offset-2 ring-primary border-primary scale-110 shadow-md"
+              : "border-gray-300 hover:scale-105 hover:border-primary/60"
               }`}
             style={{ backgroundColor: v.color.hex || "#e5e7eb" }}
           >
@@ -212,8 +212,8 @@ function ImageGallery({
             key={idx}
             onClick={() => setActiveIndex(idx)}
             className={`relative w-16 h-20 md:w-20 md:h-24 shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 ${activeIndex === idx
-                ? "border-primary shadow-md ring-2 ring-primary/30 scale-105"
-                : "border-gray-200 hover:border-primary/60 hover:shadow-sm"
+              ? "border-primary shadow-md ring-2 ring-primary/30 scale-105"
+              : "border-gray-200 hover:border-primary/60 hover:shadow-sm"
               }`}
           >
             {isVideoUrl(img) ? (
@@ -404,7 +404,7 @@ export default function ProductDetails({
     : 0;
 
   const availableStock = hasVariants && selectedVariant ? (selectedVariant.stock ?? 0) : (product.stock ?? 0);
-  
+
   const currentCartQty = cartItems
     .filter(item => {
       if (item.product._id !== product._id) return false;
@@ -422,16 +422,16 @@ export default function ProductDetails({
     }
   }, [remainingStock, quantity]);
 
-  const stockText = remainingStock <= 0 
-    ? "স্টক শেষ" 
-    : remainingStock <= 5 
-      ? `মাত্র ${remainingStock}টি বাকি!` 
+  const stockText = remainingStock <= 0
+    ? "স্টক শেষ"
+    : remainingStock <= 5
+      ? `মাত্র ${remainingStock}টি বাকি!`
       : `${remainingStock}টি স্টকে আছে`;
-  
-  const stockColor = remainingStock <= 0 
-    ? "text-red-500" 
-    : remainingStock <= 5 
-      ? "text-orange-500" 
+
+  const stockColor = remainingStock <= 0
+    ? "text-red-500"
+    : remainingStock <= 5
+      ? "text-orange-500"
       : "text-green-600";
 
   return (

@@ -43,8 +43,12 @@ import {
   ShoppingBag,
   MoreHorizontal,
   Eye,
+  Printer,
+  Pencil,
 } from "lucide-react";
+import { InvoicePrintOverlay } from "./InvoicePrintOverlay";
 import { OrderDetailsModal } from "./OrderDetailsModal";
+import { OrderEditModal } from "./OrderEditModal";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderData[]>([]);
@@ -66,6 +70,8 @@ export default function OrdersPage() {
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
   const [reconcilingId, setReconcilingId] = useState<string | null>(null);
   const [viewingOrder, setViewingOrder] = useState<OrderData | null>(null);
+  const [printingOrder, setPrintingOrder] = useState<OrderData | null>(null);
+  const [editingOrder, setEditingOrder] = useState<OrderData | null>(null);
 
   const fetchOrders = async () => {
     setIsLoading(true);
@@ -255,10 +261,10 @@ export default function OrdersPage() {
 
   const getPaymentStatusColor = (ps: string) => {
     const map: Record<string, string> = {
-      pending:   "bg-amber-500/10 text-amber-400 border-amber-500/20",
+      pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
       completed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-      failed:    "bg-rose-500/10 text-rose-400 border-rose-500/20",
-      refunded:  "bg-purple-500/10 text-purple-400 border-purple-500/20",
+      failed: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+      refunded: "bg-purple-500/10 text-purple-400 border-purple-500/20",
     };
     return map[ps] ?? "bg-muted text-muted-foreground border-border";
   };
@@ -285,17 +291,23 @@ export default function OrdersPage() {
           </div>
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground shrink-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+          <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0 text-muted-foreground shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+            <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => setViewingOrder(order)}>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem 
+            <DropdownMenuItem onClick={() => setEditingOrder(order)}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit Order
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setPrintingOrder(order)}>
+              <Printer className="mr-2 h-4 w-4" />
+              Print Invoice
+            </DropdownMenuItem>
+            <DropdownMenuItem
               className="text-red-600 focus:text-red-600"
               onClick={() => handleDeleteOrder(order._id)}
             >
@@ -351,11 +363,10 @@ export default function OrdersPage() {
         {/* Payment method badge */}
         <Badge
           variant="outline"
-          className={`text-[10px] uppercase font-semibold ${
-            order.paymentMethod === "bkash"
+          className={`text-[10px] uppercase font-semibold ${order.paymentMethod === "bkash"
               ? "bg-pink-500/10 text-pink-400 border-pink-500/20"
               : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-          }`}
+            }`}
         >
           {order.paymentMethod === "bkash" ? "bKash" : "COD"}
         </Badge>
@@ -622,7 +633,7 @@ export default function OrdersPage() {
               <Table>
                 <TableHeader className="bg-muted/40 border-b border-border">
                   <TableRow>
-                    <TableHead className="w-12.5">
+                    <TableHead className="w-12">
                       <Checkbox
                         checked={
                           filteredOrders.length > 0 &&
@@ -633,34 +644,28 @@ export default function OrdersPage() {
                         onCheckedChange={toggleSelectAll}
                       />
                     </TableHead>
-                    <TableHead className="text-muted-foreground">
+                    <TableHead className="text-muted-foreground font-semibold">
                       Order ID
                     </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Customer Info
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
+                    <TableHead className="text-muted-foreground font-semibold">
                       Products
                     </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Coupon
+                    <TableHead className="text-muted-foreground font-semibold">
+                      Payment Status
                     </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Total
+                    <TableHead className="text-muted-foreground font-semibold">
+                      Total Price
                     </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Payment
+                    <TableHead className="text-muted-foreground font-semibold">
+                      Payment Method
                     </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Txn ID
+                    <TableHead className="text-muted-foreground font-semibold">
+                      Customer Info
                     </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Status
+                    <TableHead className="text-muted-foreground font-semibold">
+                      Update Status
                     </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Courier
-                    </TableHead>
-                    <TableHead className="text-right text-muted-foreground">
+                    <TableHead className="text-right text-muted-foreground font-semibold">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -678,95 +683,104 @@ export default function OrdersPage() {
                         />
                       </TableCell>
                       <TableCell className="font-mono text-xs text-foreground/80">
-                        <div className="font-semibold">
-                          #{order._id.slice(-8).toUpperCase()}
-                        </div>
-                        <div className="text-muted-foreground text-[10px]">
-                          {new Date(order.createdAt).toLocaleDateString(
-                            "bn-BD",
-                          )}
+                        <div className="font-medium text-sm text-foreground">
+                          ORD-{order._id.slice(-10).toUpperCase()}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="font-semibold text-foreground text-sm">
-                          {order.customer.name}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {order.customer.phone}
-                        </div>
-                        <div className="text-xs text-muted-foreground line-clamp-1">
-                          {order.customer.address}
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-[200px]">
+                      <TableCell className="min-w-[250px]">
                         {order.products.map((p, i) => (
-                          <div key={i} className="text-xs mb-0.5">
-                            {p.productId && (
-                              <span className="font-mono text-primary mr-1">[{p.productId}]</span>
-                            )}
-                            <span className="font-medium text-foreground">
+                          <div key={i} className="mb-4 last:mb-0 border-b border-border/50 pb-3 last:border-0 last:pb-0">
+                            <div className="font-semibold text-foreground text-sm line-clamp-2 leading-tight">
                               {p.name}
-                            </span>
-                            <span className="text-muted-foreground">
-                              {" "}
-                              ×{p.quantity}
-                            </span>
-                            {p.size && (
-                              <span className="text-[10px] bg-muted px-1 rounded ml-1">
-                                {p.size}
-                              </span>
-                            )}
-                            {p.color && (
-                              <span className="text-[10px] bg-muted px-1 rounded ml-1">
-                                {p.color}
-                              </span>
-                            )}
+                            </div>
+                            <div className="font-bold text-foreground text-sm mt-1.5">
+                              {p.price || 0}.00 x {p.quantity}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground mt-1.5">
+                              Color: {p.color || "N/A"}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground mt-0.5">
+                              Size: {p.size || "N/A"}
+                            </div>
                           </div>
                         ))}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {order.coupon || <span className="italic">—</span>}
-                      </TableCell>
-                      <TableCell className="font-bold text-foreground">
-                        ৳{order.total}
-                        <div className="text-[10px] text-muted-foreground font-normal">
-                          +৳{order.deliveryCharge} delivery
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {/* Payment method badge */}
-                        <div className="space-y-1">
-                          <Badge
-                            variant="outline"
-                            className={`text-xs uppercase font-semibold ${
-                              order.paymentMethod === "bkash"
-                                ? "bg-pink-500/10 text-pink-400 border-pink-500/20"
-                                : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                            }`}
-                          >
-                            {order.paymentMethod === "bkash" ? "bKash" : "COD"}
-                          </Badge>
-                          {/* Payment status badge */}
+                      <TableCell className="align-top pt-5">
+                        <div className="space-y-2">
                           <Badge
                             variant="outline"
                             className={`text-[10px] capitalize block w-fit ${getPaymentStatusColor(order.paymentStatus)}`}
                           >
                             {order.paymentStatus}
                           </Badge>
+                          {order.paymentStatus === "pending" && (
+                            <Button
+                              size="sm"
+                              className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2 w-full justify-start"
+                              disabled={reconcilingId === order._id}
+                              onClick={() => handleReconcilePayment(order._id)}
+                            >
+                              {reconcilingId === order._id ? (
+                                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                              ) : (
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                              )}
+                              Mark as Paid
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
-                      <TableCell className="max-w-[160px]">
-                        {order.paymentMethod === "bkash" && order.bkashTxnId ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-pink-500/10 text-pink-400 border border-pink-500/20 font-mono text-[10px]">
-                            TxnID: {order.bkashTxnId}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic">N/A – Cash on Delivery</span>
+                      <TableCell className="align-top pt-5 min-w-[160px]">
+                        <div className="space-y-1.5 text-[13px]">
+                          <div className="flex justify-between gap-4 text-muted-foreground">
+                            <span>Subtotal:</span>
+                            <span className="font-semibold text-foreground">৳ {(order.total || 0) - (order.deliveryCharge || 0)}</span>
+                          </div>
+                          <div className="flex justify-between gap-4 text-muted-foreground">
+                            <span>Shipping:</span>
+                            <span className="font-semibold text-primary">+ ৳ {order.deliveryCharge}</span>
+                          </div>
+                          <div className="flex justify-between items-center gap-4 font-bold text-sm bg-black text-white px-2.5 py-1.5 rounded mt-1.5 shadow-sm">
+                            <span>Total:</span>
+                            <span>৳ {order.total}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="align-top pt-5">
+                        <div className="text-sm font-medium text-foreground">
+                          {order.paymentMethod === "bkash" ? "bKash" : "CashOnDelivery"}
+                        </div>
+                        {order.paymentMethod === "bkash" && order.bkashTxnId && (
+                           <div className="text-xs text-muted-foreground mt-1 bg-pink-500/10 text-pink-500 w-fit px-1.5 py-0.5 rounded border border-pink-500/20">
+                             Txn: {order.bkashTxnId}
+                           </div>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="align-top pt-5 min-w-[220px]">
+                        <div className="space-y-1 text-[13px]">
+                          <div className="flex">
+                            <span className="text-muted-foreground w-16 shrink-0">Name:</span>
+                            <span className="font-medium text-foreground line-clamp-1">{order.customer.name}</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-muted-foreground w-16 shrink-0">Phone:</span>
+                            <span className="font-medium text-foreground">{order.customer.phone}</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-muted-foreground w-16 shrink-0">Email:</span>
+                            <span className="font-medium text-foreground">N/A</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-muted-foreground w-16 shrink-0">Address:</span>
+                            <span className="font-medium text-foreground line-clamp-2">{order.customer.address}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="align-top pt-4">
                         {updatingStatusId === order._id ? (
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          <div className="flex items-center justify-center w-[130px] h-9">
+                             <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          </div>
                         ) : (
                           <Select
                             value={order.status}
@@ -775,7 +789,7 @@ export default function OrdersPage() {
                             }
                           >
                             <SelectTrigger
-                              className={`w-[120px] h-8 text-xs font-semibold rounded-full border ${getStatusColor(order.status)}`}
+                              className={`w-[130px] h-9 text-xs font-semibold rounded border bg-transparent ${getStatusColor(order.status)}`}
                             >
                               <SelectValue />
                             </SelectTrigger>
@@ -798,62 +812,36 @@ export default function OrdersPage() {
                           </Select>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {order.courierName ? (
-                          <div className="space-y-0.5">
-                            <div className="flex items-center gap-1 text-xs font-bold text-primary uppercase">
-                              <Truck className="h-3 w-3" /> {order.courierName}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {order.courierTrackingCode || "N/A"}
-                            </div>
-                            <Badge className="text-[9px] bg-muted text-muted-foreground border border-border">
-                              {order.courierStatus || "Dispatched"}
-                            </Badge>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic">
-                            Not sent
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right align-top pt-4">
                         <div className="flex items-center justify-end gap-2">
-                          {/* Mark as Paid — COD + pending only */}
-                          {order.paymentMethod === "cod" && order.paymentStatus === "pending" && (
-                            <Button
-                              size="sm"
-                              className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2"
-                              disabled={reconcilingId === order._id}
-                              onClick={() => handleReconcilePayment(order._id)}
-                            >
-                              {reconcilingId === order._id ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <><CheckCircle2 className="h-3 w-3 mr-1" />Mark as Paid</>
-                              )}
-                            </Button>
-                          )}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setViewingOrder(order)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="text-red-600 focus:text-red-600"
-                                onClick={() => handleDeleteOrder(order._id)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Order
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <button
+                            onClick={() => setViewingOrder(order)}
+                            className="h-8 w-8 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-100 transition-colors border border-indigo-100"
+                            title="View"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditingOrder(order)}
+                            className="h-8 w-8 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors border border-blue-100"
+                            title="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setPrintingOrder(order)}
+                            className="h-8 w-8 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors border border-slate-200"
+                            title="Print"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteOrder(order._id)}
+                            className="h-8 w-8 rounded-md bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors border border-red-100"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -940,10 +928,22 @@ export default function OrdersPage() {
           </div>
         </div>
       )}
-      <OrderDetailsModal 
-        order={viewingOrder} 
-        isOpen={!!viewingOrder} 
-        onClose={() => setViewingOrder(null)} 
+      {printingOrder && (
+        <InvoicePrintOverlay order={printingOrder} onClose={() => setPrintingOrder(null)} />
+      )}
+      <OrderEditModal
+        order={editingOrder}
+        isOpen={!!editingOrder}
+        onClose={() => setEditingOrder(null)}
+        onUpdate={() => {
+          fetchOrders();
+          setEditingOrder(null);
+        }}
+      />
+      <OrderDetailsModal
+        order={viewingOrder}
+        isOpen={!!viewingOrder}
+        onClose={() => setViewingOrder(null)}
       />
     </div>
   );
