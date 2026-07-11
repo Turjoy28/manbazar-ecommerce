@@ -203,7 +203,7 @@ export default function ProductsPage() {
                                                         <span className="text-[10px] text-muted-foreground">
                                                             On Hand: {totalOnHand} | Reserved: {totalReserved}
                                                         </span>
-                                                        {hasVariants && <span className="text-[9px] text-muted-foreground/60 leading-none">Sum of {product.variants.length} colors</span>}
+                                                        {hasVariants && <span className="text-[9px] text-muted-foreground/60 leading-none">Sum of {product.variants!.length} colors</span>}
                                                     </div>
                                                 );
                                             })()}

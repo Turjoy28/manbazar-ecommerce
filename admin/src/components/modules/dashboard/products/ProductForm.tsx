@@ -266,8 +266,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         }
 
         const deliveryCharge: DeliveryChargeItem[] = [
-            { text: "Inside Dhaka", price: insideDhakaPrice },
-            { text: "Outside Dhaka", price: outsideDhakaPrice },
+            { text: "Inside Dhaka", price: Number(insideDhakaPrice) || 0 },
+            { text: "Outside Dhaka", price: Number(outsideDhakaPrice) || 0 },
         ];
 
         // Derive legacy colors[] from variant names for backward compat
