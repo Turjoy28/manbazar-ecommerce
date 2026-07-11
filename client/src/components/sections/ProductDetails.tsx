@@ -98,7 +98,7 @@ function VariantColorSelector({
             onClick={() => onSelect(v)}
             title={v.color.name}
             aria-label={`color-${v.color.name}`}
-            className={`relative w-8 h-8 rounded-full border-2 cursor-pointer transition-all duration-150 focus:outline-none ${isSelected
+            className={`relative w-6 h-6 md:w-8 md:h-8 rounded-full border-2 cursor-pointer transition-all duration-150 focus:outline-none ${isSelected
               ? "ring-2 ring-offset-2 ring-primary border-primary scale-110 shadow-md"
               : "border-gray-300 hover:scale-105 hover:border-primary/60"
               }`}
@@ -164,12 +164,14 @@ function ImageGallery({
   images = [],
   name,
   activeIndex,
-  setActiveIndex
+  setActiveIndex,
+  offerBadgeText
 }: {
   images: string[];
   name: string;
   activeIndex: number;
   setActiveIndex: (index: number) => void;
+  offerBadgeText?: string | null;
 }) {
   const [isZooming, setIsZooming] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
@@ -200,7 +202,7 @@ function ImageGallery({
   };
 
   return (
-    <div className="flex flex-col gap-3 w-full">
+    <div className="flex flex-col gap-1.5 md:gap-3 w-full">
       {/* Main large media (Image or Video) with zoom on hover */}
       <div
         className="relative w-full aspect-[4/3] md:aspect-4/5 rounded-xl overflow-hidden bg-gray-100 shadow-sm flex items-center justify-center cursor-crosshair"
@@ -237,13 +239,15 @@ function ImageGallery({
           />
         )}
         {/* Badge */}
-        <div className={`absolute top-3 left-3 bg-primary text-(--primary-text) text-xs font-bold px-2 py-1 rounded z-10 transition-opacity duration-200 ${isZooming ? 'opacity-0' : 'opacity-100'}`}>
-          SALE
-        </div>
+        {offerBadgeText && (
+          <div className={`absolute top-2 right-2 md:hidden bg-red-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-sm shadow-md z-10 uppercase tracking-wider transition-opacity duration-200 ${isZooming ? 'opacity-0' : 'opacity-100'}`}>
+            {offerBadgeText}
+          </div>
+        )}
       </div>
 
       {/* All images grid — always visible, shows all photos for active variant */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5 md:gap-2">
         {displayImages.map((img, idx) => (
           <button
             key={idx}
@@ -299,11 +303,11 @@ function QuantitySelector({
     <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden w-fit">
       <button
         onClick={() => onChange(Math.max(1, value - 1))}
-        className="px-3 py-1.5 md:px-4 md:py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-base md:text-lg transition-colors"
+        className="px-2 py-0.5 md:px-4 md:py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-sm md:text-lg transition-colors"
       >
         −
       </button>
-      <span className="px-3 py-1.5 md:px-5 md:py-2.5 font-semibold text-gray-800 border-x border-gray-300 min-w-10 md:min-w-12 text-center text-sm md:text-base">
+      <span className="px-2 py-0.5 md:px-5 md:py-2.5 font-semibold text-gray-800 border-x border-gray-300 min-w-8 md:min-w-12 text-center text-xs md:text-base">
         {value}
       </span>
       <button
@@ -311,7 +315,7 @@ function QuantitySelector({
           if (max !== undefined && value >= max) return;
           onChange(value + 1);
         }}
-        className="px-3 py-1.5 md:px-4 md:py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-base md:text-lg transition-colors"
+        className="px-2 py-0.5 md:px-4 md:py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-sm md:text-lg transition-colors"
       >
         +
       </button>
@@ -338,7 +342,7 @@ function SizeSelector({
         <button
           key={size}
           onClick={() => onChange(size)}
-          className={`w-9 h-9 md:w-12 md:h-12 rounded-lg border-2 font-semibold text-xs md:text-sm transition-all duration-200 ${selected === size
+          className={`w-7 h-7 md:w-12 md:h-12 rounded-md md:rounded-lg border-2 font-semibold text-[10px] md:text-sm transition-all duration-200 ${selected === size
             ? "border-primary bg-primary text-(--primary-text) shadow"
             : "border-gray-300 text-gray-700 hover:border-primary hover:text-primary"
             }`}
@@ -471,16 +475,28 @@ export default function ProductDetails({
       ? "text-orange-500"
       : "text-green-600";
 
+  const offerBadgeText = product.is_on_sale ? (
+    product.offerType === "PERCENTAGE" && product.offerValue ? (
+      `${product.offerValue}% OFF`
+    ) : product.offerType === "DIRECT" && product.offerValue ? (
+      `৳${product.offerValue} OFF`
+    ) : product.originalPrice && product.originalPrice > product.price ? (
+      `${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF`
+    ) : (
+      "SALE"
+    )
+  ) : null;
+
   return (
     <main className="bg-white min-h-screen">
       {/* ── Breadcrumb ── */}
-      <div className="max-w-[1400px] mx-auto px-4 xl:px-8 py-2 md:py-4">
-        <nav className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="max-w-[1400px] mx-auto px-2 md:px-4 xl:px-8 py-1 md:py-4">
+        <nav className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-sm text-gray-500">
           <Link
             href="/"
-            className="hover:text-primary transition-colors flex items-center gap-1"
+            className="hover:text-primary transition-colors flex items-center gap-0.5 md:gap-1"
           >
-            <ChevronLeft />
+            <span className="scale-75 md:scale-100"><ChevronLeft /></span>
             হোমপেজ
           </Link>
           <span>/</span>
@@ -491,8 +507,8 @@ export default function ProductDetails({
       </div>
 
       {/* ── Product Section ── */}
-      <section className="max-w-[1400px] mx-auto px-4 xl:px-8 pb-6 md:pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 lg:gap-10 xl:gap-12">
+      <section className="max-w-[1400px] mx-auto px-2 md:px-4 xl:px-8 pb-3 md:pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 md:gap-8 lg:gap-10 xl:gap-12">
           {/* LEFT: Image Gallery */}
           <div className="lg:col-span-5">
             <ImageGallery
@@ -500,56 +516,46 @@ export default function ProductDetails({
               name={product.name}
               activeIndex={activeIndex}
               setActiveIndex={handleImageClick}
+              offerBadgeText={offerBadgeText}
             />
           </div>
 
           {/* MIDDLE: Product Details */}
-          <div className="lg:col-span-4 flex flex-col gap-3 md:gap-5 w-full">
-            {/* Name */}
-            <div>
-              {product.is_on_sale && (
-                <div className="mb-2">
-                  <span className="inline-flex bg-red-500 text-white text-[10px] md:text-xs font-extrabold px-3 py-1 rounded-lg shadow-md uppercase tracking-wider">
-                    {product.offerType === "PERCENTAGE" && product.offerValue ? (
-                      `${product.offerValue}% OFF`
-                    ) : product.offerType === "DIRECT" && product.offerValue ? (
-                      `৳${product.offerValue} OFF`
-                    ) : product.originalPrice && product.originalPrice > product.price ? (
-                      `${Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF`
-                    ) : (
-                      "SALE"
-                    )}
-                  </span>
-                </div>
-              )}
-              <h1 className="text-lg md:text-3xl font-bold text-gray-900 leading-tight">
+          <div className="lg:col-span-4 flex flex-col gap-1.5 md:gap-5 w-full">
+            {/* Desktop Offer Badge */}
+            {offerBadgeText && (
+              <div className="mb-0.5 md:mb-2 hidden md:block">
+                <span className="inline-flex bg-red-500 text-white text-xs font-extrabold px-3 py-1 rounded-lg shadow-md uppercase tracking-wider">
+                  {offerBadgeText}
+                </span>
+              </div>
+            )}
+            
+            {/* Name & Price Row */}
+            <div className="flex flex-wrap items-baseline md:flex-col gap-x-2 gap-y-0.5 md:gap-4">
+              <h1 className="text-base md:text-3xl font-bold text-gray-900 leading-tight">
                 {product.name}
               </h1>
+
+              {/* Price */}
+              <div className="flex gap-1.5 md:gap-4 items-center shrink-0">
+                <span className="text-base md:text-3xl font-bold text-primary">
+                  ৳{product.price}
+                </span>
+                {product.originalPrice && (
+                  <span className="text-[10px] md:text-xl text-gray-400 line-through">
+                    ৳{product.originalPrice}
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Price */}
-            <div className="flex gap-3 md:gap-4 items-center">
-              <span className="text-xl md:text-3xl font-bold text-primary">
-                ৳{product.price}
-              </span>
-              {product.originalPrice && (
-                <span className="text-base md:text-xl text-gray-400 line-through">
-                  ৳{product.originalPrice}
-                </span>
-              )}
-              {product.originalPrice && (
-                <span className="bg-red-100 text-red-600 text-[10px] md:text-sm font-bold px-1.5 py-0.5 md:px-2 md:py-0.5 rounded">
-                  {discount}% ছাড়
-                </span>
-              )}
-            </div>
-
-            <hr className="border-gray-100" />
+            <hr className="border-gray-100 hidden md:block" />
 
             {/* Size */}
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <p className="font-semibold text-gray-800">সাইজ বেছে নিন</p>
+              <div className="flex items-center justify-between mb-1.5 md:mb-3">
+                <p className="font-semibold text-gray-800 text-xs md:text-base">সাইজ বেছে নিন</p>
                 <button
                   onClick={() => {
                     setActiveTab("size");
@@ -560,7 +566,7 @@ export default function ProductDetails({
                       });
                     }, 0);
                   }}
-                  className="text-sm text-primary hover:underline"
+                  className="text-[10px] md:text-sm text-primary hover:underline"
                 >
                   সাইজ গাইড →
                 </button>
@@ -572,11 +578,11 @@ export default function ProductDetails({
               />
 
               {/* Color / Variant selection */}
-              <div className="mt-6">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="font-semibold text-gray-800">কালার বেছে নিন</p>
+              <div className="mt-2 md:mt-6">
+                <div className="flex items-center justify-between mb-1.5 md:mb-3">
+                  <p className="font-semibold text-gray-800 text-xs md:text-base">কালার বেছে নিন</p>
                   {activeColorName && (
-                    <span className="text-sm text-gray-500 font-medium">{activeColorName}</span>
+                    <span className="text-[10px] md:text-sm text-gray-500 font-medium">{activeColorName}</span>
                   )}
                 </div>
                 {hasVariants ? (
@@ -599,9 +605,9 @@ export default function ProductDetails({
 
             {/* Quantity */}
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <p className="font-semibold text-gray-800">পরিমাণ</p>
-                <p className={`text-xs font-medium ${stockColor}`}>
+              <div className="flex items-center justify-between mb-1.5 md:mb-3">
+                <p className="font-semibold text-gray-800 text-xs md:text-base">পরিমাণ</p>
+                <p className={`text-[10px] md:text-xs font-medium ${stockColor}`}>
                   {stockText}
                 </p>
               </div>
@@ -609,7 +615,7 @@ export default function ProductDetails({
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-1.5 md:gap-3">
               {isOutOfStock ? (
                 <button
                   disabled
@@ -621,7 +627,7 @@ export default function ProductDetails({
                 <Link
                   href="/#billing"
                   onClick={handleOrderNow}
-                  className="flex-1 py-2.5 md:py-4 rounded-xl font-bold text-sm md:text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
+                  className="flex-1 py-1.5 md:py-4 rounded-xl font-bold text-xs md:text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
                 >
                   🔒 এখনই অর্ডার করুন
                 </Link>
@@ -629,7 +635,7 @@ export default function ProductDetails({
             </div>
 
             {/* Trust badges */}
-            <div className="grid grid-cols-3 gap-3 text-(--primary-text)">
+            <div className="grid grid-cols-3 gap-1.5 md:gap-3 text-(--primary-text)">
               {[
                 { icon: <ShieldIcon />, label: "100% অরিজিনাল" },
                 { icon: <TruckIcon />, label: "ফ্রি ডেলিভারি" },
@@ -637,10 +643,10 @@ export default function ProductDetails({
               ].map((badge, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-col items-center gap-1 bg-primary/20 rounded-lg p-1.5 md:p-3 text-center border border-primary/70 text-(--primary-text)"
+                  className="flex flex-col items-center gap-0.5 md:gap-1 bg-primary/20 rounded-lg p-1 md:p-3 text-center border border-primary/70 text-(--primary-text)"
                 >
-                  <div className="text-(--primary-text)! scale-75 md:scale-100">{badge.icon}</div>
-                  <span className="text-[9px] md:text-xs font-medium leading-tight text-black">
+                  <div className="text-(--primary-text)! scale-[0.6] md:scale-100">{badge.icon}</div>
+                  <span className="text-[8px] md:text-xs font-medium leading-tight text-black">
                     {badge.label}
                   </span>
                 </div>
@@ -649,7 +655,7 @@ export default function ProductDetails({
 
             {/* Fabric & fit quick info */}
             {(product.fabric || product.fit) && (
-              <div className="flex gap-4 text-sm text-gray-600 bg-gray-50 rounded-lg px-4 py-3">
+              <div className="flex gap-2 md:gap-4 text-[10px] md:text-sm text-gray-600 bg-gray-50 rounded-lg px-2 py-1.5 md:px-4 md:py-3">
                 {product.fabric && (
                   <span>
                     <span className="font-semibold text-gray-800">
@@ -674,7 +680,7 @@ export default function ProductDetails({
           </div>
 
           {/* RIGHT: Dashed Info Boxes */}
-          <div className="lg:col-span-3 w-full shrink-0 flex flex-col gap-3 md:gap-5 mt-4 lg:mt-0">
+          <div className="lg:col-span-3 w-full shrink-0 flex flex-col gap-2 md:gap-5 mt-2 lg:mt-0">
             {/* Delivery Info Box (Dashed Border) */}
             {(() => {
               const charges = product?.deliveryCharge || [];
@@ -682,8 +688,8 @@ export default function ProductDetails({
               const outside = charges.find((d) => d.text.toLowerCase().includes("outside"))?.price ?? 150;
 
               return (
-                <div className="border border-dashed border-gray-500 rounded-lg p-2 md:p-3 text-[10px] md:text-[12px] space-y-1.5 md:space-y-2.5">
-                  <p className="flex items-start gap-1.5 md:gap-2">
+                <div className="border border-dashed border-gray-500 rounded-lg p-1.5 md:p-3 text-[9px] md:text-[12px] space-y-1 md:space-y-2.5">
+                  <p className="flex items-start gap-1 md:gap-2">
                     <CheckIcon />
                     <span className="text-gray-700 leading-snug">আজই অর্ডার করুন এবং ০১ - ০২ দিনের মধ্যে ডেলিভারি নিন।</span>
                   </p>
@@ -708,8 +714,8 @@ export default function ProductDetails({
             })()}
 
             {/* Contact Info Box (Dashed Border) */}
-            <div className="border border-dashed border-gray-500 rounded-lg p-2 md:p-3 text-[10px] md:text-[12px]">
-              <p className="text-gray-800 font-semibold mb-2 md:mb-2.5 leading-snug">
+            <div className="border border-dashed border-gray-500 rounded-lg p-1.5 md:p-3 text-[9px] md:text-[12px]">
+              <p className="text-gray-800 font-semibold mb-1 md:mb-2.5 leading-snug">
                 এই পণ্যটি সম্পর্কে আপনার কোনো প্রশ্ন থাকলে অনুগ্রহ করে কল করুন
               </p>
 

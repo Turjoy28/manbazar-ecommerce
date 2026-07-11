@@ -9,10 +9,24 @@ import { getUiData } from "@/services/ui";
 import Navbar from "@/components/shared/Navbar";
 import MobileBottomNav from "@/components/shared/MobileBottomNav";
 
-export const metadata: Metadata = {
-  title: "Fashion T-Shirts | ব্র্যান্ডেড শার্ট",
-  description: "ক্লাসিক স্ট্রাইপ, সলিড, এবং বক্স চেক ডিজাইনের ব্র্যান্ডেড শার্ট",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const uiData = await getUiData();
+  const logoUrl = uiData?.data?.[0]?.banner?.logo;
+
+  const icons = logoUrl && logoUrl.startsWith("http")
+    ? {
+        icon: logoUrl,
+        shortcut: logoUrl,
+        apple: logoUrl,
+      }
+    : undefined;
+
+  return {
+    title: "Fashion T-Shirts | ব্র্যান্ডেড শার্ট",
+    description: "ক্লাসিক স্ট্রাইপ, সলিড, এবং বক্স চেক ডিজাইনের ব্র্যান্ডেড শার্ট",
+    ...(icons && { icons }),
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -53,8 +67,10 @@ export default async function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-HYFVPSRMJS"></script>
-        <script
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-HYFVPSRMJS" strategy="afterInteractive" />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];

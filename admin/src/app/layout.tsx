@@ -26,11 +26,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-/* Page metadata — shown in browser tab and search engines */
-export const metadata: Metadata = {
-  title: "Manbazar Admin — Dashboard",
-  description: "Admin panel for managing the Manbazar storefront, products, orders, and settings.",
-};
+import { getUiData } from "@/services/ui";
+
+/* Page metadata — dynamically fetched to use the admin logo as favicon */
+export async function generateMetadata(): Promise<Metadata> {
+  const uiData = await getUiData();
+  const logoUrl = uiData?.data?.[0]?.banner?.logo;
+
+  const icons = logoUrl && logoUrl.startsWith("http")
+    ? {
+        icon: logoUrl,
+        shortcut: logoUrl,
+        apple: logoUrl,
+      }
+    : undefined;
+
+  return {
+    title: "Manbazar Admin — Dashboard",
+    description: "Admin panel for managing the Manbazar storefront, products, orders, and settings.",
+    ...(icons && { icons }),
+  };
+}
 
 export default function RootLayout({
   children,
