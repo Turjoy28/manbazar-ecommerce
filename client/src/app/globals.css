@@ -149,3 +149,15 @@
 .animate-cta-bounce {
   animation: cta-bounce 1.2s ease-in-out infinite;
 }
+
+/* Mobile Bottom Navigation - add padding to body so content isn't hidden */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Safe area bottom utility */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

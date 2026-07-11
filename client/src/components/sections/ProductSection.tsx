@@ -130,12 +130,15 @@ export default function ProductSection({
   return (
     <section id="products" className="py-4 px-4 md:px-6 max-w-7xl mx-auto">
       {/* Section title */}
-      <div className="flex flex-col items-center mb-4">
-        <div className="border border-gray-300 rounded-xl px-6 py-3 text-sm md:text-4xl font-bold mb-1">
+      <div
+        id={categoryAssignmentId ? `category-${categoryAssignmentId}` : undefined}
+        className="flex flex-col items-center mb-4 scroll-mt-16"
+      >
+        <div className="border border-gray-300 rounded-lg px-4 py-1.5 md:px-8 md:py-4 text-sm md:text-3xl font-bold text-center mb-1">
           {productsCaption}
-          <div className="flex items-center justify-center gap-3 pt-3">
-            <div className="w-20 h-1 bg-linear-to-r from-black from-10% to-primary to-60% rounded-full" />
-            <div className="w-2 h-2 rounded-full bg-primary"></div>
+          <div className="flex items-center justify-center gap-2 md:gap-3 pt-1.5 md:pt-3">
+            <div className="w-14 md:w-24 h-0.5 md:h-1 bg-linear-to-r from-black from-10% to-primary to-60% rounded-full" />
+            <div className="w-1.5 h-1.5 md:w-2.5 md:h-2.5 rounded-full bg-primary"></div>
           </div>
         </div>
       </div>

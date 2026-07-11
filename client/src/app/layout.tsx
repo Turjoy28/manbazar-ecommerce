@@ -7,6 +7,7 @@ import FloatingCartButton from "@/components/shared/FloatingCartButton";
 import FloatingChatbot from "@/components/shared/FloatingChatbot";
 import { getUiData } from "@/services/ui";
 import Navbar from "@/components/shared/Navbar";
+import MobileBottomNav from "@/components/shared/MobileBottomNav";
 
 export const metadata: Metadata = {
   title: "Fashion T-Shirts | ব্র্যান্ডেড শার্ট",
@@ -28,7 +29,16 @@ export default async function RootLayout({
     marqueeText: "ম্যানবাজারে আপনাকে স্বাগতম! প্রিমিয়াম কোয়ালিটির টি-শার্ট কালেকশন দেখতে নিচে স্ক্রোল করুন।"
   };
 
-  const theme = uiData?.data?.[0]?.theme;
+  const uiRecord = uiData?.data?.[0];
+  const theme = uiRecord?.theme;
+
+  // Extract category labels for bottom nav
+  const categoryLabels = uiRecord?.categoryLabels;
+  const navCategories = [
+    { label: categoryLabels?.topCategoryLabel || "Trending Now", id: "TOP" },
+    { label: categoryLabels?.middleCategoryLabel || "Seasonal Essentials", id: "MIDDLE" },
+    { label: categoryLabels?.bottomCategoryLabel || "Clearance & Steals", id: "BOTTOM" },
+  ];
 
   const primaryColor = theme?.primaryColor || "#e07b39";
   const secondaryColor = theme?.secondaryColor || "#111827";
@@ -71,6 +81,7 @@ export default async function RootLayout({
           <Navbar banner={banner} />
           {children}
           <FloatingCartButton />
+          <MobileBottomNav phoneNumber={banner?.navbarText?.trim()} categories={navCategories} />
           <FloatingChatbot chatbot={uiData?.data?.[0]?.chatbot} />
         </OrderProvider>
         <Toaster richColors />

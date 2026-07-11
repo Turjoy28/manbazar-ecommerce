@@ -404,7 +404,7 @@ export default function BillingSection() {
   };
 
   return (
-    <section id="billing" className="py-4 px-4 max-w-5xl mx-auto">
+    <section id="billing" className="py-2 px-4 max-w-5xl mx-auto scroll-mt-24">
       {isSuccess ? (
         <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
           <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-6 shadow-sm">
@@ -432,10 +432,10 @@ export default function BillingSection() {
           </button>
         </div>
       ) : cartItems.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
           {/* ── Left: Billing form ── */}
           <form>
-            <h2 className="text-lg font-bold text-gray-800 mb-5 border-b border-gray-200 pb-2">
+            <h2 className="text-lg font-bold text-gray-800 mb-3 border-b border-gray-200">
               Billing details
             </h2>
 
@@ -586,6 +586,17 @@ export default function BillingSection() {
                 </div>
               </div>
             )}
+            
+            {/* Place order button under form */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handlePlaceOrder();
+              }}
+              className="w-full mt-6 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg text-lg shadow-md transition-all duration-300 flex items-center justify-center gap-2 animate-cta-bounce hover:shadow-lg"
+            >
+              🔒 Confirm Order — ৳ {grandTotal.toFixed(2)}
+            </button>
           </form>
 
           {/* ── Right: Cart + Order Summary ── */}
@@ -629,13 +640,7 @@ export default function BillingSection() {
 
             </p>
 
-            {/* Place order button */}
-            <button
-              onClick={handlePlaceOrder}
-              className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg text-lg shadow-md transition-all duration-300 flex items-center justify-center gap-2 animate-cta-bounce hover:shadow-lg"
-            >
-              🔒 Proceed to Payment — ৳ {grandTotal.toFixed(2)}
-            </button>
+      
           </div>
         </div>
       ) : (

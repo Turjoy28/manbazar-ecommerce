@@ -101,7 +101,7 @@ export default function FloatingCartButton() {
                 transform: 'none'
             } : {}}
             className={`fixed z-50 touch-none
-                flex flex-col items-center justify-between
+                hidden md:flex flex-col items-center justify-between
                 w-14 md:w-20 rounded-lg overflow-hidden border border-primary/90 shadow-xl
                 transition-all duration-300 hover:scale-105 active:scale-95
                 cursor-pointer select-none bg-primary/[0.04]
