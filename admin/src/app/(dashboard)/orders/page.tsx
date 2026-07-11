@@ -813,35 +813,31 @@ export default function OrdersPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right align-top pt-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => setViewingOrder(order)}
-                            className="h-8 w-8 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-100 transition-colors border border-indigo-100"
-                            title="View"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => setEditingOrder(order)}
-                            className="h-8 w-8 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors border border-blue-100"
-                            title="Edit"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => setPrintingOrder(order)}
-                            className="h-8 w-8 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors border border-slate-200"
-                            title="Print"
-                          >
-                            <Printer className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteOrder(order._id)}
-                            className="h-8 w-8 rounded-md bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors border border-red-100"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                        <div className="flex items-center justify-end">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-muted border border-transparent hover:border-border focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-[160px] border-border bg-card shadow-md rounded-md p-1">
+                              <DropdownMenuItem onClick={() => setViewingOrder(order)} className="cursor-pointer flex items-center py-2 px-2 hover:bg-muted rounded-sm">
+                                <Eye className="h-4 w-4 mr-2 text-indigo-500" />
+                                <span>View details</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setEditingOrder(order)} className="cursor-pointer flex items-center py-2 px-2 hover:bg-muted rounded-sm">
+                                <Pencil className="h-4 w-4 mr-2 text-blue-500" />
+                                <span>Edit order</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setPrintingOrder(order)} className="cursor-pointer flex items-center py-2 px-2 hover:bg-muted rounded-sm">
+                                <Printer className="h-4 w-4 mr-2 text-slate-500" />
+                                <span>Print invoice</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDeleteOrder(order._id)} className="cursor-pointer flex items-center py-2 px-2 text-red-600 focus:text-red-600 focus:bg-red-50 hover:bg-red-50 rounded-sm">
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                <span>Delete order</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>

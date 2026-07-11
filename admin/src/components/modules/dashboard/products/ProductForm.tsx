@@ -280,6 +280,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             ? (variants[0]?.images || images)
             : images;
 
+        const finalQuantityOnHand = variants.length > 0
+            ? variants.reduce((sum, v) => sum + (v.quantity_on_hand ?? v.stock ?? 0), 0)
+            : (quantityOnHand !== "" ? Number(quantityOnHand) : 0);
+
         const payload: Omit<ProductData, "_id"> = {
             name: name.trim(),
             slug: slug.trim(),
@@ -291,8 +295,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             base_price: price as number,
             offerType,
             offerValue: offerValue !== "" ? Number(offerValue) : 0,
-            quantity_on_hand: quantityOnHand !== "" ? Number(quantityOnHand) : 0,
-            stock: quantityOnHand !== "" ? Number(quantityOnHand) : 0, // Fallback for clients expecting stock until full backend migration
+            quantity_on_hand: finalQuantityOnHand,
+            stock: finalQuantityOnHand, // Fallback for clients expecting stock until full backend migration
             description: description.trim(),
             fabric: fabric.trim() || undefined,
             fit: fit.trim() || undefined,
@@ -390,6 +394,29 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                     <Label htmlFor="fit" className="text-foreground/80">Fit type</Label>
                                     <Input id="fit" value={fit} onChange={(e) => setFit(e.target.value)} placeholder="Regular Fit" className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary" />
                                 </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="globalStock" className="text-foreground/80">
+                                    Global Stock (On Hand)
+                                    <span className="ml-2 text-[10px] font-normal text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                                        {variants.length > 0 ? "Auto-calculated" : "Fallback"}
+                                    </span>
+                                </Label>
+                                <Input 
+                                    id="globalStock" 
+                                    type="number" 
+                                    value={variants.length > 0 ? variants.reduce((sum, v) => sum + (v.quantity_on_hand ?? v.stock ?? 0), 0) : quantityOnHand} 
+                                    onChange={(e) => setQuantityOnHand(e.target.value === "" ? "" : Number(e.target.value))} 
+                                    placeholder="Total stock available" 
+                                    className={`border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary ${variants.length > 0 ? "opacity-70 cursor-not-allowed bg-muted/50" : ""}`}
+                                    readOnly={variants.length > 0}
+                                    tabIndex={variants.length > 0 ? -1 : 0}
+                                />
+                                <p className="text-[11px] text-muted-foreground">
+                                    {variants.length > 0 
+                                        ? "Automatically calculated as the sum of your color variants' stock."
+                                        : "This stock count is used if you do not specify individual stock for each color variant."}
+                                </p>
                             </div>
                         </CardContent>
                     </Card>

@@ -42,9 +42,9 @@ function CartItemRow({
   return (
     <>
       {item?.product ? (
-        <div className="flex lg:flex-row flex-col items-center gap-3 py-2 relative">
+        <div className="flex flex-row items-start gap-3 py-3 relative pr-8">
           {/* Thumbnail */}
-          <div className="relative w-14 h-14 rounded border border-gray-200 overflow-hidden shrink-0">
+          <div className="relative w-20 h-20 rounded-md border border-gray-200 overflow-hidden shrink-0 bg-gray-50">
             <Image
               src={
                 item?.product?.thumbnail ||
@@ -54,90 +54,84 @@ function CartItemRow({
               alt={item?.product?.name || "Product"}
               fill
               className="object-cover"
-              sizes="56px"
+              sizes="80px"
             />
           </div>
 
-          {/* Name + qty controls */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-800 truncate">
+          {/* Name + controls */}
+          <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+            <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-tight pr-2">
               {item?.product?.name}
             </p>
-            <div className="flex md:flex-row lg:flex-row flex-col gap-2 mt-1">
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={onDecrease}
-                  className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-sm font-bold"
-                >
-                  −
-                </button>
-                <span className="text-sm font-semibold w-5 text-center">
-                  {item?.quantity}
-                </span>
-                <button
-                  onClick={onIncrease}
-                  className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-sm font-bold"
-                >
-                  +
-                </button>
+            
+            <p className="text-[15px] font-bold text-gray-900">
+              ৳ {(item?.product?.price * item?.quantity).toFixed(2)}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2 mt-0.5">
+              {/* Qty */}
+              <div className="flex items-center bg-white border border-gray-300 rounded">
+                <button onClick={onDecrease} className="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-sm font-bold active:bg-gray-200">−</button>
+                <span className="text-xs font-semibold w-6 text-center">{item?.quantity}</span>
+                <button onClick={onIncrease} className="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-sm font-bold active:bg-gray-200">+</button>
               </div>
 
               {/* select size */}
-              <Select
-                value={item.size}
-                onValueChange={(val) => val && onSizeChange(val)}
-              >
-                <SelectTrigger className="w-full max-w-20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Size</SelectLabel>
-                    {item?.product?.sizes?.map((size) => (
-                      <SelectItem key={size} value={size}>
-                        {size}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              {item.size && (
+                <Select
+                  value={item.size}
+                  onValueChange={(val) => val && onSizeChange(val)}
+                >
+                  <SelectTrigger className="h-7 px-2 py-0 text-xs w-auto min-w-[60px] border-gray-300">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel className="text-xs">Size</SelectLabel>
+                      {item?.product?.sizes?.map((size) => (
+                        <SelectItem key={size} value={size} className="text-xs">
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
 
               {/* select color */}
-              <Select
-                value={item.color}
-                onValueChange={(val) => val && onColorChange(val)}
-              >
-                <SelectTrigger className="w-full max-w-20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Color</SelectLabel>
-                    {item?.product?.colors?.map((color) => (
-                      <SelectItem key={color} value={color}>
-                        {color}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              {item.color && (
+                <Select
+                  value={item.color}
+                  onValueChange={(val) => val && onColorChange(val)}
+                >
+                  <SelectTrigger className="h-7 px-2 py-0 text-xs w-auto min-w-[70px] border-gray-300">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel className="text-xs">Color</SelectLabel>
+                      {item?.product?.colors?.map((color) => (
+                        <SelectItem key={color} value={color} className="text-xs">
+                          {color}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
-          {/* Price */}
-          <p className="text-sm font-semibold text-gray-800 shrink-0">
-            ৳ {(item?.product?.price * item?.quantity).toFixed(2)}
-          </p>
-          <Button
+          {/* Delete Button */}
+          <button
             onClick={onDelete}
-            className="absolute -top-4 -right-9 cursor-pointer bg-red-500 "
+            className="absolute top-2 right-0 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+            title="Remove item"
           >
-            <X />
-          </Button>
+            <X className="w-4 h-4" />
+          </button>
         </div>
-      ) : (
-        ""
-      )}
+      ) : null}
     </>
   );
 }
@@ -184,6 +178,7 @@ function OrderSummary({
                 <div className="relative w-10 h-10 rounded-md overflow-hidden border border-gray-100 shrink-0 shadow-sm">
                   <Image
                     src={
+                      item.variant?.images?.[0] ||
                       item.product.thumbnail ||
                       item.product.images?.[0] ||
                       "/placeholder.png"
@@ -198,10 +193,18 @@ function OrderSummary({
                   <span className="text-gray-800 font-medium leading-tight">
                     {item.product.name}
                   </span>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
                     <span className="text-gray-500 text-xs">
                       Qty: {item.quantity}
                     </span>
+                    
+                    {/* Display Size & Color */}
+                    {(item.size || item.color) && (
+                      <span className="text-gray-400 text-[10px] bg-gray-100 px-1.5 py-0.5 rounded-sm whitespace-nowrap">
+                        {[item.size, item.color].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
+
                     {itemVatPercent > 0 && (
                       <span className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] font-semibold">
                         VAT {itemVatPercent}%
@@ -210,7 +213,7 @@ function OrderSummary({
                   </div>
                 </div>
               </div>
-              <span className="text-gray-900 font-medium tabular-nums">
+              <span className="text-gray-900 font-medium tabular-nums shrink-0">
                 ৳ {(item.product.price * item.quantity).toFixed(2)}
               </span>
             </div>
@@ -306,7 +309,7 @@ export default function BillingSection() {
 
   const handleRemoveItem = (item: CartItem) =>
     removeFromCart(item.product._id, item.size, item.color);
-  // Calculate dynamic delivery charge based on the highest delivery charge of items in the cart
+  // Calculate dynamic delivery charge by summing the delivery charges of items in the cart
   const deliveryCharge = cartItems.length === 0 ? 0 : Math.max(
     ...cartItems.map((item) => {
       const charges = item.product?.deliveryCharge || [];
@@ -314,7 +317,7 @@ export default function BillingSection() {
       const match = charges.find((d) =>
         d.text.toLowerCase().includes(isDhaka ? "inside" : "outside")
       );
-      return match ? match.price : (isDhaka ? 50 : 150);
+      return (match && typeof match.price === 'number') ? match.price : (isDhaka ? 50 : 150);
     })
   );
 

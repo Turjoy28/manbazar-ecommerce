@@ -532,18 +532,21 @@ export default function ProductDetails({
             )}
             
             {/* Name & Price Row */}
-            <div className="flex flex-wrap items-baseline md:flex-col gap-x-2 gap-y-0.5 md:gap-4">
+            <div className="flex justify-between items-start md:flex-col gap-x-2 gap-y-0.5 md:gap-4 pr-10 md:pr-0">
               <h1 className="text-base md:text-3xl font-bold text-gray-900 leading-tight">
                 {product.name}
+                <span className="inline-block ml-2 text-[10px] md:text-lg text-gray-400 font-medium tracking-wider align-middle md:align-baseline">
+                 Id:#{product._id?.slice(-6).toUpperCase()}
+                </span>
               </h1>
 
               {/* Price */}
-              <div className="flex gap-1.5 md:gap-4 items-center shrink-0">
+              <div className="flex flex-row gap-1.5 md:gap-4 items-center shrink-0 mt-0.5 md:mt-0">
                 <span className="text-base md:text-3xl font-bold text-primary">
                   ৳{product.price}
                 </span>
                 {product.originalPrice && (
-                  <span className="text-[10px] md:text-xl text-gray-400 line-through">
+                  <span className="text-[10px] md:text-xl text-gray-400 line-through mt-0.5 md:mt-0">
                     ৳{product.originalPrice}
                   </span>
                 )}

@@ -3,6 +3,7 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { Home, Menu, ShoppingBag, Phone, X } from "lucide-react";
 import { OrderContext } from "@/providers/OrderProvider";
+import { useRouter, usePathname } from "next/navigation";
 
 interface MobileBottomNavProps {
   phoneNumber?: string;
@@ -14,6 +15,8 @@ export default function MobileBottomNav({ phoneNumber, categories }: MobileBotto
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const { cartItems } = useContext(OrderContext);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -45,7 +48,11 @@ export default function MobileBottomNav({ phoneNumber, categories }: MobileBotto
   const handleHomeClick = () => {
     setActiveTab("home");
     setIsCategoriesOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (pathname !== "/") {
+      router.push("/");
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleCategoriesClick = () => {
@@ -56,9 +63,15 @@ export default function MobileBottomNav({ phoneNumber, categories }: MobileBotto
   const handleCartClick = () => {
     setActiveTab("cart");
     setIsCategoriesOpen(false);
-    const billing = document.getElementById("billing");
-    if (billing) {
-      billing.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (pathname !== "/") {
+      router.push("/#billing");
+    } else {
+      const billing = document.getElementById("billing");
+      if (billing) {
+        billing.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        router.push("/#billing");
+      }
     }
   };
 
@@ -72,15 +85,21 @@ export default function MobileBottomNav({ phoneNumber, categories }: MobileBotto
 
   const handleCategorySelect = (categoryId: string) => {
     setIsCategoriesOpen(false);
-    // Try to scroll to the specific category section first
-    const categorySection = document.getElementById(`category-${categoryId}`);
-    if (categorySection) {
-      categorySection.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (pathname !== "/") {
+      router.push(`/#category-${categoryId}`);
     } else {
-      // Fallback to the general products section
-      const section = document.getElementById("products");
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Try to scroll to the specific category section first
+      const categorySection = document.getElementById(`category-${categoryId}`);
+      if (categorySection) {
+        categorySection.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        // Fallback to the general products section
+        const section = document.getElementById("products");
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          router.push(`/#category-${categoryId}`);
+        }
       }
     }
   };
