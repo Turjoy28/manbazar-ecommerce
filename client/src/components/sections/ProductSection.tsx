@@ -80,11 +80,11 @@ function ProductCard({ product }: { product: Product }) {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 items-center w-full p-3 pt-2 mt-auto">
+      <div className="flex gap-1.5 md:gap-2 items-center w-full p-2 md:p-3 pt-1 md:pt-2 mt-auto">
         {isOutOfStock ? (
           <Button
             disabled
-            className="w-full font-bold h-11 bg-gray-300 text-gray-500 text-[10px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-normal cursor-not-allowed"
+            className="w-full font-semibold h-7 md:h-11 bg-gray-300 text-gray-500 text-[8px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-nowrap overflow-hidden leading-tight cursor-not-allowed px-1"
           >
             স্টক শেষ
           </Button>
@@ -92,12 +92,12 @@ function ProductCard({ product }: { product: Product }) {
           <>
             <Button
               onClick={handleAddToCart}
-              className="w-1/2 cursor-pointer font-bold h-11 bg-secondary text-(--secondary-text) hover:bg-secondary/80 text-[10px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-normal"
+              className="w-1/2 cursor-pointer font-semibold h-7 md:h-11 bg-secondary text-(--secondary-text) hover:bg-secondary/80 text-[8px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-nowrap overflow-hidden leading-tight px-1"
             >
               কার্টে যোগ করুন
             </Button>
             <a href="/#billing" onClick={handleAddToCart} className="w-1/2">
-              <Button className="font-bold bg-primary text-(--primary-text) text-[10px] sm:text-xs md:text-sm transition-all duration-200 cursor-pointer w-full h-11 text-center justify-center items-center flex rounded-none whitespace-normal hover:bg-primary/90 animate-cta-bounce">
+              <Button className="font-semibold bg-primary text-(--primary-text) text-[8px] sm:text-xs md:text-sm transition-all duration-200 cursor-pointer w-full h-7 md:h-11 text-center justify-center items-center flex rounded-none whitespace-nowrap overflow-hidden leading-tight px-1 hover:bg-primary/90 animate-cta-bounce">
                 এখনই অর্ডার করুন
               </Button>
             </a>

@@ -203,7 +203,7 @@ function ImageGallery({
     <div className="flex flex-col gap-3 w-full">
       {/* Main large media (Image or Video) with zoom on hover */}
       <div
-        className="relative w-full aspect-4/5 rounded-xl overflow-hidden bg-gray-100 shadow-sm flex items-center justify-center cursor-crosshair"
+        className="relative w-full aspect-[4/3] md:aspect-4/5 rounded-xl overflow-hidden bg-gray-100 shadow-sm flex items-center justify-center cursor-crosshair"
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -248,7 +248,7 @@ function ImageGallery({
           <button
             key={idx}
             onClick={() => setActiveIndex(idx)}
-            className={`relative w-16 h-20 md:w-20 md:h-24 shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 ${activeIndex === idx
+            className={`relative w-12 h-14 md:w-20 md:h-24 shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 ${activeIndex === idx
               ? "border-primary shadow-md ring-2 ring-primary/30 scale-105"
               : "border-gray-200 hover:border-primary/60 hover:shadow-sm"
               }`}
@@ -299,11 +299,11 @@ function QuantitySelector({
     <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden w-fit">
       <button
         onClick={() => onChange(Math.max(1, value - 1))}
-        className="px-4 py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-lg transition-colors"
+        className="px-3 py-1.5 md:px-4 md:py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-base md:text-lg transition-colors"
       >
         −
       </button>
-      <span className="px-5 py-2.5 font-semibold text-gray-800 border-x border-gray-300 min-w-12 text-center">
+      <span className="px-3 py-1.5 md:px-5 md:py-2.5 font-semibold text-gray-800 border-x border-gray-300 min-w-10 md:min-w-12 text-center text-sm md:text-base">
         {value}
       </span>
       <button
@@ -311,7 +311,7 @@ function QuantitySelector({
           if (max !== undefined && value >= max) return;
           onChange(value + 1);
         }}
-        className="px-4 py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-lg transition-colors"
+        className="px-3 py-1.5 md:px-4 md:py-2.5 text-gray-600 hover:bg-gray-100 font-bold text-base md:text-lg transition-colors"
       >
         +
       </button>
@@ -338,7 +338,7 @@ function SizeSelector({
         <button
           key={size}
           onClick={() => onChange(size)}
-          className={`w-12 h-12 rounded-lg border-2 font-semibold text-sm transition-all duration-200 ${selected === size
+          className={`w-9 h-9 md:w-12 md:h-12 rounded-lg border-2 font-semibold text-xs md:text-sm transition-all duration-200 ${selected === size
             ? "border-primary bg-primary text-(--primary-text) shadow"
             : "border-gray-300 text-gray-700 hover:border-primary hover:text-primary"
             }`}
@@ -474,7 +474,7 @@ export default function ProductDetails({
   return (
     <main className="bg-white min-h-screen">
       {/* ── Breadcrumb ── */}
-      <div className="max-w-[1400px] mx-auto px-4 xl:px-8 py-4">
+      <div className="max-w-[1400px] mx-auto px-4 xl:px-8 py-2 md:py-4">
         <nav className="flex items-center gap-2 text-sm text-gray-500">
           <Link
             href="/"
@@ -491,8 +491,8 @@ export default function ProductDetails({
       </div>
 
       {/* ── Product Section ── */}
-      <section className="max-w-[1400px] mx-auto px-4 xl:px-8 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12">
+      <section className="max-w-[1400px] mx-auto px-4 xl:px-8 pb-6 md:pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 lg:gap-10 xl:gap-12">
           {/* LEFT: Image Gallery */}
           <div className="lg:col-span-5">
             <ImageGallery
@@ -504,7 +504,7 @@ export default function ProductDetails({
           </div>
 
           {/* MIDDLE: Product Details */}
-          <div className="lg:col-span-4 flex flex-col gap-5 w-full">
+          <div className="lg:col-span-4 flex flex-col gap-3 md:gap-5 w-full">
             {/* Name */}
             <div>
               {product.is_on_sale && (
@@ -522,23 +522,23 @@ export default function ProductDetails({
                   </span>
                 </div>
               )}
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-lg md:text-3xl font-bold text-gray-900 leading-tight">
                 {product.name}
               </h1>
             </div>
 
             {/* Price */}
-            <div className="flex gap-4 items-center">
-              <span className="text-3xl font-bold text-primary">
+            <div className="flex gap-3 md:gap-4 items-center">
+              <span className="text-xl md:text-3xl font-bold text-primary">
                 ৳{product.price}
               </span>
               {product.originalPrice && (
-                <span className="text-xl text-gray-400 line-through">
+                <span className="text-base md:text-xl text-gray-400 line-through">
                   ৳{product.originalPrice}
                 </span>
               )}
               {product.originalPrice && (
-                <span className="bg-red-100 text-red-600 text-sm font-bold px-2 py-0.5 rounded">
+                <span className="bg-red-100 text-red-600 text-[10px] md:text-sm font-bold px-1.5 py-0.5 md:px-2 md:py-0.5 rounded">
                   {discount}% ছাড়
                 </span>
               )}
@@ -621,7 +621,7 @@ export default function ProductDetails({
                 <Link
                   href="/#billing"
                   onClick={handleOrderNow}
-                  className="flex-1 py-4 rounded-xl font-bold text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
+                  className="flex-1 py-2.5 md:py-4 rounded-xl font-bold text-sm md:text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
                 >
                   🔒 এখনই অর্ডার করুন
                 </Link>
@@ -637,10 +637,10 @@ export default function ProductDetails({
               ].map((badge, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-col items-center gap-1 bg-primary/20 rounded-lg p-3 text-center border border-primary/70 text-(--primary-text)"
+                  className="flex flex-col items-center gap-1 bg-primary/20 rounded-lg p-1.5 md:p-3 text-center border border-primary/70 text-(--primary-text)"
                 >
-                  <div className="text-(--primary-text)!">{badge.icon}</div>
-                  <span className="text-xs font-medium leading-tight text-black">
+                  <div className="text-(--primary-text)! scale-75 md:scale-100">{badge.icon}</div>
+                  <span className="text-[9px] md:text-xs font-medium leading-tight text-black">
                     {badge.label}
                   </span>
                 </div>
@@ -674,7 +674,7 @@ export default function ProductDetails({
           </div>
 
           {/* RIGHT: Dashed Info Boxes */}
-          <div className="lg:col-span-3 w-full shrink-0 flex flex-col gap-5 mt-6 lg:mt-0">
+          <div className="lg:col-span-3 w-full shrink-0 flex flex-col gap-3 md:gap-5 mt-4 lg:mt-0">
             {/* Delivery Info Box (Dashed Border) */}
             {(() => {
               const charges = product?.deliveryCharge || [];
@@ -682,8 +682,8 @@ export default function ProductDetails({
               const outside = charges.find((d) => d.text.toLowerCase().includes("outside"))?.price ?? 150;
 
               return (
-                <div className="border border-dashed border-gray-500 rounded-lg p-3 text-[12px] space-y-2.5">
-                  <p className="flex items-start gap-2">
+                <div className="border border-dashed border-gray-500 rounded-lg p-2 md:p-3 text-[10px] md:text-[12px] space-y-1.5 md:space-y-2.5">
+                  <p className="flex items-start gap-1.5 md:gap-2">
                     <CheckIcon />
                     <span className="text-gray-700 leading-snug">আজই অর্ডার করুন এবং ০১ - ০২ দিনের মধ্যে ডেলিভারি নিন।</span>
                   </p>
@@ -708,8 +708,8 @@ export default function ProductDetails({
             })()}
 
             {/* Contact Info Box (Dashed Border) */}
-            <div className="border border-dashed border-gray-500 rounded-lg p-3 text-[12px]">
-              <p className="text-gray-800 font-semibold mb-2.5 leading-snug">
+            <div className="border border-dashed border-gray-500 rounded-lg p-2 md:p-3 text-[10px] md:text-[12px]">
+              <p className="text-gray-800 font-semibold mb-2 md:mb-2.5 leading-snug">
                 এই পণ্যটি সম্পর্কে আপনার কোনো প্রশ্ন থাকলে অনুগ্রহ করে কল করুন
               </p>
 
