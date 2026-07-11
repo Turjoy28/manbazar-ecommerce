@@ -186,15 +186,15 @@ export default function ProductsPage() {
                                             {(() => {
                                                 const hasVariants = product.variants && product.variants.length > 0;
                                                 const totalStock = hasVariants 
-                                                    ? product.variants.reduce((sum, v) => sum + (v.stock ?? 0), 0)
+                                                    ? product.variants!.reduce((sum, v) => sum + (v.stock ?? 0), 0)
                                                     : product.stock;
                                                 
                                                 const totalOnHand = hasVariants
-                                                    ? product.variants.reduce((sum, v) => sum + (v.quantity_on_hand ?? 0), 0)
+                                                    ? product.variants!.reduce((sum, v) => sum + (v.quantity_on_hand ?? 0), 0)
                                                     : (product.quantity_on_hand ?? product.stock);
                                                     
                                                 const totalReserved = hasVariants
-                                                    ? product.variants.reduce((sum, v) => sum + (v.quantity_reserved ?? 0), 0)
+                                                    ? product.variants!.reduce((sum, v) => sum + (v.quantity_reserved ?? 0), 0)
                                                     : (product.quantity_reserved ?? 0);
 
                                                 return (

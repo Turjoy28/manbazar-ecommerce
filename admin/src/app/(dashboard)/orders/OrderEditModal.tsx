@@ -60,7 +60,7 @@ export function OrderEditModal({ order, isOpen, onClose, onUpdate }: OrderEditMo
       const newSubtotal = newProducts.reduce((acc, p) => acc + (p.price * p.quantity), 0);
       const newTotal = newSubtotal + (prev.deliveryCharge || 0);
 
-      return { ...prev, products: newProducts, subtotal: newSubtotal, total: newTotal, grandTotal: newTotal };
+      return { ...prev, products: newProducts, subtotal: newSubtotal, total: newTotal };
     });
   };
 
@@ -73,7 +73,7 @@ export function OrderEditModal({ order, isOpen, onClose, onUpdate }: OrderEditMo
       const newSubtotal = newProducts.reduce((acc, p) => acc + (p.price * p.quantity), 0);
       const newTotal = newSubtotal + (prev.deliveryCharge || 0);
 
-      return { ...prev, products: newProducts, subtotal: newSubtotal, total: newTotal, grandTotal: newTotal };
+      return { ...prev, products: newProducts, subtotal: newSubtotal, total: newTotal };
     });
   };
 
@@ -86,7 +86,6 @@ export function OrderEditModal({ order, isOpen, onClose, onUpdate }: OrderEditMo
         const sub = field === 'subtotal' ? value : (prev.subtotal || 0);
         const del = field === 'deliveryCharge' ? value : (prev.deliveryCharge || 0);
         updated.total = sub + del;
-        updated.grandTotal = sub + del;
       }
       
       return updated;
