@@ -171,6 +171,8 @@ function ImageGallery({
   activeIndex: number;
   setActiveIndex: (index: number) => void;
 }) {
+  const [isZooming, setIsZooming] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
 
   // Filter out invalid/empty/whitespace-only image URLs
   const displayImages = images?.filter((img) => img && img.trim() !== "") || [];
@@ -178,10 +180,34 @@ function ImageGallery({
     displayImages.push("/placeholder.png");
   }
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPosition({ x, y });
+  };
+
+  const handleMouseEnter = () => {
+    // Only enable zoom for images, not videos
+    if (!isVideoUrl(displayImages[activeIndex])) {
+      setIsZooming(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsZooming(false);
+    setZoomPosition({ x: 50, y: 50 });
+  };
+
   return (
     <div className="flex flex-col gap-3 w-full">
-      {/* Main large media (Image or Video) */}
-      <div className="relative w-full aspect-4/5 rounded-xl overflow-hidden bg-gray-100 shadow-sm flex items-center justify-center">
+      {/* Main large media (Image or Video) with zoom on hover */}
+      <div
+        className="relative w-full aspect-4/5 rounded-xl overflow-hidden bg-gray-100 shadow-sm flex items-center justify-center cursor-crosshair"
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         {isVideoUrl(displayImages[activeIndex]) ? (
           <video
             src={displayImages[activeIndex]}
@@ -194,13 +220,24 @@ function ImageGallery({
             src={displayImages[activeIndex] || "/placeholder.png"}
             alt={name}
             fill
-            className="object-cover transition-opacity duration-300"
+            className="object-cover transition-transform duration-200 ease-out"
+            style={
+              isZooming
+                ? {
+                    transform: "scale(2.5)",
+                    transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                  }
+                : {
+                    transform: "scale(1)",
+                    transformOrigin: "center center",
+                  }
+            }
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
           />
         )}
         {/* Badge */}
-        <div className="absolute top-3 left-3 bg-primary text-(--primary-text) text-xs font-bold px-2 py-1 rounded z-10">
+        <div className={`absolute top-3 left-3 bg-primary text-(--primary-text) text-xs font-bold px-2 py-1 rounded z-10 transition-opacity duration-200 ${isZooming ? 'opacity-0' : 'opacity-100'}`}>
           SALE
         </div>
       </div>

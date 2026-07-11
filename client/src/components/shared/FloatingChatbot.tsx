@@ -36,7 +36,7 @@ export default function FloatingChatbot({ chatbot }: FloatingChatbotProps) {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end font-sans">
+        <div className="fixed bottom-24 md:bottom-6 right-6 z-40 flex flex-col gap-3 items-end font-sans">
             {/* Sub-buttons list (slides/fades up when isOpen is true) */}
             <div
                 className={`flex flex-col gap-3 items-end transition-all duration-300 ease-out origin-bottom ${
