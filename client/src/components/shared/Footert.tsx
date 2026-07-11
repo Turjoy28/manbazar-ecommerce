@@ -146,7 +146,7 @@ export default function Footer({ logo, footerInfo, chatbot }: FooterProps) {
 
       {/* Bottom full amber-brown bar */}
       <div className="bg-[#6b3512] text-amber-50/95 py-2 border-t border-amber-900/40 font-sans">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center gap-1 text-[9px] md:text-xs">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-center md:justify-between gap-1 md:gap-4 text-[9px] md:text-xs">
           <p className="opacity-90">
             © {new Date().getFullYear()} {footerInfo?.copyright}
           </p>
