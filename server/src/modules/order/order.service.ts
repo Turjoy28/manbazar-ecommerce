@@ -246,7 +246,10 @@ const updateCourierInfo = async (
 const getStats = async () => {
     const [totalOrders, totalRevenue, pending, delivered, cancelled, products] = await Promise.all([
         Order.countDocuments(),
-        Order.aggregate([{ $group: { _id: null, total: { $sum: "$total" } } }]),
+        Order.aggregate([
+            { $match: { paymentStatus: "completed" } },
+            { $group: { _id: null, total: { $sum: "$total" } } }
+        ]),
         Order.countDocuments({ status: "pending" }),
         Order.countDocuments({ status: "delivered" }),
         Order.countDocuments({ status: "cancelled" }),
@@ -279,7 +282,11 @@ const getMonthlyData = async () => {
                     day: { $dayOfMonth: "$createdAt" }
                 },
                 orders: { $sum: 1 },
-                revenue: { $sum: "$total" },
+                revenue: {
+                    $sum: {
+                        $cond: [{ $eq: ["$paymentStatus", "completed"] }, "$total", 0]
+                    }
+                },
             },
         },
         { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },

@@ -21,12 +21,14 @@ const sendToCourier = async (req: Request, res: Response, next: NextFunction) =>
         }
 
         const results = await sendOrdersToCourier(orderIds, courier);
-        sendResponse(res, {
-            statusCode: 200,
-            success: true,
-            message: `Orders dispatched to ${courier}`,
-            data: results,
-        });
+        if (results) {
+            sendResponse(res, {
+                statusCode: 200,
+                success: true,
+                message: `Orders dispatched to ${courier}`,
+                data: results,
+            });
+        }
     } catch (error) { next(error); }
 };
 

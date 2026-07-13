@@ -203,12 +203,27 @@ export default function OrdersPage() {
         selectedOrderIds,
         selectedCourier,
       );
+      console.log("res", res);
       if (res.success) {
-        toast.success(
-          `${selectedOrderIds.length}টি অর্ডার ${selectedCourier.toUpperCase()}-এ পাঠানো হয়েছে!`,
-        );
-        fetchOrders();
-        setSelectedOrderIds([]);
+        const data = res.data || [];
+        const successCount = data.filter((item: any) => item.success).length;
+        const failedCount = data.filter((item: any) => !item.success).length;
+
+        if (failedCount > 0) {
+          const firstError = data.find((item: any) => !item.success)?.error;
+          toast.error(`${failedCount}টি অর্ডার পাঠাতে ব্যর্থ হয়েছে। Error: ${firstError}`);
+        }
+
+        if (successCount > 0) {
+          toast.success(
+            `${successCount}টি অর্ডার ${selectedCourier.toUpperCase()}-এ পাঠানো হয়েছে!`,
+          );
+          // If all succeeded, clear selection
+          if (failedCount === 0) {
+             setSelectedOrderIds([]);
+          }
+          fetchOrders();
+        }
       } else {
         toast.error(res.message || "কুরিয়ারে পাঠাতে ব্যর্থ হয়েছে।");
       }
@@ -364,8 +379,8 @@ export default function OrdersPage() {
         <Badge
           variant="outline"
           className={`text-[10px] uppercase font-semibold ${order.paymentMethod === "bkash"
-              ? "bg-pink-500/10 text-pink-400 border-pink-500/20"
-              : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+            ? "bg-pink-500/10 text-pink-400 border-pink-500/20"
+            : "bg-amber-500/10 text-amber-400 border-amber-500/20"
             }`}
         >
           {order.paymentMethod === "bkash" ? "bKash" : "COD"}
@@ -751,9 +766,9 @@ export default function OrdersPage() {
                           {order.paymentMethod === "bkash" ? "bKash" : "CashOnDelivery"}
                         </div>
                         {order.paymentMethod === "bkash" && order.bkashTxnId && (
-                           <div className="text-xs text-muted-foreground mt-1 bg-pink-500/10 text-pink-500 w-fit px-1.5 py-0.5 rounded border border-pink-500/20">
-                             Txn: {order.bkashTxnId}
-                           </div>
+                          <div className="text-xs text-muted-foreground mt-1 bg-pink-500/10 text-pink-500 w-fit px-1.5 py-0.5 rounded border border-pink-500/20">
+                            Txn: {order.bkashTxnId}
+                          </div>
                         )}
                       </TableCell>
                       <TableCell className="align-top pt-5 min-w-[220px]">
@@ -779,7 +794,7 @@ export default function OrdersPage() {
                       <TableCell className="align-top pt-4">
                         {updatingStatusId === order._id ? (
                           <div className="flex items-center justify-center w-[130px] h-9">
-                             <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
                           </div>
                         ) : (
                           <Select

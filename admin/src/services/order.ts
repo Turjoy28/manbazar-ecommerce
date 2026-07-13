@@ -129,11 +129,7 @@ export const orderService = {
         });
     },
 
-    /**
-     * Dashboard aggregate stats
-     * token is required when called from a Next.js Server Component
-     * because cookies() are not automatically forwarded in server-side fetch
-     */
+
     getOrderStats: async (token?: string): Promise<OrderStatsResponse> => {
         return secureFetch<OrderStatsResponse>(`${BASE_URL}/orders/stats`, {
             ...(token && { token }),
