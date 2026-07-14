@@ -375,6 +375,7 @@ export default function ProductDetails({
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"description" | "size" | "care">("description");
   const [contactNumber, setContactNumber] = useState("+8801577498985");
+  const [whatsappLink, setWhatsappLink] = useState("");
 
   // Lifted gallery state
   const [activeIndex, setActiveIndex] = useState(0);
@@ -426,6 +427,9 @@ export default function ProductDetails({
     getUiData().then(res => {
       if (res?.data?.[0]?.footer?.contactInfo?.number) {
         setContactNumber(res.data[0].footer.contactInfo.number);
+      }
+      if (res?.data?.[0]?.chatbot?.whatsapp) {
+        setWhatsappLink(res.data[0].chatbot.whatsapp);
       }
     }).catch(console.error);
   }, []);
@@ -618,11 +622,11 @@ export default function ProductDetails({
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-1.5 md:gap-3">
+            <div className="flex flex-col gap-2 md:gap-3 w-full">
               {isOutOfStock ? (
                 <button
                   disabled
-                  className="flex-1 py-4 rounded-xl font-bold text-base bg-gray-300 text-gray-500 text-center cursor-not-allowed"
+                  className="w-full py-3 md:py-4 rounded-xl font-bold text-base bg-gray-300 text-gray-500 text-center cursor-not-allowed"
                 >
                   স্টক শেষ (Out of Stock)
                 </button>
@@ -630,10 +634,24 @@ export default function ProductDetails({
                 <Link
                   href="/#billing"
                   onClick={handleOrderNow}
-                  className="flex-1 py-1.5 md:py-4 rounded-xl font-bold text-xs md:text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
+                  className="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base bg-primary text-(--primary-text) hover:bg-primary/90 text-center transition-all duration-200 animate-cta-bounce"
                 >
                   🔒 এখনই অর্ডার করুন
                 </Link>
+              )}
+              
+              {whatsappLink && (
+                <a
+                  href={whatsappLink.startsWith("http") ? whatsappLink : `https://${whatsappLink}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base bg-[#25D366] text-white hover:bg-[#20b858] transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 md:w-5 md:h-5 fill-current">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.734-1.453L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.023-5.116-2.883-6.978C16.59 1.899 14.116.874 11.48.876c-5.437 0-9.861 4.42-9.865 9.864 0 1.902.499 3.76 1.449 5.36L2.052 22.15l6.196-1.626v-.001zm9.251-6.7c-.244-.122-1.441-.712-1.664-.794-.223-.081-.385-.122-.547.122-.162.244-.63.794-.771.955-.143.162-.285.183-.53.061-.243-.122-1.03-.38-1.962-1.21-.724-.647-1.213-1.447-1.355-1.69-.143-.244-.015-.376.107-.497.111-.11.244-.285.365-.426.122-.142.162-.244.244-.406.082-.162.041-.305-.021-.426-.062-.122-.547-1.32-.75-1.81-.197-.474-.397-.41-.547-.418-.142-.008-.305-.01-.468-.01-.162 0-.427.061-.65.305-.224.244-.854.834-.854 2.031 0 1.198.874 2.353.996 2.516.122.163 1.722 2.63 4.171 3.691.582.253 1.037.404 1.392.517.585.186 1.117.16 1.538.097.469-.071 1.442-.589 1.644-1.157.203-.568.203-1.056.142-1.157-.061-.101-.223-.162-.466-.284z"/>
+                  </svg>
+                  হোয়াটসঅ্যাপে অর্ডার করুন
+                </a>
               )}
             </div>
 

@@ -4,6 +4,7 @@ export interface OrderPayload {
     customer: {
         name: string;
         phone: string;
+        email?: string;
         address: string;
         location: string;
         paymentMethod: string;

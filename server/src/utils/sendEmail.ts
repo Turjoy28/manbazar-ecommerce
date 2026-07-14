@@ -3,9 +3,10 @@ import config from "../config/index.js";
 
 /**
  * Utility to send email.
+ * Includes anti-spam best practices: plain-text fallback, proper headers, reply-to.
  * Falls back to console log printing if SMTP configs are missing.
  */
-export const sendEmail = async (to: string, subject: string, html: string) => {
+export const sendEmail = async (to: string, subject: string, html: string, plainText?: string) => {
     const { host, port, user, pass, from } = (config as any).smtp || {};
 
     if (host && user && pass) {
@@ -20,13 +21,22 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
                 },
             });
 
+            const senderAddress = from || user;
+
             await transporter.sendMail({
-                from: from || "no-reply@manbazar.com",
+                from: `"MenBazar" <${senderAddress}>`,
+                replyTo: senderAddress,
                 to,
                 subject,
+                // Plain text version — critical for spam avoidance
+                text: plainText || html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
                 html,
+                headers: {
+                    "X-Mailer": "MenBazar Mailer",
+                    "Precedence": "bulk",
+                },
             });
-            console.log(`[Email] Onboarding email sent to ${to} via SMTP`);
+            console.log(`[Email] Email sent to ${to} via SMTP`);
             return;
         } catch (error) {
             console.error(`[Email Error] Failed to send email via SMTP:`, error);

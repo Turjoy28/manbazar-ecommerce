@@ -1,11 +1,20 @@
 import { NextFunction, Request, Response } from "express";
 import { orderService } from "./order.service.js";
 import sendResponse from "../../utils/sendResponse.js";
+import { sendInvoiceEmail } from "../../utils/invoiceEmail.js";
 
 /** POST /orders — Place a new order (public) */
 const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await orderService.createOrder(req.body);
+
+        // Fire-and-forget: send invoice email if the customer provided an email
+        if (result?.customer?.email) {
+            sendInvoiceEmail(result).catch((err) =>
+                console.error("[Invoice Email] Failed to send:", err.message)
+            );
+        }
+
         sendResponse(res, { statusCode: 201, success: true, message: "Order placed successfully", data: result });
     } catch (error) { next(error); }
 };

@@ -15,6 +15,7 @@ export interface OrderItem {
 export interface OrderCustomer {
     name: string;
     phone: string;
+    email?: string;
     address: string;
     location: string;
     paymentMethod: string;
