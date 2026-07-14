@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Trigger client rebuild
 
 import { useContext, useState, useEffect } from "react";
 import Image from "next/image";
