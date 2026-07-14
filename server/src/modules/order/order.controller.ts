@@ -87,15 +87,6 @@ const reconcilePayment = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
-/** POST /orders/courier/send — Send orders to courier */
-const updateCourierInfo = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { orderIds, courier } = req.body;
-        const result = await orderService.updateCourierInfo(orderIds, courier);
-        sendResponse(res, { statusCode: 200, success: true, message: "Sent to courier successfully", data: result });
-    } catch (error) { next(error); }
-};
-
 export const orderController = {
     createOrder,
     getOrders,
@@ -104,6 +95,5 @@ export const orderController = {
     updateOrderStatus,
     updateOrder,
     deleteOrders,
-    reconcilePayment,
-    updateCourierInfo,
+    reconcilePayment
 };
