@@ -63,7 +63,7 @@ function CartItemRow({
             <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-tight pr-2">
               {item?.product?.name}
             </p>
-            
+
             <p className="text-[15px] font-bold text-gray-900">
               ৳ {(item?.product?.price * item?.quantity).toFixed(2)}
             </p>
@@ -197,7 +197,7 @@ function OrderSummary({
                     <span className="text-gray-500 text-xs">
                       Qty: {item.quantity}
                     </span>
-                    
+
                     {/* Display Size & Color */}
                     {(item.size || item.color) && (
                       <span className="text-gray-400 text-[10px] bg-gray-100 px-1.5 py-0.5 rounded-sm whitespace-nowrap">
@@ -387,8 +387,8 @@ export default function BillingSection() {
     }
 
     try {
-      await createOrder(orderPayload);
-      setPlacedOrder(orderPayload);
+      const response = await createOrder(orderPayload);
+      setPlacedOrder({ ...orderPayload, orderId: response?.data?.orderId || response?.data?._id });
       clearCart();
       setBilling({
         name: "",
@@ -426,7 +426,7 @@ export default function BillingSection() {
             </div>
             <h2 className="text-3xl font-bold text-gray-800 mb-3">Order Placed Successfully!</h2>
             <p className="text-gray-600 max-w-md mx-auto text-lg mb-8">
-              Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
+              Thank you for your Order. We have received your order and will contact you shortly for confirmation.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <button
@@ -443,113 +443,52 @@ export default function BillingSection() {
               >
                 Continue Shopping
               </button>
-              <button
-                onClick={() => window.print()}
-                className="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                Print Invoice
-              </button>
             </div>
           </div>
 
-          {/* Invoice Section */}
+          {/* Order Details Summary */}
           {placedOrder && (
-            <div id="invoice-print-area" className="w-full max-w-3xl bg-white border border-gray-200 rounded-xl p-8 shadow-sm text-left mx-auto print:border-none print:shadow-none print:p-0">
-              <style>{`
-                @media print {
-                  body * {
-                    visibility: hidden;
-                  }
-                  #invoice-print-area, #invoice-print-area * {
-                    visibility: visible;
-                  }
-                  #invoice-print-area {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                  }
-                }
-              `}</style>
-              <div className="flex justify-between items-start border-b border-gray-200 pb-6 mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800">INVOICE</h3>
-                  <p className="text-sm text-gray-500 mt-1">Order Date: {new Date().toLocaleDateString()}</p>
+            <div className="w-full max-w-xl bg-white border border-gray-100 rounded-xl p-6 shadow-sm text-left mx-auto">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">Order Summary</h3>
+              
+              {placedOrder.orderId && (
+                <div className="flex justify-between items-center mb-3 text-sm">
+                  <span className="text-gray-500">Order ID:</span>
+                  <span className="font-semibold text-gray-800 text-base">#{placedOrder.orderId}</span>
                 </div>
-                <div className="text-right">
-                  <h4 className="font-bold text-gray-800">MenBazar</h4>
-                  <p className="text-sm text-gray-500 mt-1">info@menbazar.com</p>
-                </div>
+              )}
+              
+              <div className="flex justify-between items-center mb-6 text-sm">
+                <span className="text-gray-500">Payment Method:</span>
+                <span className="font-semibold text-gray-800 uppercase">{placedOrder.paymentMethod}</span>
               </div>
 
-              <div className="flex justify-between mb-8">
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">Billed To:</h4>
-                  <p className="text-sm text-gray-800 font-medium">{placedOrder.customer.name}</p>
-                  <p className="text-sm text-gray-600 mt-1">{placedOrder.customer.address}</p>
-                  <p className="text-sm text-gray-600 mt-1">{placedOrder.customer.phone}</p>
-                  {placedOrder.customer.email && <p className="text-sm text-gray-600 mt-1">{placedOrder.customer.email}</p>}
-                </div>
-                <div className="text-right">
-                  <h4 className="font-semibold text-gray-700 mb-2">Payment Method:</h4>
-                  <p className="text-sm text-gray-800 uppercase font-medium">{placedOrder.paymentMethod}</p>
-                  {placedOrder.paymentMethod === 'bkash' && (
-                    <p className="text-sm text-gray-600 mt-1">Txn ID: {placedOrder.bkashTxnId}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full mb-8 min-w-[500px]">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-left text-sm font-semibold text-gray-600">
-                      <th className="pb-3 w-1/2">Item</th>
-                      <th className="pb-3 text-center">Qty</th>
-                      <th className="pb-3 text-right">Price</th>
-                      <th className="pb-3 text-right">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm">
-                    {placedOrder.products.map((p: any, idx: number) => (
-                      <tr key={idx} className="border-b border-gray-100">
-                        <td className="py-4">
-                          <p className="font-medium text-gray-800">{p.name}</p>
-                          {(p.size || p.color) && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              {[p.size, p.color].filter(Boolean).join(" · ")}
-                            </p>
-                          )}
-                        </td>
-                        <td className="py-4 text-center">{p.quantity}</td>
-                        <td className="py-4 text-right">৳ {p.price.toFixed(2)}</td>
-                        <td className="py-4 text-right font-medium text-gray-900">৳ {(p.price * p.quantity).toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="flex justify-end mt-4">
-                <div className="w-full md:w-64 space-y-3">
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Subtotal:</span>
-                    <span>৳ {placedOrder.subtotal.toFixed(2)}</span>
-                  </div>
-                  {placedOrder.vat > 0 && (
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>VAT:</span>
-                      <span>৳ {placedOrder.vat.toFixed(2)}</span>
+              <div className="space-y-4 mb-6">
+                {placedOrder.products.map((p: any, idx: number) => (
+                  <div key={idx} className="flex justify-between items-start text-sm">
+                    <div className="pr-4">
+                      <p className="font-medium text-gray-800">{p.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Qty: {p.quantity} {p.size || p.color ? `| ${[p.size, p.color].filter(Boolean).join(", ")}` : ""}
+                      </p>
                     </div>
-                  )}
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Delivery:</span>
-                    <span>৳ {placedOrder.deliveryCharge.toFixed(2)}</span>
+                    <span className="font-medium text-gray-900 whitespace-nowrap">৳ {(p.price * p.quantity).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold text-gray-900 pt-3 border-t border-gray-200">
-                    <span>Total:</span>
-                    <span>৳ {placedOrder.total.toFixed(2)}</span>
-                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-100 pt-4 space-y-2 text-sm">
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span>৳ {placedOrder.subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Delivery Charge</span>
+                  <span>৳ {placedOrder.deliveryCharge.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold text-gray-900 pt-3 border-t border-gray-100 mt-2">
+                  <span>Total Amount</span>
+                  <span>৳ {placedOrder.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -724,7 +663,7 @@ export default function BillingSection() {
                 </div>
               </div>
             )}
-            
+
             {/* Place order button under form */}
             <button
               onClick={(e) => {
@@ -778,7 +717,7 @@ export default function BillingSection() {
 
             </p>
 
-      
+
           </div>
         </div>
       ) : (
