@@ -279,6 +279,7 @@ export default function BillingSection() {
   } = useContext(OrderContext);
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState<any>(null);
 
   // Billing form state
   const [billing, setBilling] = useState({
@@ -387,6 +388,7 @@ export default function BillingSection() {
 
     try {
       await createOrder(orderPayload);
+      setPlacedOrder(orderPayload);
       clearCart();
       setBilling({
         name: "",
@@ -400,6 +402,9 @@ export default function BillingSection() {
       });
       setIsSuccess(true);
       toast.success(`অর্ডার দেওয়া হয়েছে! মোট: ৳${grandTotal.toFixed(2)}`);
+      setTimeout(() => {
+        document.getElementById("order-success")?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     } catch (err: any) {
       toast.error(
         err.message ||
@@ -411,30 +416,144 @@ export default function BillingSection() {
   return (
     <section id="billing" className="py-2 px-4 max-w-5xl mx-auto scroll-mt-24">
       {isSuccess ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
-          <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-6 shadow-sm">
-            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
+        <div id="order-success" className="flex flex-col items-center justify-center py-10 w-full animate-in fade-in zoom-in duration-500 scroll-mt-24">
+          {/* Success Message */}
+          <div className="text-center print:hidden mb-10 flex flex-col items-center">
+            <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-6 shadow-sm">
+              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-3">Order Placed Successfully!</h2>
+            <p className="text-gray-600 max-w-md mx-auto text-lg mb-8">
+              Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <button
+                onClick={() => {
+                  setIsSuccess(false);
+                  const productsSection = document.getElementById("products");
+                  if (productsSection) {
+                    productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  } else {
+                    window.location.href = "/#products";
+                  }
+                }}
+                className="px-8 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Continue Shopping
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Print Invoice
+              </button>
+            </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-800 mb-3">Order Placed Successfully!</h2>
-          <p className="text-gray-600 max-w-md mx-auto text-lg mb-8">
-            Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
-          </p>
-          <button
-            onClick={() => {
-              setIsSuccess(false);
-              const productsSection = document.getElementById("products");
-              if (productsSection) {
-                productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              } else {
-                window.location.href = "/#products";
-              }
-            }}
-            className="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Continue Shopping
-          </button>
+
+          {/* Invoice Section */}
+          {placedOrder && (
+            <div id="invoice-print-area" className="w-full max-w-3xl bg-white border border-gray-200 rounded-xl p-8 shadow-sm text-left mx-auto print:border-none print:shadow-none print:p-0">
+              <style>{`
+                @media print {
+                  body * {
+                    visibility: hidden;
+                  }
+                  #invoice-print-area, #invoice-print-area * {
+                    visibility: visible;
+                  }
+                  #invoice-print-area {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                  }
+                }
+              `}</style>
+              <div className="flex justify-between items-start border-b border-gray-200 pb-6 mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800">INVOICE</h3>
+                  <p className="text-sm text-gray-500 mt-1">Order Date: {new Date().toLocaleDateString()}</p>
+                </div>
+                <div className="text-right">
+                  <h4 className="font-bold text-gray-800">MenBazar</h4>
+                  <p className="text-sm text-gray-500 mt-1">info@menbazar.com</p>
+                </div>
+              </div>
+
+              <div className="flex justify-between mb-8">
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2">Billed To:</h4>
+                  <p className="text-sm text-gray-800 font-medium">{placedOrder.customer.name}</p>
+                  <p className="text-sm text-gray-600 mt-1">{placedOrder.customer.address}</p>
+                  <p className="text-sm text-gray-600 mt-1">{placedOrder.customer.phone}</p>
+                  {placedOrder.customer.email && <p className="text-sm text-gray-600 mt-1">{placedOrder.customer.email}</p>}
+                </div>
+                <div className="text-right">
+                  <h4 className="font-semibold text-gray-700 mb-2">Payment Method:</h4>
+                  <p className="text-sm text-gray-800 uppercase font-medium">{placedOrder.paymentMethod}</p>
+                  {placedOrder.paymentMethod === 'bkash' && (
+                    <p className="text-sm text-gray-600 mt-1">Txn ID: {placedOrder.bkashTxnId}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full mb-8 min-w-[500px]">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-left text-sm font-semibold text-gray-600">
+                      <th className="pb-3 w-1/2">Item</th>
+                      <th className="pb-3 text-center">Qty</th>
+                      <th className="pb-3 text-right">Price</th>
+                      <th className="pb-3 text-right">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {placedOrder.products.map((p: any, idx: number) => (
+                      <tr key={idx} className="border-b border-gray-100">
+                        <td className="py-4">
+                          <p className="font-medium text-gray-800">{p.name}</p>
+                          {(p.size || p.color) && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {[p.size, p.color].filter(Boolean).join(" · ")}
+                            </p>
+                          )}
+                        </td>
+                        <td className="py-4 text-center">{p.quantity}</td>
+                        <td className="py-4 text-right">৳ {p.price.toFixed(2)}</td>
+                        <td className="py-4 text-right font-medium text-gray-900">৳ {(p.price * p.quantity).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="flex justify-end mt-4">
+                <div className="w-full md:w-64 space-y-3">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Subtotal:</span>
+                    <span>৳ {placedOrder.subtotal.toFixed(2)}</span>
+                  </div>
+                  {placedOrder.vat > 0 && (
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>VAT:</span>
+                      <span>৳ {placedOrder.vat.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Delivery:</span>
+                    <span>৳ {placedOrder.deliveryCharge.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold text-gray-900 pt-3 border-t border-gray-200">
+                    <span>Total:</span>
+                    <span>৳ {placedOrder.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : cartItems.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
