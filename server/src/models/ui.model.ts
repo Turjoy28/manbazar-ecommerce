@@ -215,6 +215,23 @@ const uiSchema = new mongoose.Schema(
                 type: String,
                 default: "Clearance & Steals",
             }
+        },
+        courier: {
+            activeProvider: { type: String, enum: ['steadfast', 'pathao', 'redx', 'none'], default: 'none' },
+            steadfast: {
+                apiKey: { type: String, default: "" },
+                apiSecret: { type: String, default: "" },
+            },
+            pathao: {
+                clientId: { type: String, default: "" },
+                clientSecret: { type: String, default: "" },
+                username: { type: String, default: "" },
+                password: { type: String, default: "" },
+                storeId: { type: String, default: "" },
+            },
+            redx: {
+                apiKey: { type: String, default: "" },
+            }
         }
     },
     { timestamps: true }

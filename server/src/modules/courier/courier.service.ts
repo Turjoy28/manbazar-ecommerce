@@ -1,5 +1,6 @@
 import { orderService } from "../order/order.service.js";
 import config from "../../config/index.js";
+import { Ui } from "../../models/ui.model.js";
 
 /**
  * Courier service integration for SteadFast, Pathao, and RedX.
@@ -11,8 +12,11 @@ const sendToSteadFast = async (order: {
     id: string; customerName: string; customerPhone: string;
     customerAddress: string; amount: number; note?: string;
 }) => {
-    const apiKey = config.steadfast.api_key;
-    const apiSecret = config.steadfast.api_secret;
+    const uiData = await Ui.findOne();
+    const steadfast = uiData?.courier?.steadfast;
+
+    const apiKey = steadfast?.apiKey || config.steadfast.api_key;
+    const apiSecret = steadfast?.apiSecret || config.steadfast.api_secret;
 
     if (!apiKey || !apiSecret) {
         throw new Error('CRITICAL: Steadfast API credentials are missing in the environment variables.');
@@ -125,14 +129,22 @@ const sendToSteadFast = async (order: {
 
 // ── Pathao ─────────────────────────────────────────────────────────────────────
 const getPathaoToken = async () => {
+    const uiData = await Ui.findOne();
+    const pathao = uiData?.courier?.pathao;
+
+    const client_id = pathao?.clientId || config.pathao.client_id;
+    const client_secret = pathao?.clientSecret || config.pathao.client_secret;
+    const username = pathao?.username || config.pathao.username;
+    const password = pathao?.password || config.pathao.password;
+
     const resp = await fetch("https://hermes.pathao.com/api/v1/issue-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            client_id: config.pathao.client_id,
-            client_secret: config.pathao.client_secret,
-            username: config.pathao.username,
-            password: config.pathao.password,
+            client_id,
+            client_secret,
+            username,
+            password,
             grant_type: "password",
         }),
     });
@@ -144,6 +156,9 @@ const sendToPathao = async (order: {
     id: string; customerName: string; customerPhone: string;
     customerAddress: string; amount: number;
 }) => {
+    const uiData = await Ui.findOne();
+    const store_id = uiData?.courier?.pathao?.storeId || config.pathao.store_id;
+
     const token = await getPathaoToken();
     const response = await fetch("https://hermes.pathao.com/api/v1/orders", {
         method: "POST",
@@ -152,7 +167,7 @@ const sendToPathao = async (order: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            store_id: config.pathao.store_id,
+            store_id,
             merchant_order_id: order.id,
             recipient_name: order.customerName,
             recipient_phone: order.customerPhone,
@@ -178,7 +193,8 @@ const sendToRedX = async (order: {
     id: string; customerName: string; customerPhone: string;
     customerAddress: string; amount: number;
 }) => {
-    const apiKey = config.redx.api_key;
+    const uiData = await Ui.findOne();
+    const apiKey = uiData?.courier?.redx?.apiKey || config.redx.api_key;
     const response = await fetch("https://openapi.redx.com.bd/v1.0.0-beta/parcel", {
         method: "POST",
         headers: {
@@ -208,7 +224,13 @@ export type CourierName = "steadfast" | "pathao" | "redx";
  * Send multiple orders to a chosen courier service.
  * Updates each order in the database with tracking info on success.
  */
-export const sendOrdersToCourier = async (orderIds: string[], courier: CourierName) => {
+export const sendOrdersToCourier = async (orderIds: string[], courier?: CourierName | string) => {
+    const uiData = await Ui.findOne();
+    const activeProvider = courier || uiData?.courier?.activeProvider;
+
+    if (!activeProvider || activeProvider === 'none') {
+        throw new Error('No active courier provider is selected. Please configure it in settings.');
+    }
     const results: { orderId: string; success: boolean; tracking?: string; error?: string }[] = [];
 
     for (const orderId of orderIds) {
@@ -228,12 +250,14 @@ export const sendOrdersToCourier = async (orderIds: string[], courier: CourierNa
 
             let apiResult: any = {};
 
-            if (courier === "steadfast") {
+            if (activeProvider === "steadfast") {
                 apiResult = await sendToSteadFast(orderData);
-            } else if (courier === "pathao") {
+            } else if (activeProvider === "pathao") {
                 apiResult = await sendToPathao(orderData);
-            } else if (courier === "redx") {
+            } else if (activeProvider === "redx") {
                 apiResult = await sendToRedX(orderData);
+            } else {
+                throw new Error(`Unsupported courier: ${activeProvider}`);
             }
 
             // Extract tracking code from response (varies by courier)
@@ -245,7 +269,7 @@ export const sendOrdersToCourier = async (orderIds: string[], courier: CourierNa
                 orderId
             );
 
-            await orderService.updateCourierInfo(orderId, courier, trackingCode, String(trackingCode), "dispatched");
+            await orderService.updateCourierInfo(orderId, activeProvider, trackingCode, String(trackingCode), "dispatched");
             results.push({ orderId, success: true, tracking: trackingCode });
         } catch (error: unknown) {
             const err = error as Error;
