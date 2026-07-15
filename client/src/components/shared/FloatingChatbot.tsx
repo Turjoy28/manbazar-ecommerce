@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { MessageCircle, X } from "lucide-react";
 
 interface FloatingChatbotProps {
@@ -16,6 +16,17 @@ interface FloatingChatbotProps {
 
 export default function FloatingChatbot({ chatbot }: FloatingChatbotProps) {
     const [isOpen, setIsOpen] = useState(false);
+    
+    // Draggable logic state
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const dragRef = useRef({
+        isDragging: false,
+        startX: 0,
+        startY: 0,
+        initialX: 0,
+        initialY: 0,
+        hasDragged: false,
+    });
 
     if (!chatbot) return null;
 
@@ -35,8 +46,59 @@ export default function FloatingChatbot({ chatbot }: FloatingChatbotProps) {
         return `https://${trimmed}`;
     };
 
+    // --- Drag Handlers ---
+    const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return; // Only left click
+        
+        e.currentTarget.setPointerCapture(e.pointerId);
+        dragRef.current = {
+            isDragging: true,
+            startX: e.clientX,
+            startY: e.clientY,
+            initialX: position.x,
+            initialY: position.y,
+            hasDragged: false,
+        };
+    };
+
+    const handlePointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+        if (!dragRef.current.isDragging) return;
+        
+        const dx = e.clientX - dragRef.current.startX;
+        const dy = e.clientY - dragRef.current.startY;
+        
+        // Threshold to distinguish click vs drag
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            dragRef.current.hasDragged = true;
+        }
+
+        setPosition({
+            x: dragRef.current.initialX + dx,
+            y: dragRef.current.initialY + dy,
+        });
+    };
+
+    const handlePointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+        if (!dragRef.current.isDragging) return;
+        dragRef.current.isDragging = false;
+        e.currentTarget.releasePointerCapture(e.pointerId);
+    };
+
+    const handleClick = (e: React.MouseEvent) => {
+        if (dragRef.current.hasDragged) {
+            e.preventDefault();
+            e.stopPropagation();
+            dragRef.current.hasDragged = false;
+            return;
+        }
+        setIsOpen(!isOpen);
+    };
+
     return (
-        <div className="fixed bottom-24 md:bottom-6 right-6 z-40 flex flex-col gap-3 items-end font-sans">
+        <div 
+            className="fixed bottom-24 md:bottom-6 right-6 z-40 flex flex-col gap-3 items-end font-sans transition-transform duration-75 ease-linear"
+            style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+        >
             {/* Sub-buttons list (slides/fades up when isOpen is true) */}
             <div
                 className={`flex flex-col gap-3 items-end transition-all duration-300 ease-out origin-bottom ${
@@ -88,9 +150,14 @@ export default function FloatingChatbot({ chatbot }: FloatingChatbotProps) {
 
             {/* Main Toggle Trigger Button */}
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                onClick={handleClick}
                 aria-label="Toggle chat options"
-                className="flex items-center justify-center w-14 h-14 rounded-full text-white shadow-xl bg-primary hover:bg-primary/95 transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer relative"
+                style={{ touchAction: 'none' }}
+                className="flex items-center justify-center w-14 h-14 rounded-full text-white shadow-xl bg-primary hover:bg-primary/95 transition-all duration-300 hover:scale-110 active:scale-95 cursor-move relative select-none"
             >
                 {/* Ring animation to draw attention */}
                 {!isOpen && (
@@ -98,11 +165,11 @@ export default function FloatingChatbot({ chatbot }: FloatingChatbotProps) {
                 )}
                 
                 {isOpen ? (
-                    <span className="text-xl font-bold flex items-center justify-center">
+                    <span className="text-xl font-bold flex items-center justify-center pointer-events-none">
                         <X className="w-6 h-6" />
                     </span>
                 ) : (
-                    <span className="flex items-center justify-center">
+                    <span className="flex items-center justify-center pointer-events-none">
                         <MessageCircle className="w-7 h-7" />
                     </span>
                 )}
