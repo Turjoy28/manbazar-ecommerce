@@ -492,34 +492,52 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                     {/* Variant Expanded Content */}
                                     {expandedVariant === index && (
                                         <div className="border-t border-border p-4 bg-background/30 space-y-5">
-                                            {/* Color Name + Hex Picker */}
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <Label className="text-foreground/80 text-sm">Color Name *</Label>
-                                                    <Input
-                                                        value={variant.color.name}
-                                                        onChange={(e) => updateVariantColor(index, "name", e.target.value)}
-                                                        placeholder="e.g. Navy Blue"
-                                                        className="border-border bg-background/40 text-foreground text-sm"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label className="text-foreground/80 text-sm">Color Hex Code</Label>
-                                                    <div className="flex gap-2 items-center">
-                                                        <input
-                                                            type="color"
-                                                            value={variant.color.hex}
-                                                            onChange={(e) => updateVariantColor(index, "hex", e.target.value)}
-                                                            className="h-10 w-12 rounded-md border border-input cursor-pointer bg-transparent p-0.5"
-                                                            title="Pick color"
-                                                        />
+                                            {/* Color Identity + Images */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="space-y-4">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-foreground/80 text-sm">Color Name *</Label>
                                                         <Input
-                                                            value={variant.color.hex}
-                                                            onChange={(e) => updateVariantColor(index, "hex", e.target.value)}
-                                                            placeholder="#000000"
-                                                            className="border-border bg-background/40 text-foreground text-sm font-mono"
+                                                            value={variant.color.name}
+                                                            onChange={(e) => updateVariantColor(index, "name", e.target.value)}
+                                                            placeholder="e.g. Navy Blue"
+                                                            className="border-border bg-background/40 text-foreground text-sm"
                                                         />
                                                     </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-foreground/80 text-sm">Color Hex Code</Label>
+                                                        <div className="flex gap-2 items-center">
+                                                            <input
+                                                                type="color"
+                                                                value={variant.color.hex}
+                                                                onChange={(e) => updateVariantColor(index, "hex", e.target.value)}
+                                                                className="h-10 w-12 rounded-md border border-input cursor-pointer bg-transparent p-0.5"
+                                                                title="Pick color"
+                                                            />
+                                                            <Input
+                                                                value={variant.color.hex}
+                                                                onChange={(e) => updateVariantColor(index, "hex", e.target.value)}
+                                                                placeholder="#000000"
+                                                                className="border-border bg-background/40 text-foreground text-sm font-mono"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-foreground/80 text-sm flex items-center gap-1.5">
+                                                        <ImageIcon className="h-4 w-4" />
+                                                        Images for "{variant.color.name || "this color"}"
+                                                    </Label>
+                                                    <ImageUpload
+                                                        value={variant.images}
+                                                        onChange={(urls) => updateVariant(index, { images: urls })}
+                                                        multiple
+                                                        maxFiles={8}
+                                                        title=""
+                                                        description={`Upload images for the ${variant.color.name || "color"} variant.`}
+                                                        compact={true}
+                                                    />
                                                 </div>
                                             </div>
 
@@ -560,7 +578,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                                         type="number"
                                                         value={variant.price ?? ""}
                                                         onChange={(e) => updateVariant(index, { price: e.target.value === "" ? null : Number(e.target.value) })}
-                                                        placeholder="Leave blank to use global original price"
+                                                        placeholder="Leave blank to use global"
                                                         className="border-border bg-background/40 text-foreground text-sm"
                                                     />
                                                 </div>
@@ -573,27 +591,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                                         type="number"
                                                         value={variant.sale_price ?? ""}
                                                         onChange={(e) => updateVariant(index, { sale_price: e.target.value === "" ? null : Number(e.target.value) })}
-                                                        placeholder="Leave blank to use global sale price"
+                                                        placeholder="Leave blank to use global"
                                                         className="border-border bg-background/40 text-foreground text-sm"
                                                     />
                                                 </div>
-                                            </div>
-
-                                            {/* Variant Image Gallery */}
-                                            <div className="space-y-2">
-                                                <Label className="text-foreground/80 text-sm flex items-center gap-1.5">
-                                                    <ImageIcon className="h-4 w-4" />
-                                                    Images for "{variant.color.name || "this color"}"
-                                                </Label>
-                                                <ImageUpload
-                                                    value={variant.images}
-                                                    onChange={(urls) => updateVariant(index, { images: urls })}
-                                                    multiple
-                                                    maxFiles={8}
-                                                    title=""
-                                                    description={`Upload images for the ${variant.color.name || "color"} variant. First image will be the default.`}
-                                                    compact={true}
-                                                />
                                             </div>
                                         </div>
                                     )}

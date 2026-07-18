@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Product, ProductVariant } from "@/types";
 import { SIZE_CHART } from "@/data";
 import { OrderContext } from "@/providers/OrderProvider";
-import { Truck, ThumbsUp, Banknote, PhoneCall } from 'lucide-react';
+import { Truck, ThumbsUp, Banknote, PhoneCall, MessageCircle } from 'lucide-react';
 import { getUiData } from "@/services/ui";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -376,6 +376,7 @@ export default function ProductDetails({
   const [activeTab, setActiveTab] = useState<"description" | "size" | "care">("description");
   const [contactNumber, setContactNumber] = useState("+8801577498985");
   const [whatsappLink, setWhatsappLink] = useState("");
+  const [messengerLink, setMessengerLink] = useState("");
   const [dynamicChart, setDynamicChart] = useState<{tableTitle: string[], tableProperties: string[][]}|null>(null);
 
   // Lifted gallery state
@@ -431,6 +432,9 @@ export default function ProductDetails({
       }
       if (res?.data?.[0]?.chatbot?.whatsapp) {
         setWhatsappLink(res.data[0].chatbot.whatsapp);
+      }
+      if (res?.data?.[0]?.chatbot?.messenger) {
+        setMessengerLink(res.data[0].chatbot.messenger);
       }
       if (res?.data?.[0]?.chart?.chartTable?.tableTitle?.length) {
         setDynamicChart(res.data[0].chart.chartTable);
@@ -660,19 +664,41 @@ export default function ProductDetails({
                 </Link>
               )}
               
-              {whatsappLink && (
-                <a
-                  href={whatsappLink.startsWith("http") ? whatsappLink : `https://${whatsappLink}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base bg-[#25D366] text-white hover:bg-[#20b858] transition-all duration-200 flex items-center justify-center gap-2"
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 md:w-5 md:h-5 fill-current">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.734-1.453L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.023-5.116-2.883-6.978C16.59 1.899 14.116.874 11.48.876c-5.437 0-9.861 4.42-9.865 9.864 0 1.902.499 3.76 1.449 5.36L2.052 22.15l6.196-1.626v-.001zm9.251-6.7c-.244-.122-1.441-.712-1.664-.794-.223-.081-.385-.122-.547.122-.162.244-.63.794-.771.955-.143.162-.285.183-.53.061-.243-.122-1.03-.38-1.962-1.21-.724-.647-1.213-1.447-1.355-1.69-.143-.244-.015-.376.107-.497.111-.11.244-.285.365-.426.122-.142.162-.244.244-.406.082-.162.041-.305-.021-.426-.062-.122-.547-1.32-.75-1.81-.197-.474-.397-.41-.547-.418-.142-.008-.305-.01-.468-.01-.162 0-.427.061-.65.305-.224.244-.854.834-.854 2.031 0 1.198.874 2.353.996 2.516.122.163 1.722 2.63 4.171 3.691.582.253 1.037.404 1.392.517.585.186 1.117.16 1.538.097.469-.071 1.442-.589 1.644-1.157.203-.568.203-1.056.142-1.157-.061-.101-.223-.162-.466-.284z"/>
-                  </svg>
-                  হোয়াটসঅ্যাপে অর্ডার করুন
-                </a>
-              )}
+              <div className="grid grid-cols-3 gap-2 w-full">
+                {whatsappLink && (
+                  <a
+                    href={whatsappLink.startsWith("http") ? whatsappLink : `https://${whatsappLink}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2 md:py-3 rounded-xl font-bold text-[9px] md:text-xs bg-[#25D366] text-white hover:bg-[#20b858] transition-all duration-200 flex flex-col items-center justify-center gap-1 shadow-sm text-center leading-tight"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 md:w-5 md:h-5 fill-current">
+                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.734-1.453L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.023-5.116-2.883-6.978C16.59 1.899 14.116.874 11.48.876c-5.437 0-9.861 4.42-9.865 9.864 0 1.902.499 3.76 1.449 5.36L2.052 22.15l6.196-1.626v-.001zm9.251-6.7c-.244-.122-1.441-.712-1.664-.794-.223-.081-.385-.122-.547.122-.162.244-.63.794-.771.955-.143.162-.285.183-.53.061-.243-.122-1.03-.38-1.962-1.21-.724-.647-1.213-1.447-1.355-1.69-.143-.244-.015-.376.107-.497.111-.11.244-.285.365-.426.122-.142.162-.244.244-.406.082-.162.041-.305-.021-.426-.062-.122-.547-1.32-.75-1.81-.197-.474-.397-.41-.547-.418-.142-.008-.305-.01-.468-.01-.162 0-.427.061-.65.305-.224.244-.854.834-.854 2.031 0 1.198.874 2.353.996 2.516.122.163 1.722 2.63 4.171 3.691.582.253 1.037.404 1.392.517.585.186 1.117.16 1.538.097.469-.071 1.442-.589 1.644-1.157.203-.568.203-1.056.142-1.157-.061-.101-.223-.162-.466-.284z"/>
+                    </svg>
+                    <span>হোয়াটসঅ্যাপে<br className="block xl:hidden"/> অর্ডার করুন</span>
+                  </a>
+                )}
+                {messengerLink && (
+                  <a
+                    href={messengerLink.startsWith("http") ? messengerLink : `https://${messengerLink}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2 md:py-3 rounded-xl font-bold text-[9px] md:text-xs bg-[#0084FF] text-white hover:bg-[#0074e0] transition-all duration-200 flex flex-col items-center justify-center gap-1 shadow-sm text-center leading-tight"
+                  >
+                    <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+                    <span>মেসেঞ্জারে<br className="block xl:hidden"/> অর্ডার করুন</span>
+                  </a>
+                )}
+                {contactNumber && (
+                  <a
+                    href={`tel:${contactNumber}`}
+                    className="w-full py-2 md:py-3 rounded-xl font-bold text-[9px] md:text-xs bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200 flex flex-col items-center justify-center gap-1 shadow-sm text-center leading-tight"
+                  >
+                    <PhoneCall className="w-4 h-4 md:w-5 md:h-5" />
+                    <span>কল করে<br className="block xl:hidden"/> অর্ডার করুন</span>
+                  </a>
+                )}
+              </div>
             </div>
 
             {/* Trust badges */}
@@ -727,6 +753,7 @@ export default function ProductDetails({
               const charges = product?.deliveryCharge || [];
               const inside = charges.find((d) => d.text.toLowerCase().includes("inside"))?.price ?? 50;
               const outside = charges.find((d) => d.text.toLowerCase().includes("outside"))?.price ?? 150;
+              const subcity = charges.find((d) => d.text.toLowerCase().includes("subcity"))?.price ?? 100;
 
               return (
                 <div className="border border-dashed border-gray-500 rounded-lg p-1.5 md:p-3 text-[9px] md:text-[12px] space-y-1 md:space-y-2.5">
@@ -749,6 +776,10 @@ export default function ProductDetails({
                   <p className="flex items-start gap-2">
                     <Truck className="w-3.5 h-3.5 text-gray-700 shrink-0 mt-0.5" />
                     <span className="text-gray-700 leading-snug">ঢাকার বাইরে ডেলিভারি চার্জ {outside} টাকা।</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <Truck className="w-3.5 h-3.5 text-gray-700 shrink-0 mt-0.5" />
+                    <span className="text-gray-700 leading-snug">উপশহরে ডেলিভারি চার্জ {subcity} টাকা।</span>
                   </p>
                 </div>
               );

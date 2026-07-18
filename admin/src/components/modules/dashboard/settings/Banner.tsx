@@ -15,6 +15,7 @@ interface BannerProps {
     currentBanner: string;
     title: string;
     id: string;
+    currentLogoText?: string;
     currentNavbarText?: string;
     currentMarqueeText?: string;
 }
@@ -23,6 +24,7 @@ export default function Banner({
     currentBanner,
     title,
     id,
+    currentLogoText = "Manbazar",
     currentNavbarText = "",
     currentMarqueeText = "",
 }: BannerProps) {
@@ -32,6 +34,9 @@ export default function Banner({
 
     const [bannerTitle, setBannerTitle] =
         useState(title);
+
+    const [logoText, setLogoText] =
+        useState(currentLogoText);
 
     const [navbarText, setNavbarText] =
         useState(currentNavbarText);
@@ -45,6 +50,7 @@ export default function Banner({
     const isChanged =
         banner !== currentBanner ||
         bannerTitle !== title ||
+        logoText !== currentLogoText ||
         navbarText !== currentNavbarText ||
         marqueeText !== currentMarqueeText;
 
@@ -57,6 +63,7 @@ export default function Banner({
                 {
                     "banner.bannerImage": banner,
                     "banner.title": bannerTitle,
+                    "banner.logoText": logoText,
                     "banner.navbarText": navbarText,
                     "banner.marqueeText": marqueeText,
                 }
@@ -90,6 +97,20 @@ export default function Banner({
                         )
                     }
                     placeholder="Banner title"
+                    className="w-full h-14"
+                />
+            </div>
+
+            <div className="space-y-2">
+                <Label>Logo Text</Label>
+                <Input
+                    value={logoText}
+                    onChange={(e) =>
+                        setLogoText(
+                            e.target.value
+                        )
+                    }
+                    placeholder="Text to show next to logo"
                     className="w-full h-14"
                 />
             </div>

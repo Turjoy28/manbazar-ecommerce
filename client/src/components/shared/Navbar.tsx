@@ -9,6 +9,7 @@ interface NavbarProps {
     logo?: string;
     title?: string;
     bannerImage?: string;
+    logoText?: string;
     navbarText?: string;
     marqueeText?: string;
   };
@@ -44,7 +45,7 @@ export default function Navbar({ banner }: NavbarProps) {
               />
             )}
             <span className="font-black text-2xl md:text-[28px] text-primary tracking-tighter drop-shadow-sm" style={{ fontFamily: 'var(--font-heading, inherit)' }}>
-              Manbazar
+              {banner?.logoText || "Manbazar"}
             </span>
           </Link>
         </div>

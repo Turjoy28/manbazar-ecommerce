@@ -30,6 +30,7 @@ export default async function SettingsPage() {
         currentBanner={uiData?.data?.[0].banner.bannerImage}
         title={uiData?.data?.[0].banner.title}
         id={uiData?.data?.[0]._id}
+        currentLogoText={uiData?.data?.[0].banner.logoText}
         currentNavbarText={uiData?.data?.[0].banner.navbarText}
         currentMarqueeText={uiData?.data?.[0].banner.marqueeText}
       />

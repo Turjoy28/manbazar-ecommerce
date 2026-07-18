@@ -7,6 +7,10 @@ const uiSchema = new mongoose.Schema(
                 type: String,
                 required: true,
             },
+            logoText: {
+                type: String,
+                default: "Manbazar",
+            },
             title: {
                 type: String,
                 required: true,
