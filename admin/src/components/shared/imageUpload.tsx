@@ -54,6 +54,8 @@ interface ImageUploadProps {
     title?: string;
     /* Description/hint text shown below the title */
     description?: string;
+    /* If true, renders a smaller version of the uploader */
+    compact?: boolean;
 }
 
 export default function ImageUpload({
@@ -63,6 +65,7 @@ export default function ImageUpload({
     maxFiles,
     title = "Upload Images",
     description = "Select images",
+    compact = false,
 }: ImageUploadProps) {
     /* Ref to the hidden file input so we can trigger it programmatically */
     const inputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +75,8 @@ export default function ImageUpload({
     const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
     /* Error message from a failed upload */
     const [error, setError] = useState("");
+    /* Tracks drag state */
+    const [isDragging, setIsDragging] = useState(false);
 
     /* Calculate the effective file limit */
     const fileLimit = maxFiles ?? (multiple ? 10 : 1);
@@ -187,25 +192,35 @@ export default function ImageUpload({
                         Only visible when there are available slots */}
                     {value.length < fileLimit && (
                         <div
+                            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                            onDragLeave={() => setIsDragging(false)}
+                            onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleSelect({ target: { files: e.dataTransfer.files } } as any); }}
                             onClick={() => openFilePicker()}
-                            className="border-2 border-dashed rounded-xl p-8 cursor-pointer hover:bg-muted/50 transition"
+                            className={`relative border-2 border-dashed rounded-xl ${compact ? 'p-4' : 'p-8'} transition-colors ${isDragging
+                                ? "border-primary bg-primary/10"
+                                : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/20"
+                                } cursor-pointer`}
                         >
                             <div className="flex flex-col items-center gap-3">
-                                <Upload className="h-8 w-8 text-muted-foreground" />
+                                <Upload className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-muted-foreground`} />
 
                                 <div className="text-center">
                                     <p className="font-medium">
                                         Click to upload
                                     </p>
 
-                                    <p className="text-sm text-muted-foreground">
-                                        PNG, JPG, WEBP, MP4, WEBM
-                                    </p>
+                                    {!compact && (
+                                        <>
+                                            <p className="text-sm text-muted-foreground">
+                                                PNG, JPG, WEBP, MP4, WEBM
+                                            </p>
 
-                                    {/* Show counter only in multiple mode */}
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        {value.length}/{fileLimit}
-                                    </p>
+                                            {/* Show counter only in multiple mode */}
+                                            <p className="text-xs text-muted-foreground mt-1">
+                                                {value.length}/{fileLimit}
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -219,7 +234,7 @@ export default function ImageUpload({
                                     key={index}
                                     className="border rounded-xl overflow-hidden">
                                     {/* Image preview */}
-                                    <div className="relative h-48 flex items-center justify-center bg-muted/30">
+                                    <div className={`relative flex items-center justify-center bg-muted/30 ${compact ? 'h-24 md:h-32' : 'h-48'}`}>
                                         {image && (image.startsWith("/") || image.startsWith("http://") || image.startsWith("https://")) ? (
                                             (() => {
                                                 const isVideo = image.includes("/video/upload/") || image.endsWith(".mp4") || image.endsWith(".webm") || image.endsWith(".mov") || image.endsWith(".avi");
@@ -297,9 +312,9 @@ export default function ImageUpload({
 
                     {/* Upload progress indicator */}
                     {isUploading && (
-                        <p className="text-sm text-muted-foreground">
-                            Uploading...
-                        </p>
+                        <div className={`p-3 bg-primary/10 text-primary rounded-full ${compact ? 'scale-75' : ''}`}>
+                            <Upload className="h-6 w-6 animate-pulse" />
+                        </div>
                     )}
                 </div>
             </CardContent>

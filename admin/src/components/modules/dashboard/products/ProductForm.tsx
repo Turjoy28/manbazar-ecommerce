@@ -109,6 +109,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     /* ─── Delivery charges ─── */
     const [insideDhakaPrice, setInsideDhakaPrice] = useState<number | "">(80);
     const [outsideDhakaPrice, setOutsideDhakaPrice] = useState<number | "">(150);
+    const [subcityDhakaPrice, setSubcityDhakaPrice] = useState<number | "">(100);
 
     /* ─── Dynamic Layout Labels ─── */
     const [uiLabels, setUiLabels] = useState({
@@ -156,8 +157,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
 
             const inside = initialData.deliveryCharge?.find(d => d.text.toLowerCase().includes("inside"))?.price;
             const outside = initialData.deliveryCharge?.find(d => d.text.toLowerCase().includes("outside"))?.price;
+            const subcity = initialData.deliveryCharge?.find(d => d.text.toLowerCase().includes("subcity"))?.price;
             setInsideDhakaPrice(inside ?? 80);
             setOutsideDhakaPrice(outside ?? 150);
+            setSubcityDhakaPrice(subcity ?? 100);
         }
     }, [initialData]);
 
@@ -268,6 +271,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         const deliveryCharge: DeliveryChargeItem[] = [
             { text: "Inside Dhaka", price: Number(insideDhakaPrice) || 0 },
             { text: "Outside Dhaka", price: Number(outsideDhakaPrice) || 0 },
+            { text: "Subcity", price: Number(subcityDhakaPrice) || 0 },
         ];
 
         // Derive legacy colors[] from variant names for backward compat
@@ -549,27 +553,27 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="space-y-2">
                                                     <Label className="text-foreground/80 text-sm">
-                                                        Price Override (৳)
+                                                        Original Price (Color Specific) (৳)
                                                         <span className="ml-1.5 text-[10px] font-normal text-muted-foreground bg-muted px-1 py-0.5 rounded">Optional</span>
                                                     </Label>
                                                     <Input
                                                         type="number"
                                                         value={variant.price ?? ""}
                                                         onChange={(e) => updateVariant(index, { price: e.target.value === "" ? null : Number(e.target.value) })}
-                                                        placeholder="Leave blank to use base price"
+                                                        placeholder="Leave blank to use global original price"
                                                         className="border-border bg-background/40 text-foreground text-sm"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="text-foreground/80 text-sm">
-                                                        Sale Price Override (৳)
+                                                        Sale Price (Color Specific) (৳)
                                                         <span className="ml-1.5 text-[10px] font-normal text-muted-foreground bg-muted px-1 py-0.5 rounded">Optional</span>
                                                     </Label>
                                                     <Input
                                                         type="number"
                                                         value={variant.sale_price ?? ""}
                                                         onChange={(e) => updateVariant(index, { sale_price: e.target.value === "" ? null : Number(e.target.value) })}
-                                                        placeholder="Leave blank to use sale price"
+                                                        placeholder="Leave blank to use global sale price"
                                                         className="border-border bg-background/40 text-foreground text-sm"
                                                     />
                                                 </div>
@@ -588,6 +592,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                                     maxFiles={8}
                                                     title=""
                                                     description={`Upload images for the ${variant.color.name || "color"} variant. First image will be the default.`}
+                                                    compact={true}
                                                 />
                                             </div>
                                         </div>
@@ -676,7 +681,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="price" className="text-foreground/80">Base Price (৳)</Label>
+                                <Label htmlFor="price" className="text-foreground/80">Original Price (৳)</Label>
                                 <Input id="price" type="number" value={price} onChange={(e) => { const val = e.target.value; setPrice(val === "" ? "" : Number(val)); }} className="border-border bg-background/40 text-foreground font-semibold" required />
                             </div>
                             <div className="space-y-2">
@@ -733,6 +738,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                             <div className="space-y-2">
                                 <Label htmlFor="outsideDhaka" className="text-foreground/80">Outside Dhaka (৳)</Label>
                                 <Input id="outsideDhaka" type="number" value={outsideDhakaPrice} onChange={(e) => { const val = e.target.value; setOutsideDhakaPrice(val === "" ? "" : Number(val)); }} className="border-border bg-background/40 text-foreground" required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="subcityDhaka" className="text-foreground/80">Subcity (উপশহরে) (৳)</Label>
+                                <Input id="subcityDhaka" type="number" value={subcityDhakaPrice} onChange={(e) => { const val = e.target.value; setSubcityDhakaPrice(val === "" ? "" : Number(val)); }} className="border-border bg-background/40 text-foreground" required />
                             </div>
                         </CardContent>
                     </Card>

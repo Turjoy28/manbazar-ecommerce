@@ -144,14 +144,26 @@ function OrderSummary({
   cart: CartItem[];
   deliveryCharge: number;
 }) {
+  const getItemPrice = (item: CartItem) => {
+    if (item.variant) {
+      if (item.variant.sale_price != null && item.variant.sale_price > 0) {
+        return item.variant.sale_price;
+      }
+      if (item.variant.price != null && item.variant.price > 0) {
+        return item.variant.price;
+      }
+    }
+    return item.product.price;
+  };
+
   const subtotal = cart.reduce(
-    (sum, item) => sum + item?.product?.price * item.quantity,
+    (sum, item) => sum + getItemPrice(item) * item.quantity,
     0,
   );
 
-  const totalVat = cart.reduce((sum, item, idx) => {
+  const totalVat = cart.reduce((sum, item) => {
     const vatPercent = item?.product?.vatPercentage || 0;
-    return sum + (item?.product?.price * item.quantity * (vatPercent / 100));
+    return sum + (getItemPrice(item) * item.quantity * (vatPercent / 100));
   }, 0);
 
   const total = subtotal + totalVat;
@@ -214,7 +226,7 @@ function OrderSummary({
                 </div>
               </div>
               <span className="text-gray-900 font-medium tabular-nums shrink-0">
-                ৳ {(item.product.price * item.quantity).toFixed(2)}
+                ৳ {(getItemPrice(item) * item.quantity).toFixed(2)}
               </span>
             </div>
           );
@@ -315,11 +327,22 @@ export default function BillingSection() {
   const deliveryCharge = cartItems.length === 0 ? 0 : Math.max(
     ...cartItems.map((item) => {
       const charges = item.product?.deliveryCharge || [];
-      const isDhaka = billing.location === "dhaka";
+      
+      let chargeText = "";
+      if (billing.location === "dhaka") chargeText = "inside";
+      else if (billing.location === "outside") chargeText = "outside";
+      else if (billing.location === "subcity") chargeText = "subcity";
+      else chargeText = "inside";
+
       const match = charges.find((d) =>
-        d.text.toLowerCase().includes(isDhaka ? "inside" : "outside")
+        d.text.toLowerCase().includes(chargeText)
       );
-      return (match && typeof match.price === 'number') ? match.price : (isDhaka ? 50 : 150);
+
+      let defaultCharge = 50;
+      if (billing.location === "outside") defaultCharge = 150;
+      else if (billing.location === "subcity") defaultCharge = 100;
+
+      return (match && typeof match.price === 'number') ? match.price : defaultCharge;
     })
   );
 
@@ -583,6 +606,11 @@ export default function BillingSection() {
                     <div className="flex items-center gap-2">
                       <RadioGroupItem value="dhaka" id="dhaka" />
                       <Label htmlFor="dhaka">ঢাকার ভিতরে</Label>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="subcity" id="subcity" />
+                      <Label htmlFor="subcity">উপশহরে</Label>
                     </div>
 
                     <div className="flex items-center gap-2">

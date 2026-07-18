@@ -150,7 +150,7 @@ export default function ProductSection({
         ))}
       </div>
 
-      {/* See All Button */}
+      {/* See More Button */}
       {(isCategorySection || (products && products.length > 8)) && (
         <div className="flex justify-center mt-4">
           {isCategorySection ? (
@@ -159,7 +159,7 @@ export default function ProductSection({
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-xl transition-all duration-300 font-semibold cursor-pointer shadow-xs"
               >
-                See All
+                See More
               </Button>
             </Link>
           ) : (
@@ -168,7 +168,7 @@ export default function ProductSection({
               variant="outline"
               className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-xl transition-all duration-300 font-semibold cursor-pointer shadow-xs"
             >
-              {showAll ? "Show Less" : "See All"}
+              {showAll ? "Show Less" : "See More"}
             </Button>
           )}
         </div>

@@ -41,7 +41,7 @@ const createOrder = async (payload: Record<string, any>) => {
     const finalProducts = [];
     const bulkInventoryUpdates: any[] = [];
 
-    const isDhaka = payload.customer?.location === "dhaka";
+    const location = payload.customer?.location;
     let highestDeliveryCharge = 0;
 
     for (const p of payload.products) {
@@ -53,19 +53,28 @@ const createOrder = async (payload: Record<string, any>) => {
             throw Object.assign(new Error(`Invalid quantity for product ${dbProduct.name}`), { statusCode: 400 });
         }
 
-        const price = dbProduct.price;
-        const vatPercentage = dbProduct.vatPercentage || 0;
-
-        const itemSubtotal = price * qty;
-        const itemVat = itemSubtotal * (vatPercentage / 100);
-
-        // -- Inventory Validation and Reservation Logic --
+        // -- Variant Lookup & Pricing --
         let variantMatch = null;
         let variantIndex = -1;
         if (dbProduct.variants && dbProduct.variants.length > 0) {
             variantIndex = dbProduct.variants.findIndex((v: any) => v.color?.name === p.color);
             if (variantIndex !== -1) variantMatch = dbProduct.variants[variantIndex];
         }
+
+        let price = dbProduct.price;
+        if (variantMatch) {
+            if (variantMatch.sale_price != null && variantMatch.sale_price > 0) {
+                price = variantMatch.sale_price;
+            } else if (variantMatch.price != null && variantMatch.price > 0) {
+                price = variantMatch.price;
+            }
+        }
+
+        const vatPercentage = dbProduct.vatPercentage || 0;
+        const itemSubtotal = price * qty;
+        const itemVat = itemSubtotal * (vatPercentage / 100);
+
+        // -- Inventory Validation and Reservation Logic --
 
         const onHand = variantMatch ? (variantMatch.quantity_on_hand || 0) : (dbProduct.quantity_on_hand || 0);
         const reserved = variantMatch ? (variantMatch.quantity_reserved || 0) : (dbProduct.quantity_reserved || 0);
@@ -113,10 +122,21 @@ const createOrder = async (payload: Record<string, any>) => {
         });
 
         const charges = dbProduct.deliveryCharge || [];
+        let chargeText = "";
+        if (location === "dhaka") chargeText = "inside";
+        else if (location === "outside") chargeText = "outside";
+        else if (location === "subcity") chargeText = "subcity";
+        else chargeText = "inside"; // Default fallback
+
         const match = charges.find((d: any) =>
-            d.text.toLowerCase().includes(isDhaka ? "inside" : "outside")
+            d.text.toLowerCase().includes(chargeText)
         );
-        const chargeForProduct = match ? match.price : (isDhaka ? 50 : 150);
+        
+        let defaultCharge = 50;
+        if (location === "outside") defaultCharge = 150;
+        else if (location === "subcity") defaultCharge = 100;
+
+        const chargeForProduct = match ? match.price : defaultCharge;
         if (chargeForProduct > highestDeliveryCharge) {
             highestDeliveryCharge = chargeForProduct;
         }

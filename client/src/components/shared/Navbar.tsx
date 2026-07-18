@@ -34,17 +34,18 @@ export default function Navbar({ banner }: NavbarProps) {
           <Link
             href="/"
             onClick={handleHomeClick}
-            className="flex items-center hover:opacity-80 transition-opacity active:scale-95"
+            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity active:scale-95"
           >
-            {banner?.logo ? (
+            {banner?.logo && (
               <img
                 src={banner.logo}
                 alt="Manbazar Logo"
-                className="h-12 md:h-14 w-auto object-contain"
+                className="h-10 md:h-12 w-auto object-contain drop-shadow-sm"
               />
-            ) : (
-              <span className="font-bold text-xl text-primary tracking-tight">Manbazar</span>
             )}
+            <span className="font-black text-2xl md:text-[28px] text-primary tracking-tighter drop-shadow-sm" style={{ fontFamily: 'var(--font-heading, inherit)' }}>
+              Manbazar
+            </span>
           </Link>
         </div>
 

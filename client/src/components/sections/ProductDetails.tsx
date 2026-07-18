@@ -376,6 +376,7 @@ export default function ProductDetails({
   const [activeTab, setActiveTab] = useState<"description" | "size" | "care">("description");
   const [contactNumber, setContactNumber] = useState("+8801577498985");
   const [whatsappLink, setWhatsappLink] = useState("");
+  const [dynamicChart, setDynamicChart] = useState<{tableTitle: string[], tableProperties: string[][]}|null>(null);
 
   // Lifted gallery state
   const [activeIndex, setActiveIndex] = useState(0);
@@ -431,6 +432,9 @@ export default function ProductDetails({
       if (res?.data?.[0]?.chatbot?.whatsapp) {
         setWhatsappLink(res.data[0].chatbot.whatsapp);
       }
+      if (res?.data?.[0]?.chart?.chartTable?.tableTitle?.length) {
+        setDynamicChart(res.data[0].chart.chartTable);
+      }
     }).catch(console.error);
   }, []);
 
@@ -447,6 +451,22 @@ export default function ProductDetails({
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+
+  // Calculate active prices based on selected variant
+  let activePrice = product.price;
+  let activeOriginalPrice = product.originalPrice;
+
+  if (hasVariants && selectedVariant) {
+    if (selectedVariant.sale_price != null && selectedVariant.sale_price > 0) {
+      activePrice = selectedVariant.sale_price;
+      activeOriginalPrice = selectedVariant.price != null && selectedVariant.price > 0 
+        ? selectedVariant.price 
+        : (product.originalPrice || product.price);
+    } else if (selectedVariant.price != null && selectedVariant.price > 0) {
+      activePrice = selectedVariant.price;
+      activeOriginalPrice = undefined; // No strikethrough if only base price is set
+    }
+  }
 
   const availableStock = hasVariants && selectedVariant ? (selectedVariant.stock ?? 0) : (product.stock ?? 0);
 
@@ -547,11 +567,11 @@ export default function ProductDetails({
               {/* Price */}
               <div className="flex flex-row gap-1.5 md:gap-4 items-center shrink-0 mt-0.5 md:mt-0">
                 <span className="text-base md:text-3xl font-bold text-primary">
-                  ৳{product.price}
+                  ৳{activePrice}
                 </span>
-                {product.originalPrice && (
+                {activeOriginalPrice && activeOriginalPrice > activePrice && (
                   <span className="text-[10px] md:text-xl text-gray-400 line-through mt-0.5 md:mt-0">
-                    ৳{product.originalPrice}
+                    ৳{activeOriginalPrice}
                   </span>
                 )}
               </div>
@@ -792,7 +812,7 @@ export default function ProductDetails({
           <div className="p-6">
             {activeTab === "description" && (
               <div className="flex flex-col gap-4">
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
                   {product.description}
                 </p>
                 {product.highlights && (
@@ -813,10 +833,10 @@ export default function ProductDetails({
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-[#1a2332] text-white">
-                      {["Size", "Chest", "Length", "Shoulder", "Sleeve"].map(
-                        (h) => (
+                      {(dynamicChart?.tableTitle || ["Size", "Chest", "Length", "Shoulder", "Sleeve"]).map(
+                        (h, idx) => (
                           <th
-                            key={h}
+                            key={idx}
                             className="px-4 py-3 text-left font-semibold"
                           >
                             {h}
@@ -826,32 +846,55 @@ export default function ProductDetails({
                     </tr>
                   </thead>
                   <tbody>
-                    {SIZE_CHART.map((row, idx) => (
-                      <tr
-                        key={row.size}
-                        className={`border-b border-gray-100 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} ${selectedSize === row.size ? "ring-2 ring-inset ring-primary" : ""}`}
-                      >
-                        <td className="px-4 py-3">
-                          <span
-                            className={`inline-block text-xs font-bold px-2 py-0.5 rounded ${selectedSize === row.size ? "bg-primary text-(--primary-text)" : "bg-gray-200 text-gray-700"}`}
-                          >
-                            {row.size}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {row.chest}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {row.length}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {row.shoulder}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {row.sleeve}
-                        </td>
-                      </tr>
-                    ))}
+                    {dynamicChart?.tableProperties ? (
+                      dynamicChart.tableProperties.map((row, idx) => (
+                        <tr
+                          key={idx}
+                          className={`border-b border-gray-100 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} ${selectedSize === row[0] ? "ring-2 ring-inset ring-primary" : ""}`}
+                        >
+                          {row.map((cell, cellIdx) => (
+                            <td key={cellIdx} className={`px-4 py-3 ${cellIdx === 0 ? "" : "text-gray-600"}`}>
+                              {cellIdx === 0 ? (
+                                <span
+                                  className={`inline-block text-xs font-bold px-2 py-0.5 rounded ${selectedSize === cell ? "bg-primary text-(--primary-text)" : "bg-gray-200 text-gray-700"}`}
+                                >
+                                  {cell}
+                                </span>
+                              ) : (
+                                cell
+                              )}
+                            </td>
+                          ))}
+                        </tr>
+                      ))
+                    ) : (
+                      SIZE_CHART.map((row, idx) => (
+                        <tr
+                          key={row.size}
+                          className={`border-b border-gray-100 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} ${selectedSize === row.size ? "ring-2 ring-inset ring-primary" : ""}`}
+                        >
+                          <td className="px-4 py-3">
+                            <span
+                              className={`inline-block text-xs font-bold px-2 py-0.5 rounded ${selectedSize === row.size ? "bg-primary text-(--primary-text)" : "bg-gray-200 text-gray-700"}`}
+                            >
+                              {row.size}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">
+                            {row.chest}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">
+                            {row.length}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">
+                            {row.shoulder}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">
+                            {row.sleeve}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
                 <p className="text-xs text-gray-400 mt-3">
