@@ -14,10 +14,10 @@ module.exports = {
     {
       name: 'menbazar-client',
       cwd: './client',
-      script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3002',
-      instances: 'max',
-      exec_mode: 'cluster',
+      script: 'npm',
+      args: 'run start',
+      instances: 1,
+      exec_mode: 'fork',
       env: {
         NODE_ENV: 'production'
       }
@@ -25,10 +25,10 @@ module.exports = {
     {
       name: 'menbazar-admin',
       cwd: './admin',
-      script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3003',
-      instances: 'max',
-      exec_mode: 'cluster',
+      script: 'npm',
+      args: 'run start',
+      instances: 1,
+      exec_mode: 'fork',
       env: {
         NODE_ENV: 'production'
       }
