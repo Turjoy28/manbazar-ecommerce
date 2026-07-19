@@ -1,12 +1,9 @@
-name: Deploy Client to VPS
+name: Deploy All to VPS
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'client/**'
-      - '.github/workflows/client-deploy.yml'
   workflow_dispatch:
 
 env:
@@ -24,17 +21,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'client/package-lock.json'
 
-      - name: Install Dependencies
+      - name: Build Server
+        run: |
+          cd server
+          npm ci
+          npm run build
+
+      - name: Build Client
         run: |
           cd client
           npm ci
+          npm run build
+        env:
+          NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
-      - name: Build Application
+      - name: Build Admin
         run: |
-          cd client
+          cd admin
+          npm ci
           npm run build
         env:
           NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
@@ -69,19 +75,29 @@ jobs:
               mkdir -p "${{ env.DEPLOY_PATH }}" && echo "Created target directory." || echo "Failed to create target directory!"
             fi
 
-      - name: Transfer Build Files
+      - name: Transfer Build Files for All Apps
         run: |
+          rsync -avz --delete --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/server/dist && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            server/dist/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/server/dist/
+          rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/server && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            server/package.json server/package-lock.json \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/server/
+            
           rsync -avz --delete --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/client/.next && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             client/.next/ \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/client/.next/
-          
           rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/client/public && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
-            client/package.json \
-            client/package-lock.json \
-            client/next.config.ts \
-            client/public/ \
+            client/package.json client/package-lock.json client/next.config.ts client/public/ \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/client/
-          
+            
+          rsync -avz --delete --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/admin/.next && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            admin/.next/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/admin/.next/
+          rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/admin/public && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+            admin/package.json admin/package-lock.json admin/next.config.ts admin/public/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/admin/
+            
           rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }} && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             ecosystem.config.js \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/
@@ -97,7 +113,21 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             export PATH=$PATH:~/bin:~/.npm-global/bin
+            
+            echo "Installing production dependencies for server..."
+            cd ${{ env.DEPLOY_PATH }}/server
+            npm ci --omit=dev
+            
+            echo "Installing production dependencies for client..."
             cd ${{ env.DEPLOY_PATH }}/client
             npm ci --omit=dev
+            
+            echo "Installing production dependencies for admin..."
+            cd ${{ env.DEPLOY_PATH }}/admin
+            npm ci --omit=dev
+            
+            echo "Restarting PM2 cleanly..."
             cd ${{ env.DEPLOY_PATH }}
-            pm2 reload ecosystem.config.js --only menbazar-client || pm2 start ecosystem.config.js --only menbazar-client
+            pm2 delete all || true
+            pm2 start ecosystem.config.js
+            pm2 save
