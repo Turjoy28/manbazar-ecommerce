@@ -141,6 +141,14 @@ const uiSchema = new mongoose.Schema(
                 website: {
                     type: String,
                     required: true,
+                },
+                bkashNumber: {
+                    type: String,
+                    default: "",
+                },
+                nagadNumber: {
+                    type: String,
+                    default: "",
                 }
             },
             location: {

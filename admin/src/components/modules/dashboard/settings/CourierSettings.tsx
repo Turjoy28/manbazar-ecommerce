@@ -14,10 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function CourierSettings({ courier, id }: { courier: any; id: string }) {
+export default function CourierSettings({ courier, id, contactInfo }: { courier: any; id: string; contactInfo?: any }) {
     const [isUpdating, setIsUpdating] = useState(false);
     
     const [activeProvider, setActiveProvider] = useState(courier?.activeProvider || "none");
+
+    // Contact Numbers
+    const [number, setNumber] = useState(contactInfo?.number || "");
+    const [bkashNumber, setBkashNumber] = useState(contactInfo?.bkashNumber || "");
+    const [nagadNumber, setNagadNumber] = useState(contactInfo?.nagadNumber || "");
     
     // Steadfast
     const [sfApiKey, setSfApiKey] = useState(courier?.steadfast?.apiKey || "");
@@ -48,8 +53,11 @@ export default function CourierSettings({ courier, id }: { courier: any; id: str
                 "courier.pathao.password": ptPassword,
                 "courier.pathao.storeId": ptStoreId,
                 "courier.redx.apiKey": rxApiKey,
+                "footer.contactInfo.number": number,
+                "footer.contactInfo.bkashNumber": bkashNumber,
+                "footer.contactInfo.nagadNumber": nagadNumber,
             });
-            toast.success("Courier settings updated successfully!", { id: toastId });
+            toast.success("Settings updated successfully!", { id: toastId });
         } catch (error) {
             console.error(error);
             toast.error("Failed to update courier settings", { id: toastId });
@@ -61,13 +69,31 @@ export default function CourierSettings({ courier, id }: { courier: any; id: str
     return (
         <div className="border border-border rounded-xl p-6 bg-card space-y-5 shadow-sm">
             <div>
-                <h4 className="text-xl font-bold">Courier API Settings</h4>
+                <h4 className="text-xl font-bold">Courier API & payment gateway Settings</h4>
                 <p className="text-sm text-muted-foreground mt-1">
-                    Manage active courier and their API credentials for automated dispatch.
+                    Manage active courier for automated dispatch and store contact numbers.
                 </p>
             </div>
 
             <form onSubmit={handleUpdate} className="space-y-4">
+                <div className="space-y-4 pb-4 border-b">
+                    <h5 className="font-semibold text-sm">Contact Numbers</h5>
+                    <div className="space-y-2">
+                        <Label>General Contact Number</Label>
+                        <Input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="e.g. +8801700000000" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label>Bkash Personal Number</Label>
+                            <Input value={bkashNumber} onChange={(e) => setBkashNumber(e.target.value)} placeholder="Bkash Number" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Nagad Personal Number</Label>
+                            <Input value={nagadNumber} onChange={(e) => setNagadNumber(e.target.value)} placeholder="Nagad Number" />
+                        </div>
+                    </div>
+                </div>
+
                 <div className="space-y-2">
                     <Label className="text-sm font-semibold">Active Courier Provider</Label>
                     <Select value={activeProvider} onValueChange={setActiveProvider}>
@@ -140,7 +166,7 @@ export default function CourierSettings({ courier, id }: { courier: any; id: str
                     disabled={isUpdating}
                     className="bg-primary hover:bg-primary/90 text-white w-full"
                 >
-                    {isUpdating ? "Saving..." : "Save Courier Settings"}
+                    {isUpdating ? "Saving..." : "Save Settings"}
                 </Button>
             </form>
         </div>

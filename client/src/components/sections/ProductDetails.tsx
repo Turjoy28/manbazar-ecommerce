@@ -226,13 +226,13 @@ function ImageGallery({
             style={
               isZooming
                 ? {
-                    transform: "scale(2.5)",
-                    transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                  }
+                  transform: "scale(2.5)",
+                  transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                }
                 : {
-                    transform: "scale(1)",
-                    transformOrigin: "center center",
-                  }
+                  transform: "scale(1)",
+                  transformOrigin: "center center",
+                }
             }
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
@@ -375,9 +375,11 @@ export default function ProductDetails({
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"description" | "size" | "care">("description");
   const [contactNumber, setContactNumber] = useState("+8801577498985");
+  const [bkashNumber, setBkashNumber] = useState("");
+  const [nagadNumber, setNagadNumber] = useState("");
   const [whatsappLink, setWhatsappLink] = useState("");
   const [messengerLink, setMessengerLink] = useState("");
-  const [dynamicChart, setDynamicChart] = useState<{tableTitle: string[], tableProperties: string[][]}|null>(null);
+  const [dynamicChart, setDynamicChart] = useState<{ tableTitle: string[], tableProperties: string[][] } | null>(null);
 
   // Lifted gallery state
   const [activeIndex, setActiveIndex] = useState(0);
@@ -430,6 +432,12 @@ export default function ProductDetails({
       if (res?.data?.[0]?.footer?.contactInfo?.number) {
         setContactNumber(res.data[0].footer.contactInfo.number);
       }
+      if (res?.data?.[0]?.footer?.contactInfo?.bkashNumber) {
+        setBkashNumber(res.data[0].footer.contactInfo.bkashNumber);
+      }
+      if (res?.data?.[0]?.footer?.contactInfo?.nagadNumber) {
+        setNagadNumber(res.data[0].footer.contactInfo.nagadNumber);
+      }
       if (res?.data?.[0]?.chatbot?.whatsapp) {
         setWhatsappLink(res.data[0].chatbot.whatsapp);
       }
@@ -463,8 +471,8 @@ export default function ProductDetails({
   if (hasVariants && selectedVariant) {
     if (selectedVariant.sale_price != null && selectedVariant.sale_price > 0) {
       activePrice = selectedVariant.sale_price;
-      activeOriginalPrice = selectedVariant.price != null && selectedVariant.price > 0 
-        ? selectedVariant.price 
+      activeOriginalPrice = selectedVariant.price != null && selectedVariant.price > 0
+        ? selectedVariant.price
         : (product.originalPrice || product.price);
     } else if (selectedVariant.price != null && selectedVariant.price > 0) {
       activePrice = selectedVariant.price;
@@ -558,13 +566,13 @@ export default function ProductDetails({
                 </span>
               </div>
             )}
-            
+
             {/* Name & Price Row */}
             <div className="flex justify-between items-start md:flex-col gap-x-2 gap-y-0.5 md:gap-4 pr-10 md:pr-0">
               <h1 className="text-base md:text-3xl font-bold text-gray-900 leading-tight">
                 {product.name}
                 <span className="inline-block ml-2 text-[10px] md:text-lg text-gray-400 font-medium tracking-wider align-middle md:align-baseline">
-                 Id:#{product._id?.slice(-6).toUpperCase()}
+                  Id:#{product._id?.slice(-6).toUpperCase()}
                 </span>
               </h1>
 
@@ -663,7 +671,7 @@ export default function ProductDetails({
                   🔒 এখনই অর্ডার করুন
                 </Link>
               )}
-              
+
               <div className="grid grid-cols-3 gap-2 w-full">
                 {whatsappLink && (
                   <a
@@ -673,9 +681,9 @@ export default function ProductDetails({
                     className="w-full py-2 md:py-3 rounded-xl font-bold text-[9px] md:text-xs bg-[#25D366] text-white hover:bg-[#20b858] transition-all duration-200 flex flex-col items-center justify-center gap-1 shadow-sm text-center leading-tight"
                   >
                     <svg viewBox="0 0 24 24" className="w-4 h-4 md:w-5 md:h-5 fill-current">
-                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.734-1.453L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.023-5.116-2.883-6.978C16.59 1.899 14.116.874 11.48.876c-5.437 0-9.861 4.42-9.865 9.864 0 1.902.499 3.76 1.449 5.36L2.052 22.15l6.196-1.626v-.001zm9.251-6.7c-.244-.122-1.441-.712-1.664-.794-.223-.081-.385-.122-.547.122-.162.244-.63.794-.771.955-.143.162-.285.183-.53.061-.243-.122-1.03-.38-1.962-1.21-.724-.647-1.213-1.447-1.355-1.69-.143-.244-.015-.376.107-.497.111-.11.244-.285.365-.426.122-.142.162-.244.244-.406.082-.162.041-.305-.021-.426-.062-.122-.547-1.32-.75-1.81-.197-.474-.397-.41-.547-.418-.142-.008-.305-.01-.468-.01-.162 0-.427.061-.65.305-.224.244-.854.834-.854 2.031 0 1.198.874 2.353.996 2.516.122.163 1.722 2.63 4.171 3.691.582.253 1.037.404 1.392.517.585.186 1.117.16 1.538.097.469-.071 1.442-.589 1.644-1.157.203-.568.203-1.056.142-1.157-.061-.101-.223-.162-.466-.284z"/>
+                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.5-5.734-1.453L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.023-5.116-2.883-6.978C16.59 1.899 14.116.874 11.48.876c-5.437 0-9.861 4.42-9.865 9.864 0 1.902.499 3.76 1.449 5.36L2.052 22.15l6.196-1.626v-.001zm9.251-6.7c-.244-.122-1.441-.712-1.664-.794-.223-.081-.385-.122-.547.122-.162.244-.63.794-.771.955-.143.162-.285.183-.53.061-.243-.122-1.03-.38-1.962-1.21-.724-.647-1.213-1.447-1.355-1.69-.143-.244-.015-.376.107-.497.111-.11.244-.285.365-.426.122-.142.162-.244.244-.406.082-.162.041-.305-.021-.426-.062-.122-.547-1.32-.75-1.81-.197-.474-.397-.41-.547-.418-.142-.008-.305-.01-.468-.01-.162 0-.427.061-.65.305-.224.244-.854.834-.854 2.031 0 1.198.874 2.353.996 2.516.122.163 1.722 2.63 4.171 3.691.582.253 1.037.404 1.392.517.585.186 1.117.16 1.538.097.469-.071 1.442-.589 1.644-1.157.203-.568.203-1.056.142-1.157-.061-.101-.223-.162-.466-.284z" />
                     </svg>
-                    <span>হোয়াটসঅ্যাপে<br className="block xl:hidden"/> অর্ডার করুন</span>
+                    <span>হোয়াটসঅ্যাপে<br className="block xl:hidden" /> অর্ডার করুন</span>
                   </a>
                 )}
                 {messengerLink && (
@@ -686,7 +694,7 @@ export default function ProductDetails({
                     className="w-full py-2 md:py-3 rounded-xl font-bold text-[9px] md:text-xs bg-[#0084FF] text-white hover:bg-[#0074e0] transition-all duration-200 flex flex-col items-center justify-center gap-1 shadow-sm text-center leading-tight"
                   >
                     <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
-                    <span>মেসেঞ্জারে<br className="block xl:hidden"/> অর্ডার করুন</span>
+                    <span>মেসেঞ্জারে<br className="block xl:hidden" /> অর্ডার করুন</span>
                   </a>
                 )}
                 {contactNumber && (
@@ -695,7 +703,7 @@ export default function ProductDetails({
                     className="w-full py-2 md:py-3 rounded-xl font-bold text-[9px] md:text-xs bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200 flex flex-col items-center justify-center gap-1 shadow-sm text-center leading-tight"
                   >
                     <PhoneCall className="w-4 h-4 md:w-5 md:h-5" />
-                    <span>কল করে<br className="block xl:hidden"/> অর্ডার করুন</span>
+                    <span>কল করে<br className="block xl:hidden" /> অর্ডার করুন</span>
                   </a>
                 )}
               </div>
@@ -792,22 +800,28 @@ export default function ProductDetails({
               </p>
 
               <div className="space-y-2">
-                <a href={`tel:${contactNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors">
-                  <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
-                  <span>{contactNumber}</span>
-                </a>
+                {contactNumber && (
+                  <a href={`tel:${contactNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors">
+                    <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
+                    <span>{contactNumber}</span>
+                  </a>
+                )}
 
-                <a href={`tel:${contactNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors flex-wrap">
-                  <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
-                  <span>{contactNumber}</span>
-                  <span className="text-red-500 border border-dashed border-red-500 rounded px-1 py-0.5 text-[9px] font-medium shrink-0 tracking-wide">Bkash Personal</span>
-                </a>
+                {bkashNumber && (
+                  <a href={`tel:${bkashNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors flex-wrap">
+                    <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
+                    <span>{bkashNumber}</span>
+                    <span className="text-red-500 border border-dashed border-red-500 rounded px-1 py-0.5 text-[9px] font-medium shrink-0 tracking-wide">Bkash Personal</span>
+                  </a>
+                )}
 
-                <a href={`tel:${contactNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors flex-wrap">
-                  <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
-                  <span>{contactNumber}</span>
-                  <span className="text-orange-500 border border-dashed border-orange-500 rounded px-1 py-0.5 text-[9px] font-medium shrink-0 tracking-wide">Nagad Personal</span>
-                </a>
+                {nagadNumber && (
+                  <a href={`tel:${nagadNumber}`} className="flex items-center gap-1.5 text-gray-700 hover:text-primary transition-colors flex-wrap">
+                    <PhoneCall className="w-3.5 h-3.5 text-gray-600 shrink-0" />
+                    <span>{nagadNumber}</span>
+                    <span className="text-orange-500 border border-dashed border-orange-500 rounded px-1 py-0.5 text-[9px] font-medium shrink-0 tracking-wide">Nagad Personal</span>
+                  </a>
+                )}
               </div>
             </div>
           </div>

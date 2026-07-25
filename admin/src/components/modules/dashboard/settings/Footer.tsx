@@ -14,7 +14,6 @@ interface FooterSettingsProps {
   footer: {
     shortDescription: string;
     contactInfo: {
-      number: string;
       email: string;
       website: string;
     };
@@ -26,7 +25,6 @@ interface FooterSettingsProps {
 export default function Footer({ id, footer }: FooterSettingsProps) {
   const [formData, setFormData] = useState({
     shortDescription: footer.shortDescription,
-    number: footer.contactInfo.number,
     email: footer.contactInfo.email,
     website: footer.contactInfo.website,
     location: footer.location,
@@ -44,18 +42,11 @@ export default function Footer({ id, footer }: FooterSettingsProps) {
       setIsLoading(true);
 
       await updateUiData(id, {
-        footer: {
-          shortDescription: formData.shortDescription,
-
-          contactInfo: {
-            number: formData.number,
-            email: formData.email,
-            website: formData.website,
-          },
-
-          location: formData.location,
-          copyright: formData.copyright,
-        },
+        "footer.shortDescription": formData.shortDescription,
+        "footer.contactInfo.email": formData.email,
+        "footer.contactInfo.website": formData.website,
+        "footer.location": formData.location,
+        "footer.copyright": formData.copyright,
       });
 
       toast.success("Footer updated successfully", {
@@ -86,20 +77,6 @@ export default function Footer({ id, footer }: FooterSettingsProps) {
               setFormData((prev) => ({
                 ...prev,
                 shortDescription: e.target.value,
-              }))
-            }
-          />
-        </div>
-
-        <div>
-          <Label className="font-semibold mb-2">Phone Number</Label>
-
-          <Input
-            value={formData.number}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                number: e.target.value,
               }))
             }
           />

@@ -1,7 +1,6 @@
 import HeroSection from "@/components/sections/HeroSection";
 import ProductSection from "@/components/sections/ProductSection";
-import SizeChartSection from "@/components/sections/SizeChartSection";
-import WhyUsSection from "@/components/sections/WhyUsSection";
+
 import CTABanner from "@/components/sections/CTABanner";
 import BillingSection from "@/components/sections/BillingSection";
 import { getUiData } from "@/services/ui";
@@ -168,8 +167,6 @@ export default async function Home() {
       </div>
 
 
-      {/* 4. Why Us — Specialty cards showcasing product benefits */}
-      <WhyUsSection specialty={specialty} />
 
       {/* 5. CTA Banner — Dynamic call-to-action from admin settings */}
       <CTABanner cta={cta} />
