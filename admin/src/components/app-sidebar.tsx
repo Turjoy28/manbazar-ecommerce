@@ -20,6 +20,7 @@ import {
   ShoppingCart,
   Users,
   Image as ImageIcon,
+  Layers,
 } from "lucide-react";
 import { getUiData } from "@/services/ui";
 import { authService } from "@/services/auth";
@@ -67,6 +68,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Products",
       url: "/products",
       icon: <Package className="size-4" />,
+    },
+    {
+      title: "Categories",
+      url: "/categories",
+      icon: <Layers className="size-4" />,
     },
     {
       title: "Orders",
