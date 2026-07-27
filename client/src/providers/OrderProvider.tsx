@@ -151,9 +151,15 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
             const newItems = [...prev];
             const idx = newItems.findIndex(item => item.product._id === productId && item.size === size && item.color === oldColor);
             if (idx >= 0) {
+                const product = newItems[idx].product;
+                let matchedVariant = undefined;
+                if (newColor && product.variants) {
+                    matchedVariant = product.variants.find(v => v.color.name === newColor);
+                }
                 newItems[idx] = {
                     ...newItems[idx],
-                    color: newColor
+                    color: newColor,
+                    variant: matchedVariant
                 };
             }
             return newItems;

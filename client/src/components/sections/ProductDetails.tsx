@@ -8,6 +8,7 @@ import { SIZE_CHART } from "@/data";
 import { OrderContext } from "@/providers/OrderProvider";
 import { Truck, ThumbsUp, Banknote, PhoneCall, MessageCircle } from 'lucide-react';
 import { getUiData } from "@/services/ui";
+import RelatedProducts from "./RelatedProducts";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 function ChevronLeft() {
@@ -827,6 +828,9 @@ export default function ProductDetails({
           </div>
 
         </div>
+
+        {/* ── Related Products (Horizontally Scrollable) ── */}
+        <RelatedProducts currentProduct={product} />
 
         {/* ── Tabs: Description / Size Chart / Care ── */}
         <div id="product-info-tabs" className="mt-12 border border-gray-200 rounded-xl overflow-hidden">

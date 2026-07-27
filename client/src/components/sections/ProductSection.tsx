@@ -8,7 +8,7 @@ import { ShoppingCart } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 
-function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product }: { product: Product }) {
 
   const { addToCart, cartItems } = useContext(OrderContext);
 

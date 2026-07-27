@@ -47,6 +47,7 @@ function CartItemRow({
           <div className="relative w-20 h-20 rounded-md border border-gray-200 overflow-hidden shrink-0 bg-gray-50">
             <Image
               src={
+                item?.variant?.images?.[0] ||
                 item?.product?.thumbnail ||
                 item?.product?.images?.[0] ||
                 "/placeholder.png"
@@ -65,7 +66,15 @@ function CartItemRow({
             </p>
 
             <p className="text-[15px] font-bold text-gray-900">
-              ৳ {(item?.product?.price * item?.quantity).toFixed(2)}
+              ৳ {(
+                (item?.variant
+                  ? (item.variant.sale_price != null && item.variant.sale_price > 0
+                      ? item.variant.sale_price
+                      : (item.variant.price != null && item.variant.price > 0
+                          ? item.variant.price
+                          : item.product.price))
+                  : item.product.price) * item.quantity
+              ).toFixed(2)}
             </p>
 
             <div className="flex flex-wrap items-center gap-2 mt-0.5">
