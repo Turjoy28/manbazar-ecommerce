@@ -214,7 +214,7 @@ function ImageGallery({
           <video
             src={displayImages[activeIndex]}
             controls
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain md:object-cover"
           />
         ) : (
           <Image
@@ -222,7 +222,7 @@ function ImageGallery({
             src={displayImages[activeIndex] || "/placeholder.png"}
             alt={name}
             fill
-            className="object-cover transition-transform duration-200 ease-out"
+            className="object-contain md:object-cover transition-transform duration-200 ease-out"
             style={
               isZooming
                 ? {
