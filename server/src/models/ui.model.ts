@@ -228,6 +228,16 @@ const uiSchema = new mongoose.Schema(
                 default: "Clearance & Steals",
             }
         },
+        relatedProducts: {
+            title: {
+                type: String,
+                default: "অনুরূপ পণ্য",
+            },
+            subtitle: {
+                type: String,
+                default: "একই ক্যাটাগরির অন্যান্য পছন্দের পণ্যগুলো দেখুন",
+            }
+        },
         courier: {
             activeProvider: { type: String, enum: ['steadfast', 'pathao', 'redx', 'none'], default: 'none' },
             steadfast: {

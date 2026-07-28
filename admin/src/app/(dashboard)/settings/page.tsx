@@ -6,6 +6,7 @@ import CTASection from "@/components/modules/dashboard/settings/CTASection";
 import ThemeColors from "@/components/modules/dashboard/settings/ThemeColors";
 import ChatbotSettings from "@/components/modules/dashboard/settings/ChatbotSettings";
 import CategoryLabels from "@/components/modules/dashboard/settings/CategoryLabels";
+import RelatedProductsSettings from "@/components/modules/dashboard/settings/RelatedProductsSettings";
 import CourierSettings from "@/components/modules/dashboard/settings/CourierSettings";
 import { getUiData } from "@/services/ui";
 import React from "react";
@@ -34,6 +35,7 @@ export default async function SettingsPage() {
         currentMarqueeText={uiData?.data?.[0].banner.marqueeText}
       />
       <CategoryLabels labels={uiData?.data?.[0].categoryLabels} id={uiData?.data?.[0]._id} />
+      <RelatedProductsSettings relatedProducts={uiData?.data?.[0].relatedProducts} id={uiData?.data?.[0]._id} />
       <SizeChart id={uiData?.data?.[0]._id} chart={uiData?.data?.[0].chart} />
       <CTASection id={uiData?.data?.[0]._id} cta={uiData?.data?.[0].cta} />
       <ThemeColors theme={uiData?.data?.[0].theme} id={uiData?.data?.[0]._id} />

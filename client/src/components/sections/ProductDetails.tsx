@@ -381,6 +381,8 @@ export default function ProductDetails({
   const [whatsappLink, setWhatsappLink] = useState("");
   const [messengerLink, setMessengerLink] = useState("");
   const [dynamicChart, setDynamicChart] = useState<{ tableTitle: string[], tableProperties: string[][] } | null>(null);
+  const [relatedTitle, setRelatedTitle] = useState("অনুরূপ পণ্য");
+  const [relatedSubtitle, setRelatedSubtitle] = useState("একই ক্যাটাগরির অন্যান্য পছন্দের পণ্যগুলো দেখুন");
 
   // Lifted gallery state
   const [activeIndex, setActiveIndex] = useState(0);
@@ -447,6 +449,12 @@ export default function ProductDetails({
       }
       if (res?.data?.[0]?.chart?.chartTable?.tableTitle?.length) {
         setDynamicChart(res.data[0].chart.chartTable);
+      }
+      if (res?.data?.[0]?.relatedProducts?.title) {
+        setRelatedTitle(res.data[0].relatedProducts.title);
+      }
+      if (res?.data?.[0]?.relatedProducts?.subtitle) {
+        setRelatedSubtitle(res.data[0].relatedProducts.subtitle);
       }
     }).catch(console.error);
   }, []);
@@ -830,7 +838,11 @@ export default function ProductDetails({
         </div>
 
         {/* ── Related Products (Horizontally Scrollable) ── */}
-        <RelatedProducts currentProduct={product} />
+        <RelatedProducts
+          currentProduct={product}
+          title={relatedTitle}
+          subtitle={relatedSubtitle}
+        />
 
         {/* ── Tabs: Description / Size Chart / Care ── */}
         <div id="product-info-tabs" className="mt-12 border border-gray-200 rounded-xl overflow-hidden">

@@ -82,6 +82,11 @@ export interface IUI {
         bottomCategoryLabel: string;
     };
 
+    relatedProducts?: {
+        title: string;
+        subtitle: string;
+    };
+
     createdAt?: Date;
     updatedAt?: Date;
 }

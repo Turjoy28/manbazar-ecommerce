@@ -8,8 +8,12 @@ import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
 export default function RelatedProducts({
   currentProduct,
+  title = "অনুরূপ পণ্য",
+  subtitle = "একই ক্যাটাগরির অন্যান্য পছন্দের পণ্যগুলো দেখুন",
 }: {
   currentProduct: Product;
+  title?: string;
+  subtitle?: string;
 }) {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +99,7 @@ export default function RelatedProducts({
           </div>
           <div>
             <h2 className="text-base md:text-2xl font-bold text-gray-900 leading-tight flex items-center gap-1.5 md:gap-2">
-              <span>অনুরূপ পণ্য</span>
+              <span>{title}</span>
               {currentProduct.category && (
                 <span className="text-xs md:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
                   {currentProduct.category}
@@ -103,7 +107,7 @@ export default function RelatedProducts({
               )}
             </h2>
             <p className="text-[10px] md:text-xs text-gray-500 mt-0.5">
-              একই ক্যাটাগরির অন্যান্য পছন্দের পণ্যগুলো দেখুন
+              {subtitle}
             </p>
           </div>
         </div>
