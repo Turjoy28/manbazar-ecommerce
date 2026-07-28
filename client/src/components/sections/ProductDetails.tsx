@@ -837,13 +837,6 @@ export default function ProductDetails({
 
         </div>
 
-        {/* ── Related Products (Horizontally Scrollable) ── */}
-        <RelatedProducts
-          currentProduct={product}
-          title={relatedTitle}
-          subtitle={relatedSubtitle}
-        />
-
         {/* ── Tabs: Description / Size Chart / Care ── */}
         <div id="product-info-tabs" className="mt-12 border border-gray-200 rounded-xl overflow-hidden">
           {/* Tab headers */}
@@ -1009,6 +1002,15 @@ export default function ProductDetails({
           </div>
         </section>
       )}
+
+      {/* ── Related Products ── */}
+      <section className="max-w-[1400px] mx-auto px-2 md:px-4 xl:px-8 pb-16">
+        <RelatedProducts
+          currentProduct={product}
+          title={relatedTitle}
+          subtitle={relatedSubtitle}
+        />
+      </section>
 
     </main>
   );
