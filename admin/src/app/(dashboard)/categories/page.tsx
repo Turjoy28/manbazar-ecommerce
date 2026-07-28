@@ -195,7 +195,6 @@ export default function CategoriesPage() {
                 <Card className="border-border bg-card/40 h-fit">
                     <CardHeader>
                         <CardTitle className="text-lg">How Categories Work</CardTitle>
-                    </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
                         <p>
