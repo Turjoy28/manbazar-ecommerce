@@ -113,19 +113,23 @@ export default function ProductSection({
   products,
   isCategorySection = false,
   categoryAssignmentId,
+  showAllImmediately = false,
 }: {
   productsCaption: string;
   products: Product[];
   isCategorySection?: boolean;
   categoryAssignmentId?: string;
+  showAllImmediately?: boolean;
 }) {
   const [showAll, setShowAll] = useState(false);
 
   // For category section, always slice to 8 (and use the link to 'See All' page).
   // Otherwise, use state-based toggle.
-  const displayedProducts = isCategorySection
-    ? products?.slice(0, 8)
-    : (showAll ? products : products?.slice(0, 8));
+  const displayedProducts = showAllImmediately
+    ? products
+    : (isCategorySection
+      ? products?.slice(0, 8)
+      : (showAll ? products : products?.slice(0, 8)));
 
   return (
     <section id="products" className="py-4 px-4 md:px-6 max-w-7xl mx-auto">
@@ -151,7 +155,7 @@ export default function ProductSection({
       </div>
 
       {/* See More Button */}
-      {(isCategorySection || (products && products.length > 8)) && (
+      {!showAllImmediately && (isCategorySection || (products && products.length > 8)) && (
         <div className="flex justify-center mt-4">
           {isCategorySection ? (
             <Link href={`/category/${encodeURIComponent(categoryAssignmentId || productsCaption)}`}>

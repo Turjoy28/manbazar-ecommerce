@@ -75,6 +75,7 @@ export default async function CategoryPage({ params }: PageProps) {
         productsCaption={displayTitle}
         products={filteredProducts}
         isCategorySection={false}
+        showAllImmediately={true}
       />
 
       <Footer logo={banner?.logo} footerInfo={footer} chatbot={chatbot} />
