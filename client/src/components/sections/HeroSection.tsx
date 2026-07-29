@@ -7,19 +7,19 @@ export default function HeroSection({ banner }: { banner: any }) {
   const { cartItems } = useContext(OrderContext);
   const targetHref = cartItems && cartItems.length > 0 ? "#billing" : "#products";
   return (
-    <section className="relative w-full min-h-72 md:min-h-130 overflow-hidden">
-      {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${banner?.bannerImage})`,
-        }}
+    <section className="relative w-full overflow-hidden">
+      {/* Banner image — full aspect ratio on mobile, capped height on desktop */}
+      <img
+        src={banner?.bannerImage}
+        alt={banner?.title || "Banner"}
+        className="w-full h-auto block md:max-h-130 md:object-cover md:object-center"
       />
+
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/20" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center pt-8 md:pt-14 h-full min-h-72 md:min-h-130 px-4 text-center">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center">
         {/* Brand name */}
         <Logo logo={banner.logo} />
 
