@@ -87,6 +87,14 @@ const reconcilePayment = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
+/** DELETE /orders/all — Delete all orders permanently (admin) */
+const deleteAllOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await orderService.deleteAllOrders();
+        sendResponse(res, { statusCode: 200, success: true, message: "All orders permanently deleted", data: result });
+    } catch (error) { next(error); }
+};
+
 export const orderController = {
     createOrder,
     getOrders,
@@ -95,5 +103,6 @@ export const orderController = {
     updateOrderStatus,
     updateOrder,
     deleteOrders,
+    deleteAllOrders,
     reconcilePayment
 };

@@ -192,6 +192,36 @@ export default function OrdersPage() {
     });
   };
 
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
+
+  const handleDeleteAllOrders = () => {
+    toast.warning("সব অর্ডার কি সত্যি মুছে ফেলতে চান?", {
+      description: "এই কাজটি ডাটাবেস থেকে সব অর্ডার স্থায়ীভাবে মুছে ফেলবে। এটি আর ফিরিয়ে আনা যাবে না!",
+      action: {
+        label: "হ্যাঁ, সব মুছুন",
+        onClick: async () => {
+          setIsDeletingAll(true);
+          try {
+            const res = await orderService.deleteAllOrders();
+            if (res.success) {
+              toast.success("সব অর্ডার স্থায়ীভাবে মুছে ফেলা হয়েছে।");
+              setOrders([]);
+              setSelectedOrderIds([]);
+              setTotalOrders(0);
+              setTotalPages(1);
+            } else {
+              toast.error("সব অর্ডার মুছতে ব্যর্থ হয়েছে।");
+            }
+          } catch (err: any) {
+            toast.error(err.message || "Failed to delete all orders.");
+          } finally {
+            setIsDeletingAll(false);
+          }
+        },
+      },
+    });
+  };
+
   const handleSendToCourier = async () => {
     if (!selectedOrderIds.length) {
       toast.error("কুরিয়ারে পাঠানোর জন্য অন্তত একটি অর্ডার সিলেক্ট করুন।");
@@ -483,15 +513,32 @@ export default function OrdersPage() {
             Manage customer purchases, update status, and dispatch to courier.
           </p>
         </div>
-        <Button
-          onClick={fetchOrders}
-          variant="outline"
-          size="sm"
-          className="border-border text-foreground hover:bg-muted shrink-0"
-        >
-          <RefreshCw className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Refresh</span>
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            onClick={handleDeleteAllOrders}
+            variant="destructive"
+            size="sm"
+            disabled={isDeletingAll || orders.length === 0}
+            className="text-xs h-9 bg-rose-600 hover:bg-rose-700 text-white border-0"
+          >
+            {isDeletingAll ? (
+              <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+            ) : (
+              <Trash2 className="h-4 w-4 sm:mr-2" />
+            )}
+            <span className="hidden sm:inline">Delete All Orders</span>
+            <span className="sm:hidden">Delete All</span>
+          </Button>
+          <Button
+            onClick={fetchOrders}
+            variant="outline"
+            size="sm"
+            className="border-border text-foreground hover:bg-muted h-9"
+          >
+            <RefreshCw className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Refresh</span>
+          </Button>
+        </div>
       </div>
 
       {/* ── Metrics Ribbon ── */}

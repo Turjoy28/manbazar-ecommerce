@@ -342,6 +342,11 @@ const updateOrder = async (id: string, payload: Partial<any>) => {
     return order;
 };
 
+/** Delete all orders permanently (danger zone) */
+const deleteAllOrders = async () => {
+    return Order.deleteMany({});
+};
+
 export const orderService = {
     createOrder,
     getOrders,
@@ -349,6 +354,7 @@ export const orderService = {
     updateOrder,
     updateOrderStatus,
     deleteOrders,
+    deleteAllOrders,
     updateCourierInfo,
     getStats,
     getMonthlyData,

@@ -27,6 +27,9 @@ router.put("/:id", authenticate, orderController.updateOrder);
 /** PATCH — Reconcile a COD order payment → mark as 'completed' */
 router.patch("/:id/reconcile", authenticate, orderController.reconcilePayment);
 
+/** DELETE — Delete all orders permanently */
+router.delete("/all", authenticate, orderController.deleteAllOrders);
+
 /** DELETE — Bulk delete orders */
 router.delete("/", authenticate, orderController.deleteOrders);
 

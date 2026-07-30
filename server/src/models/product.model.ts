@@ -36,6 +36,7 @@ const productSchema = new mongoose.Schema(
         productId: {
             type: String,
             default: "",
+            unique: true,
             trim: true,
         },
         name: {

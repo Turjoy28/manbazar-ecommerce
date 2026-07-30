@@ -117,6 +117,14 @@ export const orderService = {
         });
     },
 
+    /** Delete all orders permanently */
+    deleteAllOrders: async (token?: string): Promise<any> => {
+        return secureFetch<any>(`${BASE_URL}/orders/all`, {
+            method: "DELETE",
+            ...(token && { token }),
+        });
+    },
+
     /** Send selected orders to a courier service */
     sendToCourier: async (
         orderIds: string[],
