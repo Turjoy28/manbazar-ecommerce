@@ -73,6 +73,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     /* ─── General Info State ─── */
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
+    const [productId, setProductId] = useState("");
     const [categoryAssignment, setCategoryAssignment] = useState<"TOP" | "MIDDLE" | "BOTTOM">("TOP");
     const [videoUrl, setVideoUrl] = useState("");
     const [price, setPrice] = useState<number | "">("");
@@ -136,6 +137,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         if (initialData) {
             setName(initialData.name || "");
             setSlug(initialData.slug || "");
+            setProductId(initialData.productId || "");
             setCategoryAssignment(initialData.categoryAssignment || "TOP");
             setVideoUrl(initialData.videoUrl || "");
             setPrice(initialData.base_price ?? initialData.price ?? "");
@@ -164,15 +166,22 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         }
     }, [initialData]);
 
-    /* ─── Auto-generate slug from product name (new products only) ─── */
+    /* ─── Auto-generate slug & SKU from product name (real-time) ─── */
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setName(val);
+        const slugified = val
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)+/g, "");
+        setSlug(slugified);
+        // SKU only auto-generates for new products — stays fixed once created
         if (!initialData) {
-            setSlug(
+            setProductId(
+                "MB-" +
                 val
-                    .toLowerCase()
-                    .replace(/[^a-z0-9]+/g, "-")
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]+/g, "-")
                     .replace(/(^-|-$)+/g, "")
             );
         }
@@ -287,6 +296,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         const payload: Omit<ProductData, "_id"> = {
             name: name.trim(),
             slug: slug.trim(),
+            productId: productId.trim(),
             categoryAssignment,
             videoUrl: videoUrl.trim() || undefined,
             price: price as number,
@@ -355,9 +365,17 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                 <Label htmlFor="name" className="text-foreground/80">Product Name</Label>
                                 <Input id="name" value={name} onChange={handleNameChange} placeholder="Premium Polo T-Shirt" className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary" required />
                             </div>
-                            <div className="space-y-2 hidden">
-                                <Label htmlFor="slug" className="text-foreground/80">Slug URL</Label>
-                                <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="premium-polo-t-shirt" className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary" required />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="productId" className="text-foreground/80">SKU (Product ID)</Label>
+                                    <Input id="productId" value={productId} onChange={(e) => setProductId(e.target.value)} placeholder="MB-PREMIUM-POLO-T-SHIRT" className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary font-mono text-sm" />
+                                    <p className="text-[11px] text-muted-foreground">Auto-generated from product name. You can edit it manually.</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="slug" className="text-foreground/80">Slug URL</Label>
+                                    <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="premium-polo-t-shirt" className="border-border bg-background/40 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-primary font-mono text-sm" required />
+                                    <p className="text-[11px] text-muted-foreground">Used in the product page URL. Auto-generated from product name.</p>
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="categoryAssignment" className="text-foreground/80">Layout Category Tier</Label>
