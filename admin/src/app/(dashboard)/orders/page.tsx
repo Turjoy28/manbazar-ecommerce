@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { orderService, OrderData } from "@/services/order";
+import { authService } from "@/services/auth";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -57,6 +58,7 @@ export default function OrdersPage() {
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
+  const [role, setRole] = useState<string>("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -92,6 +94,16 @@ export default function OrdersPage() {
   useEffect(() => {
     fetchOrders();
   }, [page, limit]);
+
+  useEffect(() => {
+    authService.getMe()
+      .then((res) => {
+        if (res.success && res.data?.role) {
+          setRole(res.data.role);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setUpdatingStatusId(orderId);
@@ -352,13 +364,15 @@ export default function OrdersPage() {
               <Printer className="mr-2 h-4 w-4" />
               Print Invoice
             </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDeleteOrder(order._id)}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Order
-            </DropdownMenuItem>
+            {role === "ADMIN" && (
+              <DropdownMenuItem
+                className="text-red-600 focus:text-red-600"
+                onClick={() => handleDeleteOrder(order._id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Order
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -514,21 +528,23 @@ export default function OrdersPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Button
-            onClick={handleDeleteAllOrders}
-            variant="destructive"
-            size="sm"
-            disabled={isDeletingAll || orders.length === 0}
-            className="text-xs h-9 bg-rose-600 hover:bg-rose-700 text-white border-0"
-          >
-            {isDeletingAll ? (
-              <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
-            ) : (
-              <Trash2 className="h-4 w-4 sm:mr-2" />
-            )}
-            <span className="hidden sm:inline">Delete All Orders</span>
-            <span className="sm:hidden">Delete All</span>
-          </Button>
+          {role === "ADMIN" && (
+            <Button
+              onClick={handleDeleteAllOrders}
+              variant="destructive"
+              size="sm"
+              disabled={isDeletingAll || orders.length === 0}
+              className="text-xs h-9 bg-rose-600 hover:bg-rose-700 text-white border-0"
+            >
+              {isDeletingAll ? (
+                <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+              ) : (
+                <Trash2 className="h-4 w-4 sm:mr-2" />
+              )}
+              <span className="hidden sm:inline">Delete All Orders</span>
+              <span className="sm:hidden">Delete All</span>
+            </Button>
+          )}
           <Button
             onClick={fetchOrders}
             variant="outline"
@@ -639,20 +655,22 @@ export default function OrdersPage() {
               )}
               Dispatch
             </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={handleBulkDelete}
-              disabled={isBulkDeleting}
-              className="text-xs h-8"
-            >
-              {isBulkDeleting ? (
-                <Loader2 className="h-3 w-3 animate-spin mr-1" />
-              ) : (
-                <Trash2 className="h-3 w-3 mr-1" />
-              )}
-              Delete
-            </Button>
+            {role === "ADMIN" && (
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={handleBulkDelete}
+                disabled={isBulkDeleting}
+                className="text-xs h-8"
+              >
+                {isBulkDeleting ? (
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                ) : (
+                  <Trash2 className="h-3 w-3 mr-1" />
+                )}
+                Delete
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -894,10 +912,12 @@ export default function OrdersPage() {
                                 <Printer className="h-4 w-4 mr-2 text-slate-500" />
                                 <span>Print invoice</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDeleteOrder(order._id)} className="cursor-pointer flex items-center py-2 px-2 text-red-600 focus:text-red-600 focus:bg-red-50 hover:bg-red-50 rounded-sm">
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                <span>Delete order</span>
-                              </DropdownMenuItem>
+                              {role === "ADMIN" && (
+                                <DropdownMenuItem onClick={() => handleDeleteOrder(order._id)} className="cursor-pointer flex items-center py-2 px-2 text-red-600 focus:text-red-600 focus:bg-red-50 hover:bg-red-50 rounded-sm">
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  <span>Delete order</span>
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
