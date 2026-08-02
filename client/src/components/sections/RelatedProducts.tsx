@@ -33,12 +33,18 @@ export default function RelatedProducts({
           (p) => p._id !== currentProduct._id
         );
 
+        const getCategoryStr = (cat: any) => {
+          if (!cat) return "";
+          if (typeof cat === "string") return cat;
+          return cat.name || cat._id || "";
+        };
+
         // Filter products belonging to the same category
         const sameCategory = otherProducts.filter(
           (p) =>
             p.category &&
             currentProduct.category &&
-            p.category.trim().toLowerCase() === currentProduct.category.trim().toLowerCase()
+            getCategoryStr(p.category).trim().toLowerCase() === getCategoryStr(currentProduct.category).trim().toLowerCase()
         );
 
         // Use category products if available; otherwise fallback to other products so the section is never empty
@@ -102,7 +108,9 @@ export default function RelatedProducts({
               <span>{title}</span>
               {currentProduct.category && (
                 <span className="text-xs md:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
-                  {currentProduct.category}
+                  {typeof currentProduct.category === "string" 
+                    ? currentProduct.category 
+                    : (currentProduct.category as any).name}
                 </span>
               )}
             </h2>
