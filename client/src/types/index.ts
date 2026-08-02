@@ -47,7 +47,8 @@ export interface Product {
   deliveryCharge: DeliveryChargeItem[];
   stock: number;
   isActive: boolean;
-  category?: string;
+  /** Category reference — can be a string ID or populated category object */
+  category?: string | { _id: string; name: string; slug: string; isActive: boolean; sortOrder: number } | null;
   categoryAssignment?: "TOP" | "MIDDLE" | "BOTTOM";
   /** External video URL (YouTube, Instagram Reel, TikTok, etc.) */
   videoUrl?: string;

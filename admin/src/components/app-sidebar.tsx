@@ -70,11 +70,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: <Package className="size-4" />,
     },
     {
-      title: "Categories",
-      url: "/categories",
-      icon: <Layers className="size-4" />,
-    },
-    {
       title: "Orders",
       url: "/orders",
       icon: <ShoppingCart className="size-4" />,
@@ -88,12 +83,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: <ImageIcon className="size-4" />,
     });
   } else {
-    // Default to ADMIN links or admin settings fallback
-    navMain.push({
-      title: "Settings",
-      url: "/settings",
-      icon: <Settings className="size-4" />,
-    });
+    // ADMIN-only links: Categories and Settings
+    navMain.push(
+      {
+        title: "Categories",
+        url: "/categories",
+        icon: <Layers className="size-4" />,
+      },
+      {
+        title: "Settings",
+        url: "/settings",
+        icon: <Settings className="size-4" />,
+      }
+    );
   }
 
   return (

@@ -48,7 +48,7 @@ const createProduct = async (payload: Record<string, unknown>) => {
 const getAllProducts = async (page = 1, limit = 50) => {
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
-        Product.find({ isActive: true }).skip(skip).limit(limit).sort({ createdAt: -1 }),
+        Product.find({ isActive: true }).populate("category", "name slug isActive sortOrder").skip(skip).limit(limit).sort({ createdAt: -1 }),
         Product.countDocuments({ isActive: true }),
     ]);
     return { products, total, page, limit, pages: Math.ceil(total / limit) };
@@ -58,7 +58,7 @@ const getAllProducts = async (page = 1, limit = 50) => {
 const getAllProductsAdmin = async (page = 1, limit = 50) => {
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
-        Product.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+        Product.find().populate("category", "name slug isActive sortOrder").skip(skip).limit(limit).sort({ createdAt: -1 }),
         Product.countDocuments(),
     ]);
     return { products, total, page, limit, pages: Math.ceil(total / limit) };
@@ -66,12 +66,12 @@ const getAllProductsAdmin = async (page = 1, limit = 50) => {
 
 /** Get a single product by slug (public) */
 const getProductBySlug = async (slug: string) => {
-    return Product.findOne({ slug, isActive: true });
+    return Product.findOne({ slug, isActive: true }).populate("category", "name slug isActive sortOrder");
 };
 
 /** Get a single product by ID (admin) */
 const getProductById = async (id: string) => {
-    return Product.findById(id);
+    return Product.findById(id).populate("category", "name slug isActive sortOrder");
 };
 
 /** Update a product by ID */

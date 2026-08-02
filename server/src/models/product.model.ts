@@ -127,6 +127,12 @@ const productSchema = new mongoose.Schema(
             enum: ['TOP', 'MIDDLE', 'BOTTOM'],
             default: "TOP",
         },
+        /** Reference to the Category document for the dynamic category system */
+        category: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Category",
+            default: null,
+        },
         /** Optional external video URL (YouTube, Instagram, TikTok, etc.) */
         videoUrl: { type: String, default: "", trim: true },
         isActive: { type: Boolean, default: true },

@@ -7,6 +7,7 @@ import { authRoute } from '../modules/auth/auth.route.js';
 import { courierRoute } from '../modules/courier/courier.route.js';
 import { bannersRoute } from '../modules/banners/banners.route.js';
 import { feedRoute } from '../modules/feed/feed.route.js';
+import { categoryRoute } from '../modules/category/category.route.js';
 
 const router = Router();
 
@@ -19,6 +20,7 @@ const moduleRoutes = [
     { path: "/courier",      route: courierRoute },
     { path: "/banners",      route: bannersRoute },
     { path: "/feed",         route: feedRoute },
+    { path: "/categories",   route: categoryRoute },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

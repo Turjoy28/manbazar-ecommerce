@@ -54,9 +54,9 @@ export function proxy(request: NextRequest) {
         // 3. Manager/Sub-Admin Route Protection
         // If role is MANAGER or USER, block Settings and redirect to Products page
         if (role === "MANAGER" || role === "USER") {
-            const forbiddenPaths = ["/settings", "/admin/settings"];
+            const forbiddenPaths = ["/settings", "/admin/settings", "/categories"];
             if (forbiddenPaths.some(p => pathname.startsWith(p))) {
-                console.log(`[Proxy Middleware] Blocking non-admin role (${role}) from accessing settings path: ${pathname}`);
+                console.log(`[Proxy Middleware] Blocking non-admin role (${role}) from accessing restricted path: ${pathname}`);
                 // Redirect back to products page as per specification
                 const productsUrl = new URL("/products", request.url);
                 return NextResponse.redirect(productsUrl);

@@ -6,6 +6,7 @@ import BillingSection from "@/components/sections/BillingSection";
 import { getUiData } from "@/services/ui";
 import { getProducts } from "@/services/product";
 import { getBanners } from "@/services/banners";
+import { getCategories, ClientCategory } from "@/services/category";
 import PromotionalBanners from "@/components/sections/PromotionalBanners";
 import Footer from "@/components/shared/Footert";
 import { Product } from "@/types";
@@ -24,7 +25,7 @@ const DEFAULT_UI_DATA = {
     title: "সাইজ চার্ট গাইড",
     description: "আপনার জন্য পারফেক্ট ফিট খুঁজে পেতে নিচের চার্টটি অনুসরণ করুন।",
     tableTitle: "টি-শার্ট সাইজ পরিমাপ",
-    tableSubTitle: "সব মাপ ইঞ্চিতে দেওয়া হলো",
+    tableSubTitle: "সব মাপ ইঞ্চিতে দেওয়া হলো",
     chartTable: {
       tableTitle: ["সাইজ", "বডি (Chest)", "লম্বা (Length)", "হাতা (Sleeve)"],
       tableProperties: [
@@ -40,7 +41,7 @@ const DEFAULT_UI_DATA = {
         {
           logo: "📏",
           title: "বডি বা চেস্ট",
-          description: "বুকের সবচেয়ে চওড়া অংশ বরাবর ফিতা দিয়ে মেপে নিন।",
+          description: "বুকের সবচেয়ে চওড়া অংশ বরাবর ফিতা দিয়ে মেপে নিন।",
         },
         {
           logo: "📐",
@@ -50,7 +51,7 @@ const DEFAULT_UI_DATA = {
         {
           logo: "💡",
           title: "টিপস",
-          description: "মাপ যদি দুটি সাইজের মাঝে হয়, তবে বড় সাইজটি সিলেক্ট করা নিরাপদ।",
+          description: "মাপ যদি দুটি সাইজের মাঝে হয়, তবে বড় সাইজটি সিলেক্ট করা নিরাপদ।",
         },
       ],
     },
@@ -58,12 +59,12 @@ const DEFAULT_UI_DATA = {
   specialty: {
     subTitle: "আমাদের বিশেষত্ব",
     title: "কেন আমাদের টি-শার্ট সেরা?",
-    description: "সেরা মানের ফেব্রিক ও নিখুঁত ফিনিশিং দিয়ে তৈরি প্রতিটি টি-শার্ট।",
+    description: "সেরা মানের ফেব্রিক ও নিখুঁত ফিনিশিং দিয়ে তৈরি প্রতিটি টি-শার্ট।",
     cards: [
       {
         image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=400",
-        title: "১০০% প্রিমিয়াম কটন",
-        description: "উচ্চমানের কটন ফেব্রিক, যা অত্যন্ত আরামদায়ক ও দীর্ঘস্থায়ী।",
+        title: "১০০% প্রিমিয়াম কটন",
+        description: "উচ্চমানের কটন ফেব্রিক, যা অত্যন্ত আরামদায়ক ও দীর্ঘস্থায়ী।",
       },
       {
         image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=400",
@@ -72,13 +73,13 @@ const DEFAULT_UI_DATA = {
       },
       {
         image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=400",
-        title: "রঙের দীর্ঘস্থায়িত্ব",
-        description: "প্রিমিয়াম ডাইং প্রসেস ব্যবহারের কারণে রঙ সহজে নষ্ট বা ফেড হয় না।",
+        title: "রঙের দীর্ঘস্থায়িত্ব",
+        description: "প্রিমিয়াম ডাইং প্রসেস ব্যবহারের কারণে রঙ সহজে নষ্ট বা ফেড হয় না।",
       },
     ],
   },
   footer: {
-    shortDescription: "ম্যানবাজার - আপনার স্টাইল ও আরামের নির্ভরযোগ্য সঙ্গী। সেরা মানের পোশাক সরাসরি আপনাদের দোড়গোড়ায়।",
+    shortDescription: "ম্যানবাজার - আপনার স্টাইল ও আরামের নির্ভরযোগ্য সঙ্গী। সেরা মানের পোশাক সরাসরি আপনাদের দোড়গোড়ায়।",
     contactInfo: {
       number: "01700-000000",
       email: "support@manbazar.com",
@@ -100,33 +101,60 @@ const DEFAULT_UI_DATA = {
 };
 
 export default async function Home() {
-  const [uiData, productsData, bannersData] = await Promise.all([
+  const [uiData, productsData, bannersData, categoriesData] = await Promise.all([
     getUiData().catch(() => null),
     getProducts(1, 100).catch(() => ({ data: { products: [] } })),
     getBanners().catch(() => null),
+    getCategories().catch(() => ({ success: false, data: [] })),
   ]);
   const uiRecord = uiData?.data?.[0] || DEFAULT_UI_DATA;
   const { banner, chart, productsCaption, specialty, footer, theme, cta, chatbot } = uiRecord;
 
   const products: Product[] = productsData?.data?.products || [];
   const banners = bannersData?.data || [];
+  const activeCategories: ClientCategory[] = categoriesData?.data || [];
 
-  const uiLabels = uiRecord?.categoryLabels || {
-    topCategoryLabel: "Trending Now",
-    middleCategoryLabel: "Seasonal Essentials",
-    bottomCategoryLabel: "Clearance & Steals"
-  };
+  // ── Dynamic Category Grouping ──
+  // Group products by their populated category reference.
+  // If categories exist from the API, use them. Otherwise, fall back to the old TOP/MIDDLE/BOTTOM system.
+  let categoriesToRender: { label: string; id: string; slug: string; products: Product[] }[] = [];
 
-  // Group products by categoryAssignment
-  const topProducts = products.filter((p: Product) => p.categoryAssignment === "TOP" || !p.categoryAssignment);
-  const middleProducts = products.filter((p: Product) => p.categoryAssignment === "MIDDLE");
-  const bottomProducts = products.filter((p: Product) => p.categoryAssignment === "BOTTOM");
+  if (activeCategories.length > 0) {
+    // New dynamic category system — group products by category._id
+    categoriesToRender = activeCategories
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((cat) => {
+        const catProducts = products.filter((p: Product) => {
+          const productCat = p.category;
+          if (!productCat) return false;
+          const catId = typeof productCat === "string" ? productCat : productCat._id;
+          return catId === cat._id;
+        });
+        return {
+          label: cat.name,
+          id: cat._id,
+          slug: cat.slug,
+          products: catProducts.slice(0, 4),
+        };
+      });
+  } else {
+    // Fallback: old hardcoded TOP/MIDDLE/BOTTOM system for backward compatibility
+    const uiLabels = uiRecord?.categoryLabels || {
+      topCategoryLabel: "Trending Now",
+      middleCategoryLabel: "Seasonal Essentials",
+      bottomCategoryLabel: "Clearance & Steals",
+    };
 
-  const categoriesToRender = [
-    { label: uiLabels.topCategoryLabel, id: "TOP", products: topProducts.slice(0, 4) },
-    { label: uiLabels.middleCategoryLabel, id: "MIDDLE", products: middleProducts.slice(0, 4) },
-    { label: uiLabels.bottomCategoryLabel, id: "BOTTOM", products: bottomProducts.slice(0, 4) }
-  ].filter(cat => cat.products.length > 0);
+    const topProducts = products.filter((p: Product) => p.categoryAssignment === "TOP" || !p.categoryAssignment);
+    const middleProducts = products.filter((p: Product) => p.categoryAssignment === "MIDDLE");
+    const bottomProducts = products.filter((p: Product) => p.categoryAssignment === "BOTTOM");
+
+    categoriesToRender = [
+      { label: uiLabels.topCategoryLabel, id: "TOP", slug: "TOP", products: topProducts.slice(0, 4) },
+      { label: uiLabels.middleCategoryLabel, id: "MIDDLE", slug: "MIDDLE", products: middleProducts.slice(0, 4) },
+      { label: uiLabels.bottomCategoryLabel, id: "BOTTOM", slug: "BOTTOM", products: bottomProducts.slice(0, 4) },
+    ].filter((cat) => cat.products.length > 0);
+  }
 
   return (
     <main className="bg-white min-h-screen font-sans">
@@ -135,14 +163,14 @@ export default async function Home() {
       {/* Promotional Offers Grid */}
       <PromotionalBanners banners={banners} />
 
-      {/* 2. Products — Dynamic tiers or single grid fallback */}
+      {/* 2. Products — Dynamic category sections */}
       <div id="products">
         {categoriesToRender.length > 0 ? (
           categoriesToRender.map((cat) => (
             <div key={cat.id} className="my-2">
               <ProductSection
                 productsCaption={cat.label}
-                categoryAssignmentId={cat.id}
+                categoryAssignmentId={cat.slug}
                 products={cat.products}
                 isCategorySection={true}
               />

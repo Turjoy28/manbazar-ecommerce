@@ -18,7 +18,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { ProductData, ProductVariant, DeliveryChargeItem } from "@/services/product";
-import { getUiData } from "@/services/ui";
+import { categoryService, CategoryData } from "@/services/category";
 import ImageUpload from "@/components/shared/imageUpload";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     const [slug, setSlug] = useState("");
     const [productId, setProductId] = useState("");
     const [categoryAssignment, setCategoryAssignment] = useState<"TOP" | "MIDDLE" | "BOTTOM">("TOP");
+    const [selectedCategory, setSelectedCategory] = useState<string>("");
     const [videoUrl, setVideoUrl] = useState("");
     const [price, setPrice] = useState<number | "">("");
     const [vatPercentage, setVatPercentage] = useState<number | "">("");
@@ -112,22 +113,13 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     const [outsideDhakaPrice, setOutsideDhakaPrice] = useState<number | "">(150);
     const [subcityDhakaPrice, setSubcityDhakaPrice] = useState<number | "">(100);
 
-    /* ─── Dynamic Layout Labels ─── */
-    const [uiLabels, setUiLabels] = useState({
-        TOP: "Trending Now",
-        MIDDLE: "Seasonal Essentials",
-        BOTTOM: "Clearance & Steals"
-    });
+    /* ─── Dynamic Categories ─── */
+    const [availableCategories, setAvailableCategories] = useState<CategoryData[]>([]);
 
     useEffect(() => {
-        getUiData().then(res => {
-            if (res?.data?.[0]?.categoryLabels) {
-                const labels = res.data[0].categoryLabels;
-                setUiLabels({
-                    TOP: labels.topCategoryLabel || "Trending Now",
-                    MIDDLE: labels.middleCategoryLabel || "Seasonal Essentials",
-                    BOTTOM: labels.bottomCategoryLabel || "Clearance & Steals"
-                });
+        categoryService.getCategories().then(res => {
+            if (res.success && res.data) {
+                setAvailableCategories(res.data);
             }
         }).catch(console.error);
     }, []);
@@ -139,6 +131,11 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             setSlug(initialData.slug || "");
             setProductId(initialData.productId || "");
             setCategoryAssignment(initialData.categoryAssignment || "TOP");
+            // Set the selected category from the populated category object
+            const cat = initialData.category as any;
+            if (cat) {
+                setSelectedCategory(typeof cat === "string" ? cat : cat._id || "");
+            }
             setVideoUrl(initialData.videoUrl || "");
             setPrice(initialData.base_price ?? initialData.price ?? "");
             setVatPercentage(initialData.vatPercentage ?? "");
@@ -298,6 +295,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             slug: slug.trim(),
             productId: productId.trim(),
             categoryAssignment,
+            category: selectedCategory || null,
             videoUrl: videoUrl.trim() || undefined,
             price: price as number,
             vatPercentage: vatPercentage !== "" ? Number(vatPercentage) : 0,
@@ -378,13 +376,16 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="categoryAssignment" className="text-foreground/80">Layout Category Tier</Label>
-                                <select id="categoryAssignment" value={categoryAssignment} onChange={(e) => setCategoryAssignment(e.target.value as any)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-                                    <option value="TOP">{uiLabels.TOP}</option>
-                                    <option value="MIDDLE">{uiLabels.MIDDLE}</option>
-                                    <option value="BOTTOM">{uiLabels.BOTTOM}</option>
+                                <Label htmlFor="categorySelect" className="text-foreground/80">Product Category</Label>
+                                <select id="categorySelect" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                                    <option value="">Select a category...</option>
+                                    {availableCategories.map((cat) => (
+                                        <option key={cat._id} value={cat._id}>
+                                            {cat.name}{!cat.isActive ? " (Inactive)" : ""}
+                                        </option>
+                                    ))}
                                 </select>
-                                <p className="text-[11px] text-muted-foreground">Assign this product to a category tier for dynamic sections in the storefront.</p>
+                                <p className="text-[11px] text-muted-foreground">Assign this product to a storefront category. Categories are managed by the Super Admin.</p>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="videoUrl" className="text-foreground/80">

@@ -3,6 +3,7 @@ import app from './app.js';
 import config from './config/index.js';
 import { seedAdmin } from './script/seedAdmin.js';
 import { seedUi } from './script/seedUi.js';
+import { seedCategories } from './script/seedCategories.js';
 
 
 async function main() {
@@ -16,6 +17,7 @@ async function main() {
 
         await seedAdmin();
         await seedUi();
+        await seedCategories();
 
         app.listen(config.port, () => {
             console.log(`Server is listening on port http://localhost:${config.port}`);

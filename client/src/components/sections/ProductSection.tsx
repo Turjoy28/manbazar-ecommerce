@@ -147,12 +147,18 @@ export default function ProductSection({
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 md:gap-8">
-        {displayedProducts?.map((product) => (
-          <ProductCard key={product._id} product={product} />
-        ))}
-      </div>
+      {/* Grid or Empty State */}
+      {displayedProducts && displayedProducts.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 md:gap-8">
+          {displayedProducts.map((product) => (
+            <ProductCard key={product._id} product={product} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500 bg-gray-50 rounded-xl border border-gray-100">
+          <p className="text-sm md:text-base">এই ক্যাটাগরিতে এখনও কোনো প্রোডাক্ট যোগ করা হয়নি।</p>
+        </div>
+      )}
 
       {/* See More Button */}
       {!showAllImmediately && (isCategorySection || (products && products.length > 8)) && (
