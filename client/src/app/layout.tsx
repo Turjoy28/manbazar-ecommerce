@@ -6,8 +6,11 @@ import { Toaster } from "sonner";
 import FloatingCartButton from "@/components/shared/FloatingCartButton";
 import FloatingChatbot from "@/components/shared/FloatingChatbot";
 import { getUiData } from "@/services/ui";
+import { getCategories } from "@/services/category";
 import Navbar from "@/components/shared/Navbar";
 import MobileBottomNav from "@/components/shared/MobileBottomNav";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const uiData = await getUiData();
@@ -34,7 +37,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
 
-  const uiData = await getUiData();
+  const [uiData, categoriesData] = await Promise.all([
+    getUiData().catch(() => null),
+    getCategories().catch(() => ({ success: false, data: [] })),
+  ]);
+
   const banner = uiData?.data?.[0]?.banner || {
     logo: "Manbazar",
     title: "প্রিমিয়াম কোয়ালিটির টি-শার্ট কালেকশন",
@@ -46,13 +53,22 @@ export default async function RootLayout({
   const uiRecord = uiData?.data?.[0];
   const theme = uiRecord?.theme;
 
-  // Extract category labels for bottom nav
+  // Extract active categories dynamically
+  const activeCategories = categoriesData?.data || [];
   const categoryLabels = uiRecord?.categoryLabels;
-  const navCategories = [
-    { label: categoryLabels?.topCategoryLabel || "Trending Now", id: "TOP" },
-    { label: categoryLabels?.middleCategoryLabel || "Seasonal Essentials", id: "MIDDLE" },
-    { label: categoryLabels?.bottomCategoryLabel || "Clearance & Steals", id: "BOTTOM" },
-  ];
+
+  const navCategories = activeCategories.length > 0
+    ? activeCategories
+        .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
+        .map((cat: any) => ({
+          label: cat.name,
+          id: cat.slug || cat._id,
+        }))
+    : [
+        { label: categoryLabels?.topCategoryLabel || "Trending Now", id: "TOP" },
+        { label: categoryLabels?.middleCategoryLabel || "Seasonal Essentials", id: "MIDDLE" },
+        { label: categoryLabels?.bottomCategoryLabel || "Clearance & Steals", id: "BOTTOM" },
+      ];
 
   const primaryColor = theme?.primaryColor || "#e07b39";
   const secondaryColor = theme?.secondaryColor || "#111827";

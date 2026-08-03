@@ -11,6 +11,8 @@ import PromotionalBanners from "@/components/sections/PromotionalBanners";
 import Footer from "@/components/shared/Footert";
 import { Product } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 const DEFAULT_UI_DATA = {
   banner: {
     logo: "Manbazar",

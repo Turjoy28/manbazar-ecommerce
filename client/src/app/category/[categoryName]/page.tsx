@@ -7,6 +7,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Product } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 const DEFAULT_UI_DATA = {
   banner: {
     logo: "Manbazar",
