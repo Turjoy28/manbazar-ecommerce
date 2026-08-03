@@ -8,7 +8,7 @@ import { ShoppingCart } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, isSmall = false }: { product: Product; isSmall?: boolean }) {
 
   const { addToCart, cartItems } = useContext(OrderContext);
 
@@ -40,11 +40,11 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="flex flex-col bg-white overflow-hidden shadow-sm border border-gray-150 hover:shadow-md transition-all duration-300 h-full">
       <Link
         href={`/product/${product.slug}`}
-        className="p-3 pb-0 transition-all hover:opacity-95"
+        className={`pb-0 transition-all hover:opacity-95 ${isSmall ? 'p-2' : 'p-3'}`}
       >
         <div className="relative w-full aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden">
           {product.is_on_sale && (
-            <div className="absolute top-2.5 left-2.5 bg-red-500 text-white text-[10px] md:text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-md z-10 uppercase tracking-wide">
+            <div className={`absolute bg-red-500 text-white font-extrabold rounded-lg shadow-md z-10 uppercase tracking-wide ${isSmall ? 'top-1.5 left-1.5 text-[8px] px-1.5 py-0.5' : 'top-2.5 left-2.5 text-[10px] md:text-xs px-2.5 py-1'}`}>
               {product.offerType === "PERCENTAGE" && product.offerValue ? (
                 `${product.offerValue}% OFF`
               ) : product.offerType === "DIRECT" && product.offerValue ? (
@@ -67,24 +67,24 @@ export function ProductCard({ product }: { product: Product }) {
       </Link>
 
       {/* Product Name & Price */}
-      <div className="flex flex-col items-center px-3 py-2 mt-auto text-center">
-        <h3 className="text-xs md:text-sm font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem] flex items-center justify-center px-1">
+      <div className={`flex flex-col items-center mt-auto text-center ${isSmall ? 'px-2 py-1' : 'px-3 py-2'}`}>
+        <h3 className={`font-semibold text-gray-800 line-clamp-2 flex items-center justify-center px-1 ${isSmall ? 'text-[10px] md:text-xs min-h-[2rem]' : 'text-xs md:text-sm min-h-[2.5rem]'}`}>
           {product.name}
         </h3>
-        <div className="flex gap-2 items-center justify-center mt-1">
-          <span className="text-sm md:text-base font-bold text-gray-900">৳{product.price}</span>
+        <div className="flex gap-1.5 items-center justify-center mt-1">
+          <span className={`font-bold text-gray-900 ${isSmall ? 'text-xs md:text-sm' : 'text-sm md:text-base'}`}>৳{product.price}</span>
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-xs text-red-500 line-through">৳{product.originalPrice}</span>
+            <span className={`text-red-500 line-through ${isSmall ? 'text-[9px] md:text-[10px]' : 'text-xs'}`}>৳{product.originalPrice}</span>
           )}
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-1.5 md:gap-2 items-center w-full p-2 md:p-3 pt-1 md:pt-2 mt-auto">
+      <div className={`flex gap-1 md:gap-1.5 items-center w-full mt-auto ${isSmall ? 'p-1.5 md:p-2 pt-0.5 md:pt-1' : 'p-2 md:p-3 pt-1 md:pt-2'}`}>
         {isOutOfStock ? (
           <Button
             disabled
-            className="w-full font-semibold h-7 md:h-11 bg-gray-300 text-gray-500 text-[8px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-nowrap overflow-hidden leading-tight cursor-not-allowed px-1"
+            className={`w-full font-semibold bg-gray-300 text-gray-500 rounded-none text-center justify-center items-center flex whitespace-nowrap overflow-hidden leading-tight cursor-not-allowed px-1 ${isSmall ? 'h-6 md:h-8 text-[7px] md:text-[10px]' : 'h-7 md:h-11 text-[8px] sm:text-xs md:text-sm'}`}
           >
             স্টক শেষ
           </Button>
@@ -92,12 +92,12 @@ export function ProductCard({ product }: { product: Product }) {
           <>
             <Button
               onClick={handleAddToCart}
-              className="w-1/2 cursor-pointer font-semibold h-7 md:h-11 bg-secondary text-(--secondary-text) hover:bg-secondary/80 text-[8px] sm:text-xs md:text-sm rounded-none text-center justify-center items-center flex whitespace-nowrap overflow-hidden leading-tight px-1"
+              className={`w-1/2 cursor-pointer font-semibold bg-secondary text-(--secondary-text) hover:bg-secondary/80 rounded-none text-center justify-center items-center flex whitespace-nowrap overflow-hidden leading-tight px-1 ${isSmall ? 'h-6 md:h-8 text-[7px] md:text-[10px]' : 'h-7 md:h-11 text-[8px] sm:text-xs md:text-sm'}`}
             >
               কার্টে যোগ করুন
             </Button>
             <a href="/#billing" onClick={handleAddToCart} className="w-1/2">
-              <Button className="font-semibold bg-primary text-(--primary-text) text-[8px] sm:text-xs md:text-sm transition-all duration-200 cursor-pointer w-full h-7 md:h-11 text-center justify-center items-center flex rounded-none whitespace-nowrap overflow-hidden leading-tight px-1 hover:bg-primary/90 animate-cta-bounce">
+              <Button className={`font-semibold bg-primary text-(--primary-text) transition-all duration-200 cursor-pointer w-full text-center justify-center items-center flex rounded-none whitespace-nowrap overflow-hidden leading-tight px-1 hover:bg-primary/90 animate-cta-bounce ${isSmall ? 'h-6 md:h-8 text-[7px] md:text-[10px]' : 'h-7 md:h-11 text-[8px] sm:text-xs md:text-sm'}`}>
                 এখনই অর্ডার করুন
               </Button>
             </a>

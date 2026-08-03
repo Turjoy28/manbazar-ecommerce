@@ -24,14 +24,14 @@ export default function HeroSection({ banner }: { banner: any }) {
         <Logo logo={banner.logo} />
 
         {/* Hero title */}
-        <h1 className="text-white text-xl md:text-4xl lg:text-5xl font-bold leading-snug max-w-5xl mb-4 md:mb-8 font-sans drop-shadow-sm">
+        <h1 className="text-white text-[10px] sm:text-base md:text-4xl lg:text-5xl font-bold leading-snug max-w-[85%] md:max-w-5xl mb-1.5 md:mb-8 font-sans drop-shadow-sm">
           {banner.title}
         </h1>
 
         {/* CTA button */}
         <a
           href={targetHref}
-          className="bg-primary text-(--primary-text) hover:bg-primary/90 font-semibold px-5 py-2 md:px-8 md:py-3 rounded-sm transition-all duration-200 text-xs md:text-lg cursor-pointer animate-cta-bounce"
+          className="bg-primary text-(--primary-text) hover:bg-primary/90 font-semibold px-2.5 py-1 md:px-8 md:py-3 rounded-sm transition-all duration-200 text-[9px] md:text-lg cursor-pointer animate-cta-bounce"
         >
           অর্ডার করতে চাই
         </a>

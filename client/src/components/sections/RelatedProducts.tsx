@@ -81,11 +81,11 @@ export default function RelatedProducts({
     return (
       <div className="mt-8 md:mt-12 py-6 border-t border-gray-100 animate-pulse">
         <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
-        <div className="flex gap-4 overflow-hidden">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4 overflow-hidden">
+          {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="w-[165px] sm:w-[200px] md:w-[240px] h-72 bg-gray-100 rounded-xl shrink-0"
+              className="w-full sm:w-[calc((100%-32px)/3)] md:w-[calc((100%-64px)/5)] h-72 bg-gray-100 rounded-xl shrink-0"
             />
           ))}
         </div>
@@ -120,8 +120,8 @@ export default function RelatedProducts({
           </div>
         </div>
 
-        {/* Scroll Arrows */}
-        <div className="flex items-center gap-1.5 md:gap-2">
+        {/* Scroll Arrows - Hidden on mobile view as it displays vertically in a grid */}
+        <div className="hidden sm:flex items-center gap-1.5 md:gap-2">
           <button
             onClick={() => scroll("left")}
             className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-gray-200 bg-white hover:bg-primary hover:text-(--primary-text) hover:border-primary flex items-center justify-center transition-all duration-200 shadow-xs cursor-pointer text-gray-600 active:scale-95"
@@ -139,17 +139,17 @@ export default function RelatedProducts({
         </div>
       </div>
 
-      {/* Horizontally Scrollable Container */}
+      {/* Grid on mobile (vertically wrapping), horizontally scrollable carousel on tablet/desktop */}
       <div
         ref={scrollRef}
-        className="flex gap-3 md:gap-5 overflow-x-auto pb-4 pt-1 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="grid grid-cols-2 gap-3 sm:flex sm:gap-4 sm:overflow-x-auto pb-4 pt-1 sm:scroll-smooth sm:snap-x sm:snap-mandatory sm:[-ms-overflow-style:none] sm:[scrollbar-width:none] sm:[&::-webkit-scrollbar]:hidden"
       >
         {relatedProducts.map((p) => (
           <div
             key={p._id}
-            className="w-[165px] sm:w-[200px] md:w-[240px] shrink-0 snap-start"
+            className="w-full sm:w-[calc((100%-32px)/3)] md:w-[calc((100%-64px)/5)] shrink-0 sm:shrink-0 snap-start"
           >
-            <ProductCard product={p} />
+            <ProductCard product={p} isSmall={true} />
           </div>
         ))}
       </div>
