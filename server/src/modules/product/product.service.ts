@@ -48,8 +48,8 @@ const createProduct = async (payload: Record<string, unknown>) => {
 const getAllProducts = async (page = 1, limit = 50) => {
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
-        Product.find({ isActive: true }).populate("category", "name slug isActive sortOrder").skip(skip).limit(limit).sort({ createdAt: -1 }),
-        Product.countDocuments({ isActive: true }),
+        Product.find({ isActive: { $ne: false } }).populate("category", "name slug isActive sortOrder").skip(skip).limit(limit).sort({ createdAt: -1 }),
+        Product.countDocuments({ isActive: { $ne: false } }),
     ]);
     return { products, total, page, limit, pages: Math.ceil(total / limit) };
 };
@@ -66,7 +66,7 @@ const getAllProductsAdmin = async (page = 1, limit = 50) => {
 
 /** Get a single product by slug (public) */
 const getProductBySlug = async (slug: string) => {
-    return Product.findOne({ slug, isActive: true }).populate("category", "name slug isActive sortOrder");
+    return Product.findOne({ slug, isActive: { $ne: false } }).populate("category", "name slug isActive sortOrder");
 };
 
 /** Get a single product by ID (admin) */

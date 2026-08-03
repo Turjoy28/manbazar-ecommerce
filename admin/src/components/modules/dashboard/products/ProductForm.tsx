@@ -169,7 +169,9 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
         setName(val);
         const slugified = val
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/[^\p{L}\p{N}\s-]/gu, "")
+            .replace(/[\s_]+/g, "-")
+            .replace(/-+/g, "-")
             .replace(/(^-|-$)+/g, "");
         setSlug(slugified);
         // SKU only auto-generates for new products — stays fixed once created

@@ -16,6 +16,9 @@ const getAllProducts = async (req: Request, res: Response, next: NextFunction) =
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit) || 50;
         const result = await productService.getAllProducts(page, limit);
+        console.log("=== SERVER RETRIEVED PRODUCTS ===");
+        console.log(JSON.stringify(result.products, null, 2));
+        console.log("=================================");
         sendResponse(res, { statusCode: 200, success: true, message: "Products fetched successfully", data: result });
     } catch (error) { next(error); }
 };

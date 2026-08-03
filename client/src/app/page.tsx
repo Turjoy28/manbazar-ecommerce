@@ -113,6 +113,9 @@ export default async function Home() {
   const { banner, chart, productsCaption, specialty, footer, theme, cta, chatbot } = uiRecord;
 
   const products: Product[] = productsData?.data?.products || [];
+  console.log("=== CLIENT RETRIEVED PRODUCTS ===");
+  console.log(JSON.stringify(products, null, 2));
+  console.log("=================================");
   const banners = bannersData?.data || [];
   const activeCategories: ClientCategory[] = categoriesData?.data || [];
 

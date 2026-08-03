@@ -5,7 +5,7 @@ const generateSlug = (name: string): string => {
     return name
         .toLowerCase()
         .trim()
-        .replace(/[^\w\s-]/g, "")
+        .replace(/[^\p{L}\p{N}\s-]/gu, "")
         .replace(/[\s_]+/g, "-")
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "");
@@ -13,7 +13,7 @@ const generateSlug = (name: string): string => {
 
 /** Get all active categories (public — for client storefront) */
 const getActiveCategories = async () => {
-    return Category.find({ isActive: true }).sort({ sortOrder: 1, createdAt: 1 });
+    return Category.find({ isActive: { $ne: false } }).sort({ sortOrder: 1, createdAt: 1 });
 };
 
 /** Get all categories including inactive (admin only) */
@@ -28,7 +28,7 @@ const getCategoryById = async (id: string) => {
 
 /** Get a single category by slug */
 const getCategoryBySlug = async (slug: string) => {
-    return Category.findOne({ slug, isActive: true });
+    return Category.findOne({ slug, isActive: { $ne: false } });
 };
 
 /** Create a new category */
