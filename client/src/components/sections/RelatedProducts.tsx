@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Product } from "@/types";
 import { getProducts } from "@/services/product";
+import { getCategories } from "@/services/category";
 import { ProductCard } from "@/components/sections/ProductSection";
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
@@ -16,43 +17,35 @@ export default function RelatedProducts({
   subtitle?: string;
 }) {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
 
-    getProducts(1, 100)
-      .then((res) => {
+    Promise.all([
+      getProducts(1, 100),
+      getCategories().catch(() => ({ success: false, data: [] }))
+    ])
+      .then(([productsRes, categoriesRes]) => {
         if (!isMounted) return;
-        const allProducts = res?.data?.products || [];
+        const allProducts = productsRes?.data?.products || [];
 
-        // Exclude the current product
+        // Exclude the current product and fetch all
         const otherProducts = allProducts.filter(
           (p) => p._id !== currentProduct._id
         );
 
-        const getCategoryStr = (cat: any) => {
-          if (!cat) return "";
-          if (typeof cat === "string") return cat;
-          return cat.name || cat._id || "";
-        };
+        setRelatedProducts(otherProducts);
 
-        // Filter products belonging to the same category
-        const sameCategory = otherProducts.filter(
-          (p) =>
-            p.category &&
-            currentProduct.category &&
-            getCategoryStr(p.category).trim().toLowerCase() === getCategoryStr(currentProduct.category).trim().toLowerCase()
-        );
-
-        // Use category products if available; otherwise fallback to other products so the section is never empty
-        const finalProducts = sameCategory.length > 0 ? sameCategory : otherProducts;
-        setRelatedProducts(finalProducts);
+        const activeCategories = categoriesRes?.data || [];
+        setCategories(activeCategories);
       })
       .catch((err) => {
-        console.error("Failed to fetch related products:", err);
+        console.error("Failed to fetch related products or categories:", err);
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -61,7 +54,58 @@ export default function RelatedProducts({
     return () => {
       isMounted = false;
     };
-  }, [currentProduct._id, currentProduct.category]);
+  }, [currentProduct._id]);
+
+  const getCategoryName = () => {
+    if (!currentProduct.category) return "";
+
+    // If it's already an object, return its name
+    if (typeof currentProduct.category === "object" && (currentProduct.category as any).name) {
+      return (currentProduct.category as any).name;
+    }
+
+    // If it's a string ID, find it in our categories list
+    const categoryId = typeof currentProduct.category === "string" 
+      ? currentProduct.category 
+      : (currentProduct.category as any)._id;
+
+    if (categoryId) {
+      const match = categories.find(c => c._id === categoryId || c.slug === categoryId);
+      if (match) return match.name;
+    }
+
+    return "";
+  };
+
+  // Auto scroll every 4 seconds in desktop view
+  useEffect(() => {
+    if (relatedProducts.length <= 5 || isHovered) return;
+
+    const interval = setInterval(() => {
+      if (window.innerWidth < 768) return;
+
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 15;
+
+        if (isAtEnd) {
+          scrollRef.current.scrollTo({
+            left: 0,
+            behavior: "smooth",
+          });
+        } else {
+          // Scroll by roughly 1 card width
+          const cardWidth = clientWidth / 5;
+          scrollRef.current.scrollTo({
+            left: scrollLeft + cardWidth,
+            behavior: "smooth",
+          });
+        }
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [relatedProducts, isHovered]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -106,11 +150,9 @@ export default function RelatedProducts({
           <div>
             <h2 className="text-base md:text-2xl font-bold text-gray-900 leading-tight flex items-center gap-1.5 md:gap-2">
               <span>{title}</span>
-              {currentProduct.category && (
+              {getCategoryName() && (
                 <span className="text-xs md:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
-                  {typeof currentProduct.category === "string" 
-                    ? currentProduct.category 
-                    : (currentProduct.category as any).name}
+                  {getCategoryName()}
                 </span>
               )}
             </h2>
@@ -142,6 +184,8 @@ export default function RelatedProducts({
       {/* Grid on mobile (vertically wrapping), horizontally scrollable carousel on tablet/desktop */}
       <div
         ref={scrollRef}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         className="grid grid-cols-2 gap-3 sm:flex sm:gap-4 sm:overflow-x-auto pb-4 pt-1 sm:scroll-smooth sm:snap-x sm:snap-mandatory sm:[-ms-overflow-style:none] sm:[scrollbar-width:none] sm:[&::-webkit-scrollbar]:hidden"
       >
         {relatedProducts.map((p) => (
