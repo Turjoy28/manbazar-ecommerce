@@ -113,53 +113,28 @@ export default async function Home() {
   const { banner, chart, productsCaption, specialty, footer, theme, cta, chatbot } = uiRecord;
 
   const products: Product[] = productsData?.data?.products || [];
-  console.log("=== CLIENT RETRIEVED PRODUCTS ===");
-  console.log(JSON.stringify(products, null, 2));
-  console.log("=================================");
+
   const banners = bannersData?.data || [];
   const activeCategories: ClientCategory[] = categoriesData?.data || [];
 
   // ── Dynamic Category Grouping ──
   // Group products by their populated category reference.
-  // If categories exist from the API, use them. Otherwise, fall back to the old TOP/MIDDLE/BOTTOM system.
-  let categoriesToRender: { label: string; id: string; slug: string; products: Product[] }[] = [];
-
-  if (activeCategories.length > 0) {
-    // New dynamic category system — group products by category._id
-    categoriesToRender = activeCategories
-      .sort((a, b) => a.sortOrder - b.sortOrder)
-      .map((cat) => {
-        const catProducts = products.filter((p: Product) => {
-          const productCat = p.category;
-          if (!productCat) return false;
-          const catId = typeof productCat === "string" ? productCat : productCat._id;
-          return catId === cat._id;
-        });
-        return {
-          label: cat.name,
-          id: cat._id,
-          slug: cat.slug,
-          products: catProducts.slice(0, 4),
-        };
+  const categoriesToRender = activeCategories
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((cat) => {
+      const catProducts = products.filter((p: Product) => {
+        const productCat = p.category;
+        if (!productCat) return false;
+        const catId = typeof productCat === "string" ? productCat : productCat._id;
+        return catId === cat._id;
       });
-  } else {
-    // Fallback: old hardcoded TOP/MIDDLE/BOTTOM system for backward compatibility
-    const uiLabels = uiRecord?.categoryLabels || {
-      topCategoryLabel: "Trending Now",
-      middleCategoryLabel: "Seasonal Essentials",
-      bottomCategoryLabel: "Clearance & Steals",
-    };
-
-    const topProducts = products.filter((p: Product) => p.categoryAssignment === "TOP" || !p.categoryAssignment);
-    const middleProducts = products.filter((p: Product) => p.categoryAssignment === "MIDDLE");
-    const bottomProducts = products.filter((p: Product) => p.categoryAssignment === "BOTTOM");
-
-    categoriesToRender = [
-      { label: uiLabels.topCategoryLabel, id: "TOP", slug: "TOP", products: topProducts.slice(0, 4) },
-      { label: uiLabels.middleCategoryLabel, id: "MIDDLE", slug: "MIDDLE", products: middleProducts.slice(0, 4) },
-      { label: uiLabels.bottomCategoryLabel, id: "BOTTOM", slug: "BOTTOM", products: bottomProducts.slice(0, 4) },
-    ].filter((cat) => cat.products.length > 0);
-  }
+      return {
+        label: cat.name,
+        id: cat._id,
+        slug: cat.slug,
+        products: catProducts.slice(0, 4),
+      };
+    });
 
   return (
     <main className="bg-white min-h-screen font-sans">

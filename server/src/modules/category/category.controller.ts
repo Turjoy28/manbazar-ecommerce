@@ -88,6 +88,23 @@ const deleteCategory = async (req: Request, res: Response, next: NextFunction) =
     } catch (error) { next(error); }
 };
 
+/** GET /categories/tree — Public: Get hierarchical category tree */
+const getCategoryTree = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const activeOnly = req.query.active !== "false";
+        const result = await categoryService.getCategoryTree(activeOnly);
+        sendResponse(res, { statusCode: 200, success: true, message: "Category tree fetched successfully", data: result });
+    } catch (error) { next(error); }
+};
+
+/** GET /categories/:id/descendants — Get all descendant category IDs (inclusive) */
+const getDescendantIds = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await categoryService.getDescendantIds(req.params.id as string);
+        sendResponse(res, { statusCode: 200, success: true, message: "Descendant IDs fetched successfully", data: result });
+    } catch (error) { next(error); }
+};
+
 export const categoryController = {
     getActiveCategories,
     getAllCategories,
@@ -98,4 +115,6 @@ export const categoryController = {
     toggleCategory,
     reorderCategories,
     deleteCategory,
+    getCategoryTree,
+    getDescendantIds,
 };

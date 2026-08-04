@@ -40,12 +40,12 @@ export default async function CategoryPage({ params }: PageProps) {
   ]);
 
   const uiRecord = uiData?.data?.[0] || DEFAULT_UI_DATA;
-  const { banner, footer, chatbot, categoryLabels } = uiRecord;
+  const { banner, footer, chatbot } = uiRecord;
   const activeCategories = categoriesData?.data || [];
   const allProducts: Product[] = productsData?.data?.products || [];
 
-  // Try to find matching category from the new dynamic system
-  // The categoryName param could be a slug, an _id, or the old TOP/MIDDLE/BOTTOM identifiers
+  // Try to find matching category from the dynamic system
+  // The categoryName param could be a slug or an _id
   const matchedCategory = activeCategories.find(
     (cat) => cat.slug === categoryName || cat._id === categoryName
   );
@@ -54,7 +54,7 @@ export default async function CategoryPage({ params }: PageProps) {
   let filteredProducts: Product[] = [];
 
   if (matchedCategory) {
-    // New dynamic category system — filter by category._id
+    // Dynamic category system — filter by category._id
     displayTitle = matchedCategory.name;
     filteredProducts = allProducts.filter((p: Product) => {
       const productCat = p.category;
@@ -63,19 +63,9 @@ export default async function CategoryPage({ params }: PageProps) {
       return catId === matchedCategory._id;
     });
   } else {
-    // Fallback: old TOP/MIDDLE/BOTTOM system
-    if (categoryName === "TOP" && categoryLabels?.topCategoryLabel) displayTitle = categoryLabels.topCategoryLabel;
-    if (categoryName === "MIDDLE" && categoryLabels?.middleCategoryLabel) displayTitle = categoryLabels.middleCategoryLabel;
-    if (categoryName === "BOTTOM" && categoryLabels?.bottomCategoryLabel) displayTitle = categoryLabels.bottomCategoryLabel;
-
-    filteredProducts = allProducts.filter((p: Product) => {
-      if (["TOP", "MIDDLE", "BOTTOM"].includes(categoryName)) {
-        if (categoryName === "TOP" && !p.categoryAssignment) return true;
-        return p.categoryAssignment === categoryName;
-      }
-      // Fallback for old free-text categories
-      return ((p as any).category || "").toString().trim().toLowerCase() === categoryName.toLowerCase();
-    });
+    // No matching category found — show empty or all
+    displayTitle = categoryName;
+    filteredProducts = [];
   }
 
   return (

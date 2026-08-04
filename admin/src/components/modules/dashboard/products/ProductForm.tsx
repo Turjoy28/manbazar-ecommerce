@@ -74,7 +74,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
     const [productId, setProductId] = useState("");
-    const [categoryAssignment, setCategoryAssignment] = useState<"TOP" | "MIDDLE" | "BOTTOM">("TOP");
+
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const [videoUrl, setVideoUrl] = useState("");
     const [price, setPrice] = useState<number | "">("");
@@ -130,7 +130,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             setName(initialData.name || "");
             setSlug(initialData.slug || "");
             setProductId(initialData.productId || "");
-            setCategoryAssignment(initialData.categoryAssignment || "TOP");
+
             // Set the selected category from the populated category object
             const cat = initialData.category as any;
             if (cat) {
@@ -296,7 +296,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
             name: name.trim(),
             slug: slug.trim(),
             productId: productId.trim(),
-            categoryAssignment,
+
             category: selectedCategory || null,
             videoUrl: videoUrl.trim() || undefined,
             price: price as number,

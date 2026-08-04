@@ -10,6 +10,9 @@ const router = Router();
 /** GET all active categories (for client storefront) */
 router.get("/", categoryController.getActiveCategories);
 
+/** GET hierarchical category tree (for menus) */
+router.get("/tree", categoryController.getCategoryTree);
+
 /** GET category by slug (for client category page) */
 router.get("/slug/:slug", categoryController.getCategoryBySlug);
 
@@ -22,6 +25,7 @@ router.get("/force-seed", async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 });
+
 router.get("/admin/all", authenticate, authorize("ADMIN"), categoryController.getAllCategories);
 
 /** POST create a new category */
@@ -38,6 +42,9 @@ router.patch("/:id", authenticate, authorize("ADMIN"), categoryController.update
 
 /** DELETE category */
 router.delete("/:id", authenticate, authorize("ADMIN"), categoryController.deleteCategory);
+
+/** GET descendant category IDs (for inclusive product queries) */
+router.get("/:id/descendants", categoryController.getDescendantIds);
 
 /** GET category by ID (admin) */
 router.get("/:id", authenticate, authorize("ADMIN"), categoryController.getCategoryById);

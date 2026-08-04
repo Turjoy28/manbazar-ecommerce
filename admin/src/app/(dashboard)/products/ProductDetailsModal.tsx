@@ -197,8 +197,12 @@ export function ProductDetailsModal({
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Category Block:</span>
-                    <span className="font-medium capitalize">{product.categoryAssignment?.toLowerCase() || "None"}</span>
+                    <span className="text-muted-foreground">Category:</span>
+                    <span className="font-medium capitalize">{
+                      product.category && typeof product.category === "object" && (product.category as any).name
+                        ? (product.category as any).name
+                        : "None"
+                    }</span>
                   </div>
                 </div>
               </div>

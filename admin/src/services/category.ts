@@ -6,6 +6,8 @@ export interface CategoryData {
     _id: string;
     name: string;
     slug: string;
+    /** Parent category reference for infinite hierarchy. null = root category. */
+    parent?: string | { _id: string; name: string; slug: string } | null;
     description: string;
     isActive: boolean;
     sortOrder: number;

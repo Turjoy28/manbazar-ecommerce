@@ -77,7 +77,10 @@ const getProductsCatalogXml = async (req: Request, res: Response, next: NextFunc
             xml += `            <id>${escapeXml(p.productId || p._id.toString())}</id>\n`;
             xml += `            <title>${escapeXml(p.name)}</title>\n`;
             xml += `            <brand>${escapeXml(BRAND)}</brand>\n`;
-            xml += `            <category>${escapeXml(p.categoryAssignment || "TOP")}</category>\n`;
+            const catName = (p.category && typeof p.category === "object" && (p.category as any).name)
+                ? (p.category as any).name
+                : (p.categoryAssignment || "Uncategorized");
+            xml += `            <category>${escapeXml(catName)}</category>\n`;
             xml += `            <description>${escapeXml(p.description || "")}</description>\n`;
             xml += `            <price>${p.base_price || p.price || 0}</price>\n`;
             if (p.is_on_sale && p.sale_price) {

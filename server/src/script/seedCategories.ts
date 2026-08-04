@@ -9,6 +9,13 @@ const ASSIGNMENT_MAP: Record<string, { defaultName: string; labelKey: string }> 
     BOTTOM: { defaultName: "Clearance & Steals", labelKey: "bottomCategoryLabel" },
 };
 
+/**
+ * Seeds initial categories from the old TOP/MIDDLE/BOTTOM system
+ * and links any unlinked products to the matching category.
+ * 
+ * This runs on server startup. It's safe to run multiple times
+ * (idempotent — checks for existing categories before creating).
+ */
 export async function seedCategories() {
     try {
         console.log("📦 Checking if old categories need migration...");
@@ -46,6 +53,7 @@ export async function seedCategories() {
                 category = await Category.create({
                     name,
                     slug,
+                    parent: null, // Root-level categories
                     isActive: true,
                     sortOrder: assignment === "TOP" ? 0 : assignment === "MIDDLE" ? 1 : 2,
                     description: `Auto-migrated from ${assignment} category tier.`,
@@ -56,30 +64,34 @@ export async function seedCategories() {
             categoryMap[assignment] = category._id as mongoose.Types.ObjectId;
         }
 
-        // 2. Update products to reference their new Category document
-        console.log("🔗 Linking products to categories...");
+        // 3. Update products that still have no category to reference their Category document
+        console.log("🔗 Linking unlinked products to categories...");
 
         for (const [assignment, categoryId] of Object.entries(categoryMap)) {
-            const filter: Record<string, any> = { category: null };
             if (assignment === "TOP") {
                 // Products with TOP or no assignment
-                filter.$or = [
-                    { categoryAssignment: "TOP" },
-                    { categoryAssignment: { $exists: false } },
-                    { categoryAssignment: null },
-                ];
-                delete filter.category; // Don't filter by category for the $or query
                 const result = await Product.updateMany(
-                    { $and: [{ category: null }, { $or: filter.$or }] },
+                    {
+                        category: null,
+                        $or: [
+                            { categoryAssignment: "TOP" },
+                            { categoryAssignment: { $exists: false } },
+                            { categoryAssignment: null },
+                        ],
+                    },
                     { $set: { category: categoryId } }
                 );
-                console.log(`  ✅ ${assignment}: Linked ${result.modifiedCount} products`);
+                if (result.modifiedCount > 0) {
+                    console.log(`  ✅ ${assignment}: Linked ${result.modifiedCount} products`);
+                }
             } else {
                 const result = await Product.updateMany(
                     { categoryAssignment: assignment, category: null },
                     { $set: { category: categoryId } }
                 );
-                console.log(`  ✅ ${assignment}: Linked ${result.modifiedCount} products`);
+                if (result.modifiedCount > 0) {
+                    console.log(`  ✅ ${assignment}: Linked ${result.modifiedCount} products`);
+                }
             }
         }
     } catch (error) {

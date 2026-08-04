@@ -14,6 +14,12 @@ const categorySchema = new mongoose.Schema(
             trim: true,
             lowercase: true,
         },
+        /** Self-referencing parent for infinite hierarchy. null = root category. */
+        parent: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Category",
+            default: null,
+        },
         description: {
             type: String,
             default: "",

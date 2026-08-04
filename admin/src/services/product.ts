@@ -56,7 +56,6 @@ export interface ProductData {
     quantity_on_hand: number;
     quantity_reserved?: number;
     isActive: boolean;
-    categoryAssignment?: "TOP" | "MIDDLE" | "BOTTOM";
     /** Reference to the Category document (populated or ObjectId string) */
     category?: string | { _id: string; name: string; slug: string; isActive: boolean; sortOrder: number } | null;
     /** Optional external video URL (YouTube, Instagram Reel, TikTok, etc.) */

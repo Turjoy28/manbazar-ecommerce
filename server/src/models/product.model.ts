@@ -122,6 +122,11 @@ const productSchema = new mongoose.Schema(
         quantity_on_hand: { type: Number, default: 0 },
         /** Stock reserved for pending orders. */
         quantity_reserved: { type: Number, default: 0 },
+        /**
+         * @deprecated Legacy field from the old flat category system.
+         * Use `category` (ObjectId ref to Category) instead.
+         * Kept temporarily for backward compatibility during migration.
+         */
         categoryAssignment: {
             type: String,
             enum: ['TOP', 'MIDDLE', 'BOTTOM'],
