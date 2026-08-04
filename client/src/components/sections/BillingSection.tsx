@@ -332,8 +332,10 @@ export default function BillingSection() {
 
   const handleRemoveItem = (item: CartItem) =>
     removeFromCart(item.product._id, item.size, item.color);
-  // Calculate dynamic delivery charge by summing the delivery charges of items in the cart
-  const deliveryCharge = cartItems.length === 0 ? 0 : Math.max(
+  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Calculate dynamic delivery charge by finding the max delivery charge among items
+  let deliveryCharge = cartItems.length === 0 ? 0 : Math.max(
     ...cartItems.map((item) => {
       const charges = item.product?.deliveryCharge || [];
       
@@ -354,6 +356,11 @@ export default function BillingSection() {
       return (match && typeof match.price === 'number') ? match.price : defaultCharge;
     })
   );
+
+  // Free delivery if more than 2 products are ordered
+  if (totalQuantity > 2) {
+    deliveryCharge = 0;
+  }
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item?.product?.price * item.quantity,
