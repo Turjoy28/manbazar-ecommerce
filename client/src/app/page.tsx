@@ -1,7 +1,8 @@
 import HeroSection from "@/components/sections/HeroSection";
 import ProductSection from "@/components/sections/ProductSection";
-
+import SpecialtySection from "@/components/sections/SpecialtySection";
 import CTABanner from "@/components/sections/CTABanner";
+import CategoryNavigation from "@/components/sections/CategoryNavigation";
 import BillingSection from "@/components/sections/BillingSection";
 import { getUiData } from "@/services/ui";
 import { getProducts } from "@/services/product";
@@ -142,6 +143,9 @@ export default async function Home() {
 
       {/* Promotional Offers Grid */}
       <PromotionalBanners banners={banners} />
+
+      {/* Category Navigation Row */}
+      <CategoryNavigation categories={activeCategories} />
 
       {/* 2. Products — Dynamic category sections */}
       <div id="products">

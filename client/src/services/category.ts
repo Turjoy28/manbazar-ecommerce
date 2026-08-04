@@ -7,6 +7,7 @@ export interface ClientCategory {
     /** Parent category reference for hierarchy. null = root category. */
     parent?: string | { _id: string; name: string; slug: string } | null;
     description: string;
+    image?: string;
     isActive: boolean;
     sortOrder: number;
 }

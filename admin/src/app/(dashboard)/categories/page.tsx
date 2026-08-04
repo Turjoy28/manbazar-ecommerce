@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { authService } from "@/services/auth";
 import { categoryService, CategoryData } from "@/services/category";
 import { productService, ProductData } from "@/services/product";
+import ImageUpload from "@/components/shared/imageUpload";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,15 +91,25 @@ function SortableCategoryItem({ category, index, productCount, isToggling, onTog
             </div>
 
             {/* Category Info */}
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className={`font-semibold truncate ${category.isActive ? "text-foreground" : "text-muted-foreground"}`}>
-                        {category.name}
-                    </h3>
-                    <Badge
-                        variant="outline"
-                        className={`text-[10px] px-1.5 py-0 ${
-                            category.isActive
+            <div className="flex-1 min-w-0 flex items-center gap-3">
+                {category.image ? (
+                    <div className="h-10 w-10 rounded overflow-hidden shrink-0 border border-border/50">
+                        <Image src={category.image} alt={category.name} width={40} height={40} className="h-full w-full object-cover" />
+                    </div>
+                ) : (
+                    <div className="h-10 w-10 rounded bg-muted/50 flex items-center justify-center shrink-0 border border-border/50">
+                        <Layers className="h-4 w-4 text-muted-foreground/50" />
+                    </div>
+                )}
+                <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className={`font-semibold truncate ${category.isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                            {category.name}
+                        </h3>
+                        <Badge
+                            variant="outline"
+                            className={`text-[10px] px-1.5 py-0 ${
+                                category.isActive
                                 ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
                                 : "bg-orange-500/10 text-orange-600 border-orange-500/20"
                         }`}
@@ -119,6 +131,7 @@ function SortableCategoryItem({ category, index, productCount, isToggling, onTog
                         Order: #{index + 1}
                     </span>
                 </div>
+            </div>
             </div>
 
             {/* Toggle Switch */}
@@ -176,12 +189,14 @@ export default function CategoriesPage() {
     const [showAddForm, setShowAddForm] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState("");
     const [newCategoryDescription, setNewCategoryDescription] = useState("");
+    const [newCategoryImage, setNewCategoryImage] = useState("");
     const [isCreating, setIsCreating] = useState(false);
 
     // Edit state
     const [editingCategory, setEditingCategory] = useState<CategoryData | null>(null);
     const [editName, setEditName] = useState("");
     const [editDescription, setEditDescription] = useState("");
+    const [editImage, setEditImage] = useState("");
     const [isUpdating, setIsUpdating] = useState(false);
 
     // Delete state
@@ -254,11 +269,13 @@ export default function CategoriesPage() {
             const res = await categoryService.createCategory({
                 name: newCategoryName.trim(),
                 description: newCategoryDescription.trim(),
+                image: newCategoryImage,
             });
             if (res.success) {
                 toast.success("Category created successfully!", { id: toastId });
                 setNewCategoryName("");
                 setNewCategoryDescription("");
+                setNewCategoryImage("");
                 setShowAddForm(false);
                 await fetchData();
             }
@@ -280,6 +297,7 @@ export default function CategoriesPage() {
             const res = await categoryService.updateCategory(editingCategory._id, {
                 name: editName.trim(),
                 description: editDescription.trim(),
+                image: editImage,
             });
             if (res.success) {
                 toast.success("Category updated successfully!", { id: toastId });
@@ -378,6 +396,7 @@ export default function CategoriesPage() {
         setEditingCategory(category);
         setEditName(category.name);
         setEditDescription(category.description || "");
+        setEditImage(category.image || "");
     };
 
     // Loading state
@@ -485,30 +504,42 @@ export default function CategoriesPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-4 items-end">
-                            <div className="flex-1 space-y-2">
-                                <Label htmlFor="new-category-name" className="font-semibold">Category Name *</Label>
-                                <Input
-                                    id="new-category-name"
-                                    value={newCategoryName}
-                                    onChange={(e) => setNewCategoryName(e.target.value)}
-                                    placeholder="e.g. Summer Collection"
-                                    className="h-11"
-                                    required
-                                    autoFocus
-                                />
+                        <form onSubmit={handleCreate} className="flex flex-col gap-4">
+                            <div className="flex flex-col sm:flex-row gap-4 items-start">
+                                <div className="flex-1 w-full space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="new-category-name" className="font-semibold">Category Name *</Label>
+                                        <Input
+                                            id="new-category-name"
+                                            value={newCategoryName}
+                                            onChange={(e) => setNewCategoryName(e.target.value)}
+                                            placeholder="e.g. Summer Collection"
+                                            className="h-11"
+                                            required
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="new-category-desc">Description (Optional)</Label>
+                                        <Input
+                                            id="new-category-desc"
+                                            value={newCategoryDescription}
+                                            onChange={(e) => setNewCategoryDescription(e.target.value)}
+                                            placeholder="Short description for this category"
+                                            className="h-11"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="w-full sm:w-[200px] shrink-0">
+                                    <Label className="font-semibold block mb-2">Category Image</Label>
+                                    <ImageUpload
+                                        onChange={(urls) => setNewCategoryImage(urls[0] || "")}
+                                        value={newCategoryImage ? [newCategoryImage] : []}
+                                        maxFiles={1}
+                                    />
+                                </div>
                             </div>
-                            <div className="flex-1 space-y-2">
-                                <Label htmlFor="new-category-desc">Description (Optional)</Label>
-                                <Input
-                                    id="new-category-desc"
-                                    value={newCategoryDescription}
-                                    onChange={(e) => setNewCategoryDescription(e.target.value)}
-                                    placeholder="Short description for this category"
-                                    className="h-11"
-                                />
-                            </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 justify-end mt-2">
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -654,6 +685,14 @@ export default function CategoriesPage() {
                                     onChange={(e) => setEditDescription(e.target.value)}
                                     placeholder="Short description"
                                     className="h-11"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="font-semibold">Category Image</Label>
+                                <ImageUpload
+                                    onChange={(urls) => setEditImage(urls[0] || "")}
+                                    value={editImage ? [editImage] : []}
+                                    maxFiles={1}
                                 />
                             </div>
                         </div>

@@ -9,6 +9,7 @@ export interface CategoryData {
     /** Parent category reference for infinite hierarchy. null = root category. */
     parent?: string | { _id: string; name: string; slug: string } | null;
     description: string;
+    image?: string;
     isActive: boolean;
     sortOrder: number;
     createdBy?: string;
