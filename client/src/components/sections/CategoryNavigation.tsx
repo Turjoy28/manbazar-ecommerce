@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Layers } from "lucide-react";
@@ -12,9 +12,16 @@ interface CategoryNavigationProps {
 
 export default function CategoryNavigation({ categories }: CategoryNavigationProps) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(false);
 
     // Only show categories that are active
     const activeCategories = categories.filter((c) => c.isActive);
+
+    // Trigger the expand-from-center animation on mount
+    useEffect(() => {
+        const timer = setTimeout(() => setIsVisible(true), 100);
+        return () => clearTimeout(timer);
+    }, []);
 
     if (activeCategories.length === 0) return null;
 
@@ -26,6 +33,14 @@ export default function CategoryNavigation({ categories }: CategoryNavigationPro
                 behavior: "smooth",
             });
         }
+    };
+
+    // Calculate delay for each item so they animate from center outward
+    const total = activeCategories.length;
+    const mid = Math.floor(total / 2);
+    const getDelay = (index: number) => {
+        const distFromCenter = Math.abs(index - mid);
+        return distFromCenter * 80; // ms per step from center
     };
 
     return (
@@ -43,17 +58,22 @@ export default function CategoryNavigation({ categories }: CategoryNavigationPro
                 {/* Categories Container */}
                 <div
                     ref={scrollContainerRef}
-                    className="flex overflow-x-auto gap-3 md:gap-8 pb-4 pt-2 px-2 scrollbar-hide snap-x"
+                    className="flex overflow-x-auto justify-center gap-3 md:gap-8 pb-4 pt-2 px-2 scrollbar-hide snap-x"
                     style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
-                    {activeCategories.map((category) => (
+                    {activeCategories.map((category, index) => (
                         <Link
                             key={category._id}
                             href={`/category/${category.slug}`}
-                            className="flex flex-col items-center gap-1 md:gap-3 group/cat shrink-0 snap-start w-[85px] md:w-auto"
+                            className="flex flex-col items-center gap-1 md:gap-2 group/cat shrink-0 snap-start w-[70px] md:w-auto transition-all duration-500 ease-out"
+                            style={{
+                                opacity: isVisible ? 1 : 0,
+                                transform: isVisible ? "scale(1) translateY(0)" : "scale(0.3) translateY(20px)",
+                                transitionDelay: `${getDelay(index)}ms`,
+                            }}
                         >
                             {/* Image Circle */}
-                            <div className="w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-gray-100 group-hover/cat:border-primary group-hover/cat:shadow-lg transition-all duration-300 relative bg-white flex items-center justify-center p-0 md:p-1">
+                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-gray-100 group-hover/cat:border-primary group-hover/cat:shadow-lg transition-all duration-300 relative bg-white flex items-center justify-center p-0">
                                 <div className="w-full h-full rounded-full overflow-hidden relative bg-gray-50">
                                     {category.image ? (
                                         <Image
@@ -61,7 +81,7 @@ export default function CategoryNavigation({ categories }: CategoryNavigationPro
                                             alt={category.name}
                                             fill
                                             className="object-cover group-hover/cat:scale-110 transition-transform duration-500"
-                                            sizes="(max-width: 768px) 64px, 96px"
+                                            sizes="(max-width: 768px) 48px, 64px"
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
