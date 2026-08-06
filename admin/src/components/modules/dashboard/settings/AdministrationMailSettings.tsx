@@ -70,60 +70,60 @@ export default function AdministrationMailSettings({ smtp, id }: AdministrationM
     };
 
     return (
-        <Card className="border-[#1e293b] bg-[#111827]/60 shadow-xl overflow-hidden h-full flex flex-col">
-            <CardHeader className="bg-gradient-to-r from-gray-900 to-[#111827] border-b border-[#1e293b] pb-4">
-                <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-lg bg-[#e07b39]/20 text-[#e07b39]">
+        <Card className="bg-white border-gray-200 shadow-sm overflow-hidden h-full flex flex-col">
+            <CardHeader className="bg-white border-b border-gray-100 pb-4">
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-orange-50 text-orange-600">
                         <Mail className="h-5 w-5" />
                     </div>
                     <div>
-                        <CardTitle className="text-lg font-bold text-white">Administration Mail</CardTitle>
-                        <CardDescription className="text-gray-400 text-xs mt-1">
+                        <CardTitle className="text-lg font-semibold text-gray-900">Administration Mail</CardTitle>
+                        <CardDescription className="text-gray-500 text-sm mt-0.5">
                             Configure SMTP to send OTPs from a specific email
                         </CardDescription>
                     </div>
                 </div>
             </CardHeader>
             <form onSubmit={handleUpdate} className="flex-1 flex flex-col">
-                <CardContent className="space-y-4 pt-6 flex-1">
-                    <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-5 pt-6 flex-1">
+                    <div className="grid grid-cols-2 gap-5">
                         <div className="space-y-2">
-                            <Label htmlFor="smtpHost" className="text-xs text-gray-300 font-medium">SMTP Host</Label>
+                            <Label htmlFor="smtpHost" className="text-sm text-gray-700 font-medium">SMTP Host</Label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Server className="h-4 w-4 text-gray-500" />
+                                    <Server className="h-4 w-4 text-gray-400" />
                                 </div>
                                 <Input
                                     id="smtpHost"
                                     placeholder="smtp.gmail.com"
                                     value={host}
                                     onChange={(e) => setHost(e.target.value)}
-                                    className="pl-9 bg-[#0b0f19]/50 border-[#1e293b] text-white focus:border-[#e07b39] h-10 text-sm"
+                                    className="pl-9 bg-white border-gray-300 text-gray-900 focus:border-orange-500 focus:ring-orange-500 h-11"
                                     required
                                 />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="smtpPort" className="text-xs text-gray-300 font-medium">SMTP Port</Label>
+                            <Label htmlFor="smtpPort" className="text-sm text-gray-700 font-medium">SMTP Port</Label>
                             <Input
                                 id="smtpPort"
                                 type="number"
                                 placeholder="587"
                                 value={port}
                                 onChange={(e) => setPort(e.target.value)}
-                                className="bg-[#0b0f19]/50 border-[#1e293b] text-white focus:border-[#e07b39] h-10 text-sm"
+                                className="bg-white border-gray-300 text-gray-900 focus:border-orange-500 focus:ring-orange-500 h-11"
                                 required
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="smtpUser" className="text-xs text-gray-300 font-medium flex items-center gap-2">
+                        <Label htmlFor="smtpUser" className="text-sm text-gray-700 font-medium flex items-center gap-2">
                             Email Address (User&apos;s Mail)
                         </Label>
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <User className="h-4 w-4 text-gray-500" />
+                                <User className="h-4 w-4 text-gray-400" />
                             </div>
                             <Input
                                 id="smtpUser"
@@ -131,18 +131,18 @@ export default function AdministrationMailSettings({ smtp, id }: AdministrationM
                                 placeholder="admin@menbazar.com"
                                 value={user}
                                 onChange={(e) => setUser(e.target.value)}
-                                className="pl-9 bg-[#0b0f19]/50 border-[#1e293b] text-white focus:border-[#e07b39] h-10 text-sm"
+                                className="pl-9 bg-white border-gray-300 text-gray-900 focus:border-orange-500 focus:ring-orange-500 h-11"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="smtpPass" className="text-xs text-gray-300 font-medium flex items-center justify-between">
+                        <Label htmlFor="smtpPass" className="text-sm text-gray-700 font-medium flex items-center justify-between">
                             <span>App Password (Admin&apos;s Mail)</span>
                         </Label>
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <KeyRound className="h-4 w-4 text-gray-500" />
+                                <KeyRound className="h-4 w-4 text-gray-400" />
                             </div>
                             <Input
                                 id="smtpPass"
@@ -150,47 +150,47 @@ export default function AdministrationMailSettings({ smtp, id }: AdministrationM
                                 placeholder="Enter app password"
                                 value={pass}
                                 onChange={(e) => setPass(e.target.value)}
-                                className="pl-9 bg-[#0b0f19]/50 border-[#1e293b] text-white focus:border-[#e07b39] h-10 text-sm"
+                                className="pl-9 bg-white border-gray-300 text-gray-900 focus:border-orange-500 focus:ring-orange-500 h-11"
                             />
                         </div>
-                        <p className="text-[10px] text-gray-500 mt-1">For Gmail, generate an App Password in your Google Account settings.</p>
+                        <p className="text-xs text-gray-500 mt-1.5">For Gmail, generate an App Password in your Google Account settings.</p>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="smtpFrom" className="text-xs text-gray-300 font-medium">Sender Name / Address (Optional)</Label>
+                        <Label htmlFor="smtpFrom" className="text-sm text-gray-700 font-medium">Sender Name / Address (Optional)</Label>
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Send className="h-4 w-4 text-gray-500" />
+                                <Send className="h-4 w-4 text-gray-400" />
                             </div>
                             <Input
                                 id="smtpFrom"
                                 placeholder="MenBazar <noreply@menbazar.com>"
                                 value={from}
                                 onChange={(e) => setFrom(e.target.value)}
-                                className="pl-9 bg-[#0b0f19]/50 border-[#1e293b] text-white focus:border-[#e07b39] h-10 text-sm"
+                                className="pl-9 bg-white border-gray-300 text-gray-900 focus:border-orange-500 focus:ring-orange-500 h-11"
                             />
                         </div>
                     </div>
 
                     {/* Divider */}
-                    <div className="border-t border-[#1e293b] pt-4 mt-2">
-                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                            <ShieldCheck className="h-3.5 w-3.5 text-[#e07b39]" />
+                    <div className="border-t border-gray-100 pt-5 mt-2">
+                        <p className="text-xs text-gray-600 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <ShieldCheck className="h-4 w-4 text-orange-500" />
                             Forgot Password — Admin Emails
                         </p>
-                        <p className="text-[10px] text-gray-500 mb-3">
+                        <p className="text-xs text-gray-500 mb-4">
                             These emails are used for the forgot password OTP flow. Updating them here will also update the login email for each admin role.
                         </p>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="superAdminEmail" className="text-xs text-gray-300 font-medium flex items-center gap-2">
-                            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                        <Label htmlFor="superAdminEmail" className="text-sm text-gray-700 font-medium flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4 text-emerald-500" />
                             Super Admin Email
                         </Label>
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <UserCog className="h-4 w-4 text-gray-500" />
+                                <UserCog className="h-4 w-4 text-gray-400" />
                             </div>
                             <Input
                                 id="superAdminEmail"
@@ -198,19 +198,19 @@ export default function AdministrationMailSettings({ smtp, id }: AdministrationM
                                 placeholder="superadmin@menbazar.com"
                                 value={superAdminEmail}
                                 onChange={(e) => setSuperAdminEmail(e.target.value)}
-                                className="pl-9 bg-[#0b0f19]/50 border-[#1e293b] text-white focus:border-[#e07b39] h-10 text-sm"
+                                className="pl-9 bg-white border-gray-300 text-gray-900 focus:border-orange-500 focus:ring-orange-500 h-11"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="userAdminEmail" className="text-xs text-gray-300 font-medium flex items-center gap-2">
-                            <User className="h-3.5 w-3.5 text-blue-400" />
+                        <Label htmlFor="userAdminEmail" className="text-sm text-gray-700 font-medium flex items-center gap-2">
+                            <User className="h-4 w-4 text-blue-500" />
                             User Admin Email
                         </Label>
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <User className="h-4 w-4 text-gray-500" />
+                                <User className="h-4 w-4 text-gray-400" />
                             </div>
                             <Input
                                 id="userAdminEmail"
@@ -218,16 +218,16 @@ export default function AdministrationMailSettings({ smtp, id }: AdministrationM
                                 placeholder="useradmin@menbazar.com"
                                 value={userAdminEmail}
                                 onChange={(e) => setUserAdminEmail(e.target.value)}
-                                className="pl-9 bg-[#0b0f19]/50 border-[#1e293b] text-white focus:border-[#e07b39] h-10 text-sm"
+                                className="pl-9 bg-white border-gray-300 text-gray-900 focus:border-orange-500 focus:ring-orange-500 h-11"
                             />
                         </div>
                     </div>
                 </CardContent>
-                <CardFooter className="bg-[#0b0f19]/30 border-t border-[#1e293b] p-4 mt-auto">
+                <CardFooter className="bg-gray-50 border-t border-gray-100 p-5 mt-auto">
                     <Button 
                         type="submit" 
                         disabled={isUpdating}
-                        className="w-full bg-[#e07b39] hover:bg-[#c96a2a] text-white transition-colors h-10"
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white transition-colors h-11 text-base font-medium"
                     >
                         {isUpdating ? (
                             <>
