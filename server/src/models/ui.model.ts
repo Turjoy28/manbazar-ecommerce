@@ -263,6 +263,15 @@ const uiSchema = new mongoose.Schema(
             from: { type: String, default: "" },
             superAdminEmail: { type: String, default: "" },
             userAdminEmail: { type: String, default: "" },
+        },
+        relatedProducts: {
+            title: { type: String, default: "অনুরূপ পণ্য" },
+            subtitle: { type: String, default: "" }
+        },
+        deliveryOffer: {
+            minQuantity: { type: Number, default: 3 },
+            deliveryCharge: { type: Number, default: 0 },
+            isActive: { type: Boolean, default: true }
         }
     },
     { timestamps: true }

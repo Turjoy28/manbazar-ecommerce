@@ -5,6 +5,7 @@ import Image from "next/image";
 import { CartItem } from "@/types";
 import { OrderContext } from "@/providers/OrderProvider";
 import { createOrder } from "@/services/order";
+import { getUiData } from "@/services/ui";
 import { toast } from "sonner";
 
 import {
@@ -299,6 +300,17 @@ export default function BillingSection() {
     clearCart,
   } = useContext(OrderContext);
 
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+  const [uiData, setUiData] = useState<any>(null);
+
+  useEffect(() => {
+    getUiData().then(res => {
+      if (res?.data?.[0]) {
+        setUiData(res.data[0]);
+      }
+    }).catch(console.error);
+  }, []);
+
   const [isSuccess, setIsSuccess] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<any>(null);
 
@@ -357,9 +369,9 @@ export default function BillingSection() {
     })
   );
 
-  // Free delivery if more than 2 products are ordered
-  if (totalQuantity > 2) {
-    deliveryCharge = 0;
+  // Apply dynamic delivery offer from admin settings
+  if (uiData?.deliveryOffer?.isActive && totalQuantity >= (uiData.deliveryOffer.minQuantity || 3)) {
+    deliveryCharge = uiData.deliveryOffer.deliveryCharge || 0;
   }
 
   const subtotal = cartItems.reduce(

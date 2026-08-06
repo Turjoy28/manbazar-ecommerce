@@ -8,6 +8,7 @@ import ChatbotSettings from "@/components/modules/dashboard/settings/ChatbotSett
 import RelatedProductsSettings from "@/components/modules/dashboard/settings/RelatedProductsSettings";
 import CourierSettings from "@/components/modules/dashboard/settings/CourierSettings";
 import AdministrationMailSettings from "@/components/modules/dashboard/settings/AdministrationMailSettings";
+import DeliveryOfferSettings from "@/components/modules/dashboard/settings/DeliveryOfferSettings";
 import { getUiData } from "@/services/ui";
 import React from "react";
 
@@ -34,6 +35,7 @@ export default async function SettingsPage() {
       />
       <AdministrationMailSettings id={uiData?.data?.[0]._id} smtp={uiData?.data?.[0].smtp} />
       <RelatedProductsSettings relatedProducts={uiData?.data?.[0].relatedProducts} id={uiData?.data?.[0]._id} />
+      <DeliveryOfferSettings deliveryOffer={uiData?.data?.[0].deliveryOffer} id={uiData?.data?.[0]._id} />
       <SizeChart id={uiData?.data?.[0]._id} chart={uiData?.data?.[0].chart} />
       <CTASection id={uiData?.data?.[0]._id} cta={uiData?.data?.[0].cta} />
       <ThemeColors theme={uiData?.data?.[0].theme} id={uiData?.data?.[0]._id} />

@@ -86,6 +86,11 @@ export interface IUI {
         title: string;
         subtitle: string;
     };
+    deliveryOffer?: {
+        minQuantity: number;
+        deliveryCharge: number;
+        isActive: boolean;
+    };
 
     createdAt?: Date;
     updatedAt?: Date;
