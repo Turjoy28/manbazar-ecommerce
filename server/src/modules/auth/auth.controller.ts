@@ -224,5 +224,47 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
-export const authController = { login, logout, me, createManager, listManagers, verifyOnboarding, setPassword, forgotPassword, verifyResetOtp, resetPassword };
+/**
+ * GET /api/v1/auth/admin-emails-hint
+ * Gets admin emails for login hint (Public).
+ */
+const getAdminEmailsHint = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await authService.getAdminEmailsHint();
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Admin email hints",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "Failed to fetch hints" });
+    }
+};
+
+/**
+ * PATCH /api/v1/auth/admin-emails
+ * Updates email addresses for Super Admin and/or User Admin (Super Admin Only).
+ */
+const updateAdminEmails = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { superAdminEmail, userAdminEmail } = req.body;
+        if (!superAdminEmail && !userAdminEmail) {
+            res.status(400).json({ success: false, message: "At least one email address is required" });
+            return;
+        }
+
+        const result = await authService.updateAdminEmails({ superAdminEmail, userAdminEmail });
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Admin emails updated successfully",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "Failed to update admin emails" });
+    }
+};
+
+export const authController = { login, logout, me, createManager, listManagers, verifyOnboarding, setPassword, forgotPassword, verifyResetOtp, resetPassword, getAdminEmailsHint, updateAdminEmails };
 

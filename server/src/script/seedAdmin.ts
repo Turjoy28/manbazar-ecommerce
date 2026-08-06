@@ -7,8 +7,9 @@ export const seedAdmin = async () => {
         // 1. Seed Super Admin
         if (config.admin_email && config.admin_password) {
             const adminExists = await Admin.findOne({ email: config.admin_email });
+            const hashedAdminPassword = await bcrypt.hash(config.admin_password as string, 10);
+            
             if (!adminExists) {
-                const hashedAdminPassword = await bcrypt.hash(config.admin_password as string, 10);
                 await Admin.create({
                     email: config.admin_email,
                     password: hashedAdminPassword,

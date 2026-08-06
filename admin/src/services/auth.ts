@@ -52,6 +52,10 @@ export const authService = {
         });
     },
 
+    getAdminEmailsHint: async (): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/admin-emails-hint`);
+    },
+
     forgotPassword: async (email: string): Promise<any> => {
         return secureFetch(`${BASE_URL}/auth/forgot-password`, {
             method: "POST",
@@ -70,6 +74,13 @@ export const authService = {
         return secureFetch(`${BASE_URL}/auth/reset-password`, {
             method: "POST",
             body: { email, otp, password },
+        });
+    },
+
+    updateAdminEmails: async (superAdminEmail: string, userAdminEmail: string): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/admin-emails`, {
+            method: "PATCH",
+            body: { superAdminEmail, userAdminEmail },
         });
     },
 };

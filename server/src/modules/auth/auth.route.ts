@@ -22,9 +22,13 @@ router.get("/managers", authenticate, authorize("ADMIN"), authController.listMan
 router.get("/verify-onboarding", authController.verifyOnboarding);
 router.post("/set-password", authController.setPassword);
 
-/** Public: Forgot Password OTP flow */
+/** Public: Forgot Password & Email hints */
+router.get("/admin-emails-hint", authController.getAdminEmailsHint);
 router.post("/forgot-password", authController.forgotPassword);
 router.post("/verify-reset-otp", authController.verifyResetOtp);
 router.post("/reset-password", authController.resetPassword);
+
+/** Protected: Update Admin email addresses (Super Admin Only) */
+router.patch("/admin-emails", authenticate, authorize("ADMIN"), authController.updateAdminEmails);
 
 export const authRoute = router;

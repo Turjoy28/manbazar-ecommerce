@@ -261,6 +261,8 @@ const uiSchema = new mongoose.Schema(
             user: { type: String, default: "" },
             pass: { type: String, default: "" },
             from: { type: String, default: "" },
+            superAdminEmail: { type: String, default: "" },
+            userAdminEmail: { type: String, default: "" },
         }
     },
     { timestamps: true }

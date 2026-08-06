@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authService } from "../../services/auth";
@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Label } from "../../components/ui/label";
-import { KeyRound, Mail, Sparkles, Loader2, ArrowLeft, ShieldCheck, Lock } from "lucide-react";
+import { KeyRound, Mail, Sparkles, Loader2, ArrowLeft, ShieldCheck, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
@@ -18,6 +18,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   /* Loading state — prevents double submissions */
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   /* ─── Forgot Password State ─── */
   const [forgotMode, setForgotMode] = useState(false);
@@ -28,6 +29,35 @@ export default function Login() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [emailHints, setEmailHints] = useState<{ superAdminEmail: string; userAdminEmail: string } | null>(null);
+
+  useEffect(() => {
+    // Fetch email hints on component mount
+    authService.getAdminEmailsHint().then((res) => {
+      if (res?.success && res.data) {
+        setEmailHints(res.data);
+      }
+    }).catch((err) => console.error("Failed to fetch email hints", err));
+  }, []);
+
+  // Helper to mask an email (e.g., saifbus28@gmail.com -> sa***@gmail.com)
+  const maskEmail = (email: string) => {
+    if (!email || !email.includes("@")) return email;
+    const [name, domain] = email.split("@");
+    if (name.length <= 2) return `${name[0]}***@${domain}`;
+    return `${name.substring(0, 2)}***@${domain}`;
+  };
+
+  // Helper to generate a masked hint string (only for user admin)
+  const getEmailPlaceholder = () => {
+    if (emailHints?.userAdminEmail) {
+      return maskEmail(emailHints.userAdminEmail);
+    }
+    return "admin@manbazar.com";
+  };
 
   /**
    * handleSubmit — Authenticate the admin user.
@@ -143,6 +173,8 @@ export default function Login() {
     setOtp("");
     setNewPassword("");
     setConfirmPassword("");
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
   };
 
   return (
@@ -195,12 +227,12 @@ export default function Login() {
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                       <Mail className="h-4 w-4 text-gray-500" />
                     </div>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="admin@manbazar.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder={getEmailPlaceholder()}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"
                       disabled={isLoading}
                       required
@@ -221,14 +253,21 @@ export default function Login() {
                     </div>
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"
+                      className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 pr-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"
                       disabled={isLoading}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
               </CardContent>
@@ -284,12 +323,12 @@ export default function Login() {
                       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <Mail className="h-4 w-4 text-gray-500" />
                       </div>
-                      <Input
-                        id="forgot-email"
-                        type="email"
-                        placeholder="admin@manbazar.com"
-                        value={forgotEmail}
-                        onChange={(e) => setForgotEmail(e.target.value)}
+                        <Input
+                          id="forgot-email"
+                          type="email"
+                          placeholder={getEmailPlaceholder()}
+                          value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)}
                         className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"
                         disabled={forgotLoading}
                         required
@@ -410,15 +449,22 @@ export default function Login() {
                       </div>
                       <Input
                         id="new-password"
-                        type="password"
+                        type={showNewPassword ? "text" : "password"}
                         placeholder="••••••••"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"
+                        className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 pr-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"
                         disabled={forgotLoading}
                         required
                         autoFocus
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+                      >
+                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -431,14 +477,21 @@ export default function Login() {
                       </div>
                       <Input
                         id="confirm-password"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         placeholder="••••••••"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"
+                        className="border-[#1e293b] bg-[#0b0f19]/50 pl-10 pr-10 text-white placeholder-gray-600 focus:border-[#e07b39] focus:ring-[#e07b39] h-14"
                         disabled={forgotLoading}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
                   {newPassword && confirmPassword && newPassword !== confirmPassword && (

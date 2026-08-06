@@ -283,5 +283,57 @@ const resetPassword = async (email: string, otp: string, newPassword: string) =>
     return { email: admin.email, success: true };
 };
 
-export const authService = { login, createManager, verifyOnboardingToken, setPassword, listManagers, forgotPassword, verifyResetOtp, resetPassword };
+/**
+ * Get Admin Emails Hint — public endpoint to show admin emails as placeholders.
+ */
+const getAdminEmailsHint = async () => {
+    const { Ui } = await import("../../models/ui.model.js");
+    const uiData = await Ui.findOne();
+    return {
+        superAdminEmail: uiData?.smtp?.superAdminEmail || "",
+        userAdminEmail: uiData?.smtp?.userAdminEmail || ""
+    };
+};
+
+/**
+ * Update Admin emails — Update the email addresses for Super Admin and User Admin accounts.
+ * This ensures the forgot-password OTP flow works for both roles with the updated emails.
+ */
+const updateAdminEmails = async (payload: { superAdminEmail?: string; userAdminEmail?: string }) => {
+    const results: { superAdmin?: string; userAdmin?: string } = {};
+
+    if (payload.superAdminEmail) {
+        // Check if another admin already uses this email
+        const existing = await Admin.findOne({ email: payload.superAdminEmail, role: { $ne: "ADMIN" } });
+        if (existing) {
+            throw new Error("This email is already in use by another account");
+        }
+
+        const superAdmin = await Admin.findOne({ role: "ADMIN" });
+        if (superAdmin) {
+            superAdmin.email = payload.superAdminEmail.toLowerCase().trim();
+            await superAdmin.save();
+            results.superAdmin = superAdmin.email;
+        }
+    }
+
+    if (payload.userAdminEmail) {
+        // Check if another admin already uses this email
+        const existing = await Admin.findOne({ email: payload.userAdminEmail, role: { $ne: "USER" } });
+        if (existing) {
+            throw new Error("This email is already in use by another account");
+        }
+
+        const userAdmin = await Admin.findOne({ role: "USER" });
+        if (userAdmin) {
+            userAdmin.email = payload.userAdminEmail.toLowerCase().trim();
+            await userAdmin.save();
+            results.userAdmin = userAdmin.email;
+        }
+    }
+
+    return results;
+};
+
+export const authService = { login, createManager, verifyOnboardingToken, setPassword, listManagers, forgotPassword, verifyResetOtp, resetPassword, getAdminEmailsHint, updateAdminEmails };
 
