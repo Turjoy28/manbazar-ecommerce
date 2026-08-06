@@ -129,7 +129,7 @@ export default function DeliveryOfferSettings({
                         </div>
                     </div>
                     
-                    {isActive && minQuantity > 0 && (
+                    {isActive && Number(minQuantity) > 0 && (
                         <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 mt-4 flex items-start gap-2">
                             <Check className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                             <p className="text-sm text-emerald-800">
