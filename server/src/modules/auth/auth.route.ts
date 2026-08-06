@@ -22,4 +22,9 @@ router.get("/managers", authenticate, authorize("ADMIN"), authController.listMan
 router.get("/verify-onboarding", authController.verifyOnboarding);
 router.post("/set-password", authController.setPassword);
 
+/** Public: Forgot Password OTP flow */
+router.post("/forgot-password", authController.forgotPassword);
+router.post("/verify-reset-otp", authController.verifyResetOtp);
+router.post("/reset-password", authController.resetPassword);
+
 export const authRoute = router;

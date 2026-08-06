@@ -1,6 +1,5 @@
 import HeroSection from "@/components/sections/HeroSection";
 import ProductSection from "@/components/sections/ProductSection";
-import SpecialtySection from "@/components/sections/SpecialtySection";
 import CTABanner from "@/components/sections/CTABanner";
 import CategoryNavigation from "@/components/sections/CategoryNavigation";
 import BillingSection from "@/components/sections/BillingSection";

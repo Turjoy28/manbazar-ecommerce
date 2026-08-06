@@ -159,5 +159,129 @@ const listManagers = async () => {
     return managers;
 };
 
-export const authService = { login, createManager, verifyOnboardingToken, setPassword, listManagers };
+/**
+ * Forgot Password — Generate a 6-digit OTP, hash it, store it, and email it.
+ */
+const forgotPassword = async (email: string) => {
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
+        throw new Error("No account found with this email address");
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Hash the OTP before storing (security best practice)
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    // Store with 10-minute expiry
+    admin.resetOtp = hashedOtp;
+    admin.resetOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    admin.resetOtpUsed = false;
+    await admin.save();
+
+    // Send OTP email
+    const otpHtml = `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #e07b39; font-size: 24px; font-weight: bold; margin: 0;">MenBazar</h1>
+                <p style="color: #718096; font-size: 14px; margin: 4px 0 0 0;">Password Reset Request</p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px;">Hello <strong>${admin.name || 'Admin'}</strong>,</p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px;">We received a request to reset your password. Use the OTP below to verify your identity:</p>
+            
+            <div style="text-align: center; margin: 32px 0;">
+                <div style="display: inline-block; padding: 16px 40px; background-color: #f7fafc; border: 2px dashed #e07b39; border-radius: 12px;">
+                    <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #e07b39;">${otp}</span>
+                </div>
+            </div>
+            
+            <div style="background-color: #f7fafc; border-left: 4px solid #e07b39; padding: 12px 16px; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #4a5568;">
+                    <strong>⏰ This OTP is valid for 10 minutes only.</strong><br/>
+                    If you did not request a password reset, please ignore this email. Your account is safe.
+                </p>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #edf2f7; margin-bottom: 20px;" />
+            
+            <p style="font-size: 12px; color: #a0aec0; text-align: center; margin: 0;">
+                This is an automated system notification. Please do not reply directly to this email.
+            </p>
+        </div>
+    `;
+
+    await sendEmail(email, "MenBazar — Password Reset OTP", otpHtml);
+
+    return { email: admin.email, message: "OTP sent to your email" };
+};
+
+/**
+ * Verify Reset OTP — Check if the provided OTP is valid.
+ */
+const verifyResetOtp = async (email: string, otp: string) => {
+    const admin = await Admin.findOne({ email }).select("+resetOtp");
+
+    if (!admin) {
+        throw new Error("No account found with this email address");
+    }
+
+    if (!admin.resetOtp || admin.resetOtpUsed) {
+        throw new Error("No active OTP found. Please request a new one.");
+    }
+
+    if (admin.resetOtpExpires && admin.resetOtpExpires < new Date()) {
+        throw new Error("OTP has expired. Please request a new one.");
+    }
+
+    const isMatch = await bcrypt.compare(otp, admin.resetOtp);
+    if (!isMatch) {
+        throw new Error("Invalid OTP. Please check and try again.");
+    }
+
+    return { email: admin.email, verified: true };
+};
+
+/**
+ * Reset Password — Verify OTP one final time and update the password.
+ */
+const resetPassword = async (email: string, otp: string, newPassword: string) => {
+    // Password complexity check
+    const complexityRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
+    if (!complexityRegex.test(newPassword)) {
+        throw new Error("Password must be at least 8 characters long, and contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
+    }
+
+    const admin = await Admin.findOne({ email }).select("+resetOtp");
+
+    if (!admin) {
+        throw new Error("No account found with this email address");
+    }
+
+    if (!admin.resetOtp || admin.resetOtpUsed) {
+        throw new Error("No active OTP found. Please request a new one.");
+    }
+
+    if (admin.resetOtpExpires && admin.resetOtpExpires < new Date()) {
+        throw new Error("OTP has expired. Please request a new one.");
+    }
+
+    const isMatch = await bcrypt.compare(otp, admin.resetOtp);
+    if (!isMatch) {
+        throw new Error("Invalid OTP. Please check and try again.");
+    }
+
+    // Update password and invalidate OTP
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    admin.password = hashedPassword;
+    admin.resetOtpUsed = true;
+    admin.resetOtp = undefined;
+    await admin.save();
+
+    return { email: admin.email, success: true };
+};
+
+export const authService = { login, createManager, verifyOnboardingToken, setPassword, listManagers, forgotPassword, verifyResetOtp, resetPassword };
 

@@ -51,4 +51,25 @@ export const authService = {
             body: { token, password },
         });
     },
+
+    forgotPassword: async (email: string): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/forgot-password`, {
+            method: "POST",
+            body: { email },
+        });
+    },
+
+    verifyResetOtp: async (email: string, otp: string): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/verify-reset-otp`, {
+            method: "POST",
+            body: { email, otp },
+        });
+    },
+
+    resetPassword: async (email: string, otp: string, password: string): Promise<any> => {
+        return secureFetch(`${BASE_URL}/auth/reset-password`, {
+            method: "POST",
+            body: { email, otp, password },
+        });
+    },
 };

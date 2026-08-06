@@ -34,6 +34,18 @@ const adminSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        /** Hashed 6-digit OTP for password reset */
+        resetOtp: {
+            type: String,
+            select: false,
+        },
+        resetOtpExpires: {
+            type: Date,
+        },
+        resetOtpUsed: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true }
 );

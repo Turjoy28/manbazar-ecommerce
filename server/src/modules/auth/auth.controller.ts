@@ -152,5 +152,77 @@ const setPassword = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export const authController = { login, logout, me, createManager, listManagers, verifyOnboarding, setPassword };
+/**
+ * POST /api/v1/auth/forgot-password
+ * Sends a 6-digit OTP to the admin's email (Public).
+ */
+const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            res.status(400).json({ success: false, message: "Email is required" });
+            return;
+        }
+
+        const result = await authService.forgotPassword(email);
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "OTP sent to your email address",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "Failed to send OTP" });
+    }
+};
+
+/**
+ * POST /api/v1/auth/verify-reset-otp
+ * Verifies the OTP provided by admin (Public).
+ */
+const verifyResetOtp = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            res.status(400).json({ success: false, message: "Email and OTP are required" });
+            return;
+        }
+
+        const result = await authService.verifyResetOtp(email, otp);
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "OTP verified successfully",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "OTP verification failed" });
+    }
+};
+
+/**
+ * POST /api/v1/auth/reset-password
+ * Resets the password after OTP verification (Public).
+ */
+const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, otp, password } = req.body;
+        if (!email || !otp || !password) {
+            res.status(400).json({ success: false, message: "Email, OTP, and new password are required" });
+            return;
+        }
+
+        const result = await authService.resetPassword(email, otp, password);
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Password reset successfully! You can now log in.",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "Password reset failed" });
+    }
+};
+
+export const authController = { login, logout, me, createManager, listManagers, verifyOnboarding, setPassword, forgotPassword, verifyResetOtp, resetPassword };
 

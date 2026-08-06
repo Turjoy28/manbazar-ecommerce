@@ -254,6 +254,13 @@ const uiSchema = new mongoose.Schema(
             redx: {
                 apiKey: { type: String, default: "" },
             }
+        },
+        smtp: {
+            host: { type: String, default: "smtp.gmail.com" },
+            port: { type: Number, default: 587 },
+            user: { type: String, default: "" },
+            pass: { type: String, default: "" },
+            from: { type: String, default: "" },
         }
     },
     { timestamps: true }

@@ -7,6 +7,7 @@ import ThemeColors from "@/components/modules/dashboard/settings/ThemeColors";
 import ChatbotSettings from "@/components/modules/dashboard/settings/ChatbotSettings";
 import RelatedProductsSettings from "@/components/modules/dashboard/settings/RelatedProductsSettings";
 import CourierSettings from "@/components/modules/dashboard/settings/CourierSettings";
+import AdministrationMailSettings from "@/components/modules/dashboard/settings/AdministrationMailSettings";
 import { getUiData } from "@/services/ui";
 import React from "react";
 
@@ -16,8 +17,6 @@ export default async function SettingsPage() {
   if (!uiData?.data || uiData.data.length === 0) {
     return <div>No settings data available.</div>;
   }
-
-  const setting = uiData.data[0];
 
   return (
     <div className="grid xl:grid-cols-3 gap-5 p-3">
@@ -33,6 +32,7 @@ export default async function SettingsPage() {
         currentNavbarText={uiData?.data?.[0].banner.navbarText}
         currentMarqueeText={uiData?.data?.[0].banner.marqueeText}
       />
+      <AdministrationMailSettings id={uiData?.data?.[0]._id} smtp={uiData?.data?.[0].smtp} />
       <RelatedProductsSettings relatedProducts={uiData?.data?.[0].relatedProducts} id={uiData?.data?.[0]._id} />
       <SizeChart id={uiData?.data?.[0]._id} chart={uiData?.data?.[0].chart} />
       <CTASection id={uiData?.data?.[0]._id} cta={uiData?.data?.[0].cta} />
