@@ -108,6 +108,7 @@ const getCategoryBySlug = async (slug: string) => {
 const createCategory = async (payload: {
     name: string;
     description?: string;
+    image?: string;
     parent?: string | null;
     createdBy?: string;
 }) => {
@@ -142,6 +143,7 @@ const createCategory = async (payload: {
         slug,
         parent: parentId,
         description: payload.description || "",
+        image: payload.image || "",
         sortOrder,
         createdBy: payload.createdBy,
     });

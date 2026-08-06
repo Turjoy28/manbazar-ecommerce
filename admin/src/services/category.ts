@@ -41,7 +41,7 @@ export const categoryService = {
     },
 
     /** Create a new category */
-    createCategory: async (payload: { name: string; description?: string }): Promise<SingleCategoryResponse> => {
+    createCategory: async (payload: { name: string; description?: string; image?: string }): Promise<SingleCategoryResponse> => {
         return secureFetch<SingleCategoryResponse>(`${BASE_URL}/categories`, {
             method: "POST",
             body: payload,
