@@ -175,18 +175,23 @@ export default function ImageUpload({
 
     return (
         <Card>
-            <CardContent className="p-6">
-                <div className="space-y-4">
+            <CardContent className={compact ? "p-3" : "p-6"}>
+                <div className={compact ? "space-y-2" : "space-y-4"}>
                     {/* ─── Title and description ─── */}
-                    <div>
-                        <h3 className="text-xl font-medium">
-                            {title}
-                        </h3>
-
-                        <p className="text-sm text-muted-foreground">
-                            {description}
-                        </p>
-                    </div>
+                    {(title || description) && (
+                        <div>
+                            {title && (
+                                <h3 className={`${compact ? 'text-sm' : 'text-xl'} font-medium`}>
+                                    {title}
+                                </h3>
+                            )}
+                            {description && (
+                                <p className="text-sm text-muted-foreground">
+                                    {description}
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     {/* ─── Drop zone / Upload trigger ───
                         Only visible when there are available slots */}

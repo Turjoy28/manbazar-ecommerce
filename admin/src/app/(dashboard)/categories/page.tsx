@@ -74,104 +74,114 @@ function SortableCategoryItem({ category, index, productCount, isToggling, onTog
         <div
             ref={setNodeRef}
             style={style}
-            className={`group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border transition-all duration-200 ${
+            className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border transition-all duration-200 ${
                 category.isActive
                     ? "border-border bg-card hover:bg-accent/30 hover:border-primary/20"
                     : "border-border/50 bg-muted/20 opacity-70 hover:opacity-90"
             } ${isDragging ? "shadow-lg border-primary/50" : ""}`}
         >
-            {/* Reorder Controls */}
-            <div
-                {...attributes}
-                {...listeners}
-                className="cursor-grab active:cursor-grabbing p-2 rounded hover:bg-accent text-muted-foreground/50 hover:text-foreground transition-colors shrink-0"
-                title="Drag to reorder"
-            >
-                <GripVertical className="h-5 w-5" />
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0 w-full">
+                {/* Reorder Controls */}
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className="cursor-grab active:cursor-grabbing p-1.5 sm:p-2 rounded hover:bg-accent text-muted-foreground/50 hover:text-foreground transition-colors shrink-0"
+                    title="Drag to reorder"
+                >
+                    <GripVertical className="h-5 w-5" />
+                </div>
+
+                {/* Category Info */}
+                <div className="flex-1 min-w-0 flex items-center gap-3">
+                    {category.image ? (
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded overflow-hidden shrink-0 border border-border/50">
+                            <Image src={category.image} alt={category.name} width={48} height={48} className="h-full w-full object-cover" />
+                        </div>
+                    ) : (
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded bg-muted/50 flex items-center justify-center shrink-0 border border-border/50">
+                            <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground/50" />
+                        </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className={`font-semibold truncate ${category.isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                                {category.name}
+                            </h3>
+                            <Badge
+                                variant="outline"
+                                className={`text-[10px] px-1.5 py-0 ${
+                                    category.isActive
+                                    ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                    : "bg-orange-500/10 text-orange-600 border-orange-500/20"
+                                }`}
+                            >
+                                {category.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                        </div>
+                        {category.description && (
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">
+                                {category.description}
+                            </p>
+                        )}
+                        <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
+                            <span className="text-[10px] sm:text-xs text-muted-foreground">
+                                {productCount} {productCount === 1 ? "product" : "products"}
+                            </span>
+                            <span className="text-[10px] sm:text-xs text-muted-foreground/50">•</span>
+                            <span className="text-[10px] sm:text-xs text-muted-foreground">
+                                Order: #{index + 1}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Category Info */}
-            <div className="flex-1 min-w-0 flex items-center gap-3">
-                {category.image ? (
-                    <div className="h-10 w-10 rounded overflow-hidden shrink-0 border border-border/50">
-                        <Image src={category.image} alt={category.name} width={40} height={40} className="h-full w-full object-cover" />
-                    </div>
-                ) : (
-                    <div className="h-10 w-10 rounded bg-muted/50 flex items-center justify-center shrink-0 border border-border/50">
-                        <Layers className="h-4 w-4 text-muted-foreground/50" />
-                    </div>
-                )}
-                <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className={`font-semibold truncate ${category.isActive ? "text-foreground" : "text-muted-foreground"}`}>
-                            {category.name}
-                        </h3>
-                        <Badge
-                            variant="outline"
-                            className={`text-[10px] px-1.5 py-0 ${
-                                category.isActive
-                                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                                : "bg-orange-500/10 text-orange-600 border-orange-500/20"
-                        }`}
+            {/* Actions */}
+            <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pl-[3.25rem] sm:pl-0 border-t border-border/40 sm:border-0 pt-3 sm:pt-0 mt-1 sm:mt-0">
+                {/* Toggle Switch */}
+                <div className="flex items-center gap-2 sm:hidden">
+                    <span className="text-xs text-muted-foreground font-medium">Visibility:</span>
+                </div>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => onToggle(category)}
+                        disabled={isToggling}
+                        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 focus:ring-offset-background shrink-0 ${
+                            category.isActive
+                                ? "bg-emerald-500"
+                                : "bg-muted-foreground/30"
+                        } ${isToggling ? "opacity-50 cursor-wait" : "cursor-pointer"}`}
+                        title={category.isActive ? "Click to hide from storefront" : "Click to show on storefront"}
                     >
-                        {category.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                </div>
-                {category.description && (
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">
-                        {category.description}
-                    </p>
-                )}
-                <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs text-muted-foreground">
-                        {productCount} {productCount === 1 ? "product" : "products"}
-                    </span>
-                    <span className="text-xs text-muted-foreground/50">•</span>
-                    <span className="text-xs text-muted-foreground">
-                        Order: #{index + 1}
-                    </span>
-                </div>
-            </div>
-            </div>
+                        <span
+                            className={`inline-block h-5 w-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
+                                category.isActive ? "translate-x-6" : "translate-x-1"
+                            }`}
+                        />
+                    </button>
 
-            {/* Toggle Switch */}
-            <button
-                onClick={() => onToggle(category)}
-                disabled={isToggling}
-                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 focus:ring-offset-background shrink-0 ${
-                    category.isActive
-                        ? "bg-emerald-500"
-                        : "bg-muted-foreground/30"
-                } ${isToggling ? "opacity-50 cursor-wait" : "cursor-pointer"}`}
-                title={category.isActive ? "Click to hide from storefront" : "Click to show on storefront"}
-            >
-                <span
-                    className={`inline-block h-5 w-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
-                        category.isActive ? "translate-x-6" : "translate-x-1"
-                    }`}
-                />
-            </button>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-1 shrink-0">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEdit(category)}
-                    className="h-8 w-8 p-0 hover:bg-accent"
-                    title="Edit category"
-                >
-                    <Pencil className="h-4 w-4 text-muted-foreground" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(category)}
-                    className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500"
-                    title="Delete category"
-                >
-                    <Trash2 className="h-4 w-4 text-muted-foreground" />
-                </Button>
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onEdit(category)}
+                            className="h-8 w-8 p-0 hover:bg-accent"
+                            title="Edit category"
+                        >
+                            <Pencil className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onDelete(category)}
+                            className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500"
+                            title="Delete category"
+                        >
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -533,9 +543,12 @@ export default function CategoriesPage() {
                                 <div className="w-full sm:w-[200px] shrink-0">
                                     <Label className="font-semibold block mb-2">Category Image</Label>
                                     <ImageUpload
+                                        title=""
+                                        description=""
                                         onChange={(urls) => setNewCategoryImage(urls[0] || "")}
                                         value={newCategoryImage ? [newCategoryImage] : []}
                                         maxFiles={1}
+                                        compact={true}
                                     />
                                 </div>
                             </div>
@@ -657,7 +670,7 @@ export default function CategoriesPage() {
 
             {/* Edit Dialog */}
             <Dialog open={!!editingCategory} onOpenChange={(open) => { if (!open) setEditingCategory(null); }}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Edit Category</DialogTitle>
                         <DialogDescription>
@@ -665,7 +678,7 @@ export default function CategoriesPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleUpdate}>
-                        <div className="space-y-4 py-2">
+                        <div className="space-y-3 py-1">
                             <div className="space-y-2">
                                 <Label htmlFor="edit-name" className="font-semibold">Category Name *</Label>
                                 <Input
@@ -687,12 +700,15 @@ export default function CategoriesPage() {
                                     className="h-11"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label className="font-semibold">Category Image</Label>
+                            <div className="space-y-1.5">
+                                <Label className="font-semibold text-sm">Category Image</Label>
                                 <ImageUpload
+                                    title=""
+                                    description=""
                                     onChange={(urls) => setEditImage(urls[0] || "")}
                                     value={editImage ? [editImage] : []}
                                     maxFiles={1}
+                                    compact={true}
                                 />
                             </div>
                         </div>
@@ -721,7 +737,7 @@ export default function CategoriesPage() {
 
             {/* Delete Confirmation Dialog */}
             <Dialog open={!!deletingCategory} onOpenChange={(open) => { if (!open) setDeletingCategory(null); }}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="text-red-500 flex items-center gap-2">
                             <Trash2 className="h-5 w-5" />

@@ -58,45 +58,45 @@ export default function CategoryNavigation({ categories }: CategoryNavigationPro
                 {/* Categories Container */}
                 <div
                     ref={scrollContainerRef}
-                    className="flex overflow-x-auto justify-center gap-3 md:gap-8 pb-4 pt-2 px-2 scrollbar-hide snap-x"
-                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                    className="flex overflow-x-auto gap-4 md:gap-8 lg:gap-10 pb-4 pt-2 px-4 scrollbar-hide snap-x"
+                    style={{ scrollbarWidth: "none", msOverflowStyle: "none", justifyContent: "safe center" }}
                 >
                     {activeCategories.map((category, index) => (
                         <Link
                             key={category._id}
                             href={`/category/${category.slug}`}
-                            className="flex flex-col items-center gap-1 md:gap-2 group/cat shrink-0 snap-start w-[70px] md:w-auto transition-all duration-500 ease-out"
+                            className="flex flex-col items-center gap-1.5 md:gap-3 group/cat shrink-0 snap-start w-[84px] md:w-[110px] lg:w-[130px] transition-all duration-500 ease-out"
                             style={{
                                 opacity: isVisible ? 1 : 0,
                                 transform: isVisible ? "scale(1) translateY(0)" : "scale(0.3) translateY(20px)",
                                 transitionDelay: `${getDelay(index)}ms`,
                             }}
                         >
-                            {/* Image Circle */}
-                            <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-gray-100 group-hover/cat:border-primary group-hover/cat:shadow-lg transition-all duration-300 relative bg-white flex items-center justify-center p-0">
-                                <div className="w-full h-full rounded-full overflow-hidden relative bg-gray-50">
+                            {/* Image Square */}
+                            <div className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border-2 border-gray-100 group-hover/cat:border-primary group-hover/cat:shadow-lg transition-all duration-300 relative bg-white flex items-center justify-center p-0">
+                                <div className="w-full h-full rounded-2xl overflow-hidden relative bg-gray-50">
                                     {category.image ? (
                                         <Image
                                             src={category.image}
                                             alt={category.name}
                                             fill
                                             className="object-cover group-hover/cat:scale-110 transition-transform duration-500"
-                                            sizes="(max-width: 768px) 48px, 64px"
+                                            sizes="(max-width: 768px) 64px, (max-width: 1024px) 80px, 96px"
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
-                                            <Layers className="w-5 h-5 md:w-8 md:h-8 text-gray-400 group-hover/cat:text-primary transition-colors" />
+                                            <Layers className="w-6 h-6 md:w-10 md:h-10 text-gray-400 group-hover/cat:text-primary transition-colors" />
                                         </div>
                                     )}
                                 </div>
                             </div>
                             {/* Category Name & Description */}
                             <div className="flex flex-col items-center w-full">
-                                <span className="text-[10px] md:text-sm font-semibold text-gray-700 text-center w-full md:w-28 line-clamp-2 group-hover/cat:text-primary transition-colors leading-tight">
+                                <span className="text-[11px] md:text-[15px] font-bold text-gray-700 text-center w-full md:w-32 line-clamp-2 group-hover/cat:text-primary transition-colors leading-tight">
                                     {category.name}
                                 </span>
                                 {category.description && (
-                                    <span className="text-[8px] md:text-[10px] text-gray-500 text-center w-full md:w-28 line-clamp-2 mt-0.5 leading-tight">
+                                    <span className="text-[9px] md:text-xs text-gray-500 text-center w-full md:w-32 line-clamp-2 mt-1 leading-tight">
                                         {category.description}
                                     </span>
                                 )}
