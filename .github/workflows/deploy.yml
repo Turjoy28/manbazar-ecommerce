@@ -54,7 +54,7 @@ jobs:
           if_key_exists: replace
 
       - name: Adding Known Hosts
-        run: ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+        run: ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts || true
 
       - name: Debug Target Path and Permissions on VPS
         uses: appleboy/ssh-action@master
