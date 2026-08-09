@@ -75,6 +75,16 @@ jobs:
               mkdir -p "${{ env.DEPLOY_PATH }}" && echo "Created target directory." || echo "Failed to create target directory!"
             fi
 
+      - name: Configure SSH Multiplexing
+        run: |
+          mkdir -p ~/.ssh/sockets
+          cat >> ~/.ssh/config <<EOF
+          Host *
+            ControlMaster auto
+            ControlPath ~/.ssh/sockets/%r@%h-%p
+            ControlPersist 10m
+          EOF
+
       - name: Transfer Build Files for All Apps
         run: |
           rsync -avz --delete --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/server/dist && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
