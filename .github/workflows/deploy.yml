@@ -84,14 +84,14 @@ jobs:
             server/package.json server/package-lock.json \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/server/
             
-          rsync -avz --delete --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/client/.next && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+          rsync -avz --delete --exclude="cache/" --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/client/.next && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             client/.next/ \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/client/.next/
           rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/client/public && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             client/package.json client/package-lock.json client/next.config.ts client/public/ \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/client/
             
-          rsync -avz --delete --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/admin/.next && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
+          rsync -avz --delete --exclude="cache/" --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/admin/.next && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \
             admin/.next/ \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.DEPLOY_PATH }}/admin/.next/
           rsync -avz --rsync-path="mkdir -p ${{ env.DEPLOY_PATH }}/admin/public && rsync" -e "ssh -p ${{ secrets.VPS_PORT || 22 }}" \

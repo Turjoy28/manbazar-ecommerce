@@ -73,8 +73,8 @@ export default function CategoryNavigation({ categories }: CategoryNavigationPro
                             }}
                         >
                             {/* Image Square */}
-                            <div className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border-2 border-gray-100 group-hover/cat:border-primary group-hover/cat:shadow-lg transition-all duration-300 relative bg-white flex items-center justify-center p-0">
-                                <div className="w-full h-full rounded-2xl overflow-hidden relative bg-gray-50">
+                            <div className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-none overflow-hidden border-2 border-gray-100 group-hover/cat:border-primary group-hover/cat:shadow-lg transition-all duration-300 relative bg-white flex items-center justify-center p-0">
+                                <div className="w-full h-full rounded-none overflow-hidden relative bg-gray-50">
                                     {category.image ? (
                                         <Image
                                             src={category.image}
