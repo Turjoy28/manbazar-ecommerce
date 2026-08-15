@@ -20,6 +20,13 @@ export async function seedCategories() {
     try {
         console.log("📦 Checking if old categories need migration...");
         
+        // If categories already exist, skip migration to prevent duplicates on server restart
+        const existingCount = await Category.countDocuments();
+        if (existingCount > 0) {
+            console.log("  ⏭️ Categories already exist. Skipping automatic migration.");
+            return;
+        }
+        
         // 1. Drop old indexes that might conflict (like title_1 from a previous schema)
         try {
             await Category.collection.dropIndex("title_1");
