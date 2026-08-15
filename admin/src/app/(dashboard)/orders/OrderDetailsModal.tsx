@@ -175,7 +175,7 @@ export function OrderDetailsModal({
             <div className="w-64 space-y-2 text-sm">
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
-                <span>৳{(order.total - order.deliveryCharge).toLocaleString()}</span>
+                <span>৳{(order.subtotal || 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Shipping</span>
@@ -189,7 +189,7 @@ export function OrderDetailsModal({
               )}
               <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
                 <span>Total</span>
-                <span>৳{order.total.toLocaleString()}</span>
+                <span>৳{(order.grandTotal || order.total).toLocaleString()}</span>
               </div>
             </div>
           </div>

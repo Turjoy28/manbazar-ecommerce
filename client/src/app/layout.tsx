@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import { GoogleTagManager } from '@next/third-parties/google';
 import { OrderProvider } from "@/providers/OrderProvider";
 import { Toaster } from "sonner";
 import FloatingCartButton from "@/components/shared/FloatingCartButton";
@@ -13,7 +14,7 @@ import MobileBottomNav from "@/components/shared/MobileBottomNav";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const uiData = await getUiData();
+  const uiData = await getUiData().catch(() => null);
   const logoUrl = uiData?.data?.[0]?.banner?.logo;
 
   const icons = logoUrl && logoUrl.startsWith("http")
@@ -142,6 +143,7 @@ export default async function RootLayout({
         </OrderProvider>
         <Toaster richColors />
       </body>
+      <GoogleTagManager gtmId="GTM-NRXMDP3J" />
     </html>
   );
 }

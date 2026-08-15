@@ -131,7 +131,7 @@ const createOrder = async (payload: Record<string, any>) => {
         const match = charges.find((d: any) =>
             d.text.toLowerCase().includes(chargeText)
         );
-        
+
         let defaultCharge = 50;
         if (location === "outside") defaultCharge = 150;
         else if (location === "subcity") defaultCharge = 100;
@@ -192,7 +192,7 @@ const updateOrderStatus = async (id: string, status: string) => {
 
         for (const item of order.products) {
             const qty = item.quantity;
-            
+
             // Re-fetch product to find correct variant index based on color
             const dbProduct = await Product.findById(item.id);
             if (!dbProduct) continue;
@@ -206,28 +206,28 @@ const updateOrderStatus = async (id: string, status: string) => {
 
             if (status === "shipped") {
                 // Physically left warehouse: decrement both reserved and on_hand
-                const incObj = isVariant 
+                const incObj = isVariant
                     ? { [`variants.${variantIndex}.quantity_on_hand`]: -qty, [`variants.${variantIndex}.quantity_reserved`]: -qty }
                     : { quantity_on_hand: -qty, quantity_reserved: -qty };
-                
+
                 bulkUpdates.push({
                     updateOne: { filter: { _id: item.id }, update: { $inc: incObj } }
                 });
             } else if (status === "cancelled" && oldStatus !== "shipped" && oldStatus !== "delivered") {
                 // Free up reserved stock immediately
-                const incObj = isVariant 
+                const incObj = isVariant
                     ? { [`variants.${variantIndex}.quantity_reserved`]: -qty }
                     : { quantity_reserved: -qty };
-                
+
                 bulkUpdates.push({
                     updateOne: { filter: { _id: item.id }, update: { $inc: incObj } }
                 });
             } else if (status === "returned") {
                 // Return items physically back to the warehouse
-                const incObj = isVariant 
+                const incObj = isVariant
                     ? { [`variants.${variantIndex}.quantity_on_hand`]: qty }
                     : { quantity_on_hand: qty };
-                
+
                 bulkUpdates.push({
                     updateOne: { filter: { _id: item.id }, update: { $inc: incObj } }
                 });
@@ -296,8 +296,8 @@ const getMonthlyData = async () => {
         { $match: { createdAt: { $gte: ninetyDaysAgo } } },
         {
             $group: {
-                _id: { 
-                    year: { $year: "$createdAt" }, 
+                _id: {
+                    year: { $year: "$createdAt" },
                     month: { $month: "$createdAt" },
                     day: { $dayOfMonth: "$createdAt" }
                 },

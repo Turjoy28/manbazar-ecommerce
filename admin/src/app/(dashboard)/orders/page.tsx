@@ -814,7 +814,7 @@ export default function OrdersPage() {
                         <div className="space-y-1.5 text-[13px]">
                           <div className="flex justify-between gap-4 text-muted-foreground">
                             <span>Subtotal:</span>
-                            <span className="font-semibold text-foreground">৳ {(order.total || 0) - (order.deliveryCharge || 0)}</span>
+                            <span className="font-semibold text-foreground">৳ {order.subtotal || 0}</span>
                           </div>
                           <div className="flex justify-between gap-4 text-muted-foreground">
                             <span>Shipping:</span>
@@ -822,7 +822,7 @@ export default function OrdersPage() {
                           </div>
                           <div className="flex justify-between items-center gap-4 font-bold text-sm bg-black text-white px-2.5 py-1.5 rounded mt-1.5 shadow-sm">
                             <span>Total:</span>
-                            <span>৳ {order.total}</span>
+                            <span>৳ {order.grandTotal || order.total}</span>
                           </div>
                         </div>
                       </TableCell>

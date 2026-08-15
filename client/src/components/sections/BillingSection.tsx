@@ -70,10 +70,10 @@ function CartItemRow({
               ৳ {(
                 (item?.variant
                   ? (item.variant.sale_price != null && item.variant.sale_price > 0
-                      ? item.variant.sale_price
-                      : (item.variant.price != null && item.variant.price > 0
-                          ? item.variant.price
-                          : item.product.price))
+                    ? item.variant.sale_price
+                    : (item.variant.price != null && item.variant.price > 0
+                      ? item.variant.price
+                      : item.product.price))
                   : item.product.price) * item.quantity
               ).toFixed(2)}
             </p>
@@ -350,7 +350,7 @@ export default function BillingSection() {
   let deliveryCharge = cartItems.length === 0 ? 0 : Math.max(
     ...cartItems.map((item) => {
       const charges = item.product?.deliveryCharge || [];
-      
+
       let chargeText = "";
       if (billing.location === "dhaka") chargeText = "inside";
       else if (billing.location === "outside") chargeText = "outside";
@@ -374,14 +374,26 @@ export default function BillingSection() {
     deliveryCharge = uiData.deliveryOffer.deliveryCharge || 0;
   }
 
+  const getItemPrice = (item: CartItem) => {
+    if (item.variant) {
+      if (item.variant.sale_price != null && item.variant.sale_price > 0) {
+        return item.variant.sale_price;
+      }
+      if (item.variant.price != null && item.variant.price > 0) {
+        return item.variant.price;
+      }
+    }
+    return item.product.price;
+  };
+
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item?.product?.price * item.quantity,
+    (sum, item) => sum + getItemPrice(item) * item.quantity,
     0,
   );
 
   const totalVat = cartItems.reduce((sum, item, idx) => {
     const vatPercent = item?.product?.vatPercentage || 0;
-    return sum + (item?.product?.price * item.quantity * (vatPercent / 100));
+    return sum + (getItemPrice(item) * item.quantity * (vatPercent / 100));
   }, 0);
 
   const totalAmount = subtotal + totalVat; // Total including VAT
@@ -399,7 +411,7 @@ export default function BillingSection() {
       id: item.product._id,
       productId: item.product.productId || item.product._id || "",
       name: item.product.name,
-      price: item.product.price,
+      price: getItemPrice(item),
       quantity: item.quantity,
       size: item.size,
       color: item.color,
@@ -501,14 +513,14 @@ export default function BillingSection() {
           {placedOrder && (
             <div className="w-full max-w-xl bg-white border border-gray-100 rounded-xl p-6 shadow-sm text-left mx-auto">
               <h3 className="text-xl font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">Order Summary</h3>
-              
+
               {placedOrder.orderId && (
                 <div className="flex justify-between items-center mb-3 text-sm">
                   <span className="text-gray-500">Order ID:</span>
                   <span className="font-semibold text-gray-800 text-base">#{placedOrder.orderId}</span>
                 </div>
               )}
-              
+
               <div className="flex justify-between items-center mb-6 text-sm">
                 <span className="text-gray-500">Payment Method:</span>
                 <span className="font-semibold text-gray-800 uppercase">{placedOrder.paymentMethod}</span>
