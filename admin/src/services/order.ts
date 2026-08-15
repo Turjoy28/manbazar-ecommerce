@@ -32,6 +32,7 @@ export interface OrderData {
     subtotal: number;
     deliveryCharge: number;
     total: number;
+    grandTotal?: number;
     /** Top-level payment method: 'bkash' or 'cod' */
     paymentMethod: "bkash" | "cod";
     /** Lifecycle state of the payment */
