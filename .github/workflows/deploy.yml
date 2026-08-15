@@ -80,6 +80,7 @@ jobs:
           mkdir -p ~/.ssh/sockets
           cat >> ~/.ssh/config <<EOF
           Host *
+            StrictHostKeyChecking no
             ControlMaster auto
             ControlPath ~/.ssh/sockets/%r@%h-%p
             ControlPersist 10m
