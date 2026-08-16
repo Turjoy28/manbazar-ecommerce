@@ -247,8 +247,7 @@ const uiSchema = new mongoose.Schema(
             pathao: {
                 clientId: { type: String, default: "" },
                 clientSecret: { type: String, default: "" },
-                username: { type: String, default: "" },
-                password: { type: String, default: "" },
+                accessToken: { type: String, default: "" },
                 storeId: { type: String, default: "" },
             },
             redx: {

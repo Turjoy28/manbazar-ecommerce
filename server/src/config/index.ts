@@ -33,8 +33,7 @@ export default {
     pathao: {
         client_id: process.env.PATHAO_CLIENT_ID || "",
         client_secret: process.env.PATHAO_CLIENT_SECRET || "",
-        username: process.env.PATHAO_USERNAME || "",
-        password: process.env.PATHAO_PASSWORD || "",
+        access_token: process.env.PATHAO_ACCESS_TOKEN || "",
         store_id: process.env.PATHAO_STORE_ID || "",
     },
     redx: {

@@ -64,7 +64,7 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [selectedCourier, setSelectedCourier] = useState<
-    "steadfast" | "pathao" | "redx"
+    "steadfast" | "pathao" | "redx" | "carrybee"
   >("steadfast");
 
   const [isCourierSending, setIsCourierSending] = useState(false);
@@ -640,6 +640,7 @@ export default function OrdersPage() {
                 <SelectItem value="steadfast">SteadFast</SelectItem>
                 <SelectItem value="pathao">Pathao</SelectItem>
                 <SelectItem value="redx">RedX</SelectItem>
+                <SelectItem value="carrybee">CarryBee</SelectItem>
               </SelectContent>
             </Select>
             <Button

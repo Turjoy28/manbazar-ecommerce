@@ -31,8 +31,7 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
     // Pathao
     const [ptClientId, setPtClientId] = useState(courier?.pathao?.clientId || "");
     const [ptClientSecret, setPtClientSecret] = useState(courier?.pathao?.clientSecret || "");
-    const [ptUsername, setPtUsername] = useState(courier?.pathao?.username || "");
-    const [ptPassword, setPtPassword] = useState(courier?.pathao?.password || "");
+    const [ptAccessToken, setPtAccessToken] = useState(courier?.pathao?.accessToken || "");
     const [ptStoreId, setPtStoreId] = useState(courier?.pathao?.storeId || "");
     
     // RedX
@@ -54,8 +53,7 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
                 "courier.steadfast.apiSecret": sfApiSecret,
                 "courier.pathao.clientId": ptClientId,
                 "courier.pathao.clientSecret": ptClientSecret,
-                "courier.pathao.username": ptUsername,
-                "courier.pathao.password": ptPassword,
+                "courier.pathao.accessToken": ptAccessToken,
                 "courier.pathao.storeId": ptStoreId,
                 "courier.redx.apiKey": rxApiKey,
                 "courier.carrybee.clientId": cbClientId,
@@ -144,13 +142,9 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
                                 <Label>Client Secret</Label>
                                 <Input value={ptClientSecret} onChange={(e) => setPtClientSecret(e.target.value)} type="password" placeholder="Pathao Client Secret" />
                             </div>
-                            <div className="space-y-2">
-                                <Label>Username (Email)</Label>
-                                <Input value={ptUsername} onChange={(e) => setPtUsername(e.target.value)} placeholder="Merchant Login Email" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Password</Label>
-                                <Input value={ptPassword} onChange={(e) => setPtPassword(e.target.value)} type="password" placeholder="Merchant Login Password" />
+                            <div className="space-y-2 sm:col-span-2">
+                                <Label>Access Token</Label>
+                                <Input value={ptAccessToken} onChange={(e) => setPtAccessToken(e.target.value)} type="password" placeholder="Pathao Developer Access Token" />
                             </div>
                             <div className="space-y-2 sm:col-span-2">
                                 <Label>Store ID</Label>

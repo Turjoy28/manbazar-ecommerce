@@ -129,7 +129,7 @@ export const orderService = {
     /** Send selected orders to a courier service */
     sendToCourier: async (
         orderIds: string[],
-        courier: "steadfast" | "pathao" | "redx",
+        courier: "steadfast" | "pathao" | "redx" | "carrybee",
         token?: string
     ): Promise<any> => {
         return secureFetch<any>(`${BASE_URL}/courier/send`, {
