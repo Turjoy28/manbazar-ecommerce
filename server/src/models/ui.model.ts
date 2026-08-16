@@ -239,7 +239,7 @@ const uiSchema = new mongoose.Schema(
             }
         },
         courier: {
-            activeProvider: { type: String, enum: ['steadfast', 'pathao', 'redx', 'none'], default: 'none' },
+            activeProvider: { type: String, enum: ['steadfast', 'pathao', 'redx', 'carrybee', 'none'], default: 'none' },
             steadfast: {
                 apiKey: { type: String, default: "" },
                 apiSecret: { type: String, default: "" },
@@ -253,6 +253,11 @@ const uiSchema = new mongoose.Schema(
             },
             redx: {
                 apiKey: { type: String, default: "" },
+            },
+            carrybee: {
+                clientId: { type: String, default: "" },
+                clientSecret: { type: String, default: "" },
+                clientContext: { type: String, default: "" },
             }
         },
         smtp: {

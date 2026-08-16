@@ -137,7 +137,7 @@ const getPathaoToken = async () => {
     const username = pathao?.username || config.pathao.username;
     const password = pathao?.password || config.pathao.password;
 
-    const resp = await fetch("https://hermes.pathao.com/api/v1/issue-token", {
+    const resp = await fetch("https://api-hermes.pathao.com/aladdin/api/v1/issue-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -160,7 +160,7 @@ const sendToPathao = async (order: {
     const store_id = uiData?.courier?.pathao?.storeId || config.pathao.store_id;
 
     const token = await getPathaoToken();
-    const response = await fetch("https://hermes.pathao.com/api/v1/orders", {
+    const response = await fetch("https://api-hermes.pathao.com/aladdin/api/v1/orders", {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${token}`,
@@ -216,9 +216,110 @@ const sendToRedX = async (order: {
     if (!response.ok) throw new Error(`RedX error: ${response.statusText}`);
     return response.json();
 };
+// ── CarryBee ──────────────────────────────────────────────────────────────────
+const sendToCarryBee = async (order: {
+    id: string;
+    customerName: string;
+    customerPhone: string;
+    customerAddress: string;
+    amount: number;
+}) => {
+    const uiData = await Ui.findOne();
+    const carrybee = uiData?.courier?.carrybee;
+
+    const clientId = carrybee?.clientId;
+    const clientSecret = carrybee?.clientSecret;
+    const clientContext = carrybee?.clientContext;
+
+    if (!clientId || !clientSecret || !clientContext) {
+        throw new Error('CarryBee credentials (Client ID, Secret, or Context) are missing in the admin settings.');
+    }
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Client-ID': clientId,
+        'Client-Secret': clientSecret,
+        'Client-Context': clientContext
+    };
+
+    // 1. Get Address Details to extract city_id and zone_id automatically
+    console.log(`[CARRYBEE] Looking up address mapping for: ${order.customerAddress}`);
+    const addressRes = await fetch('https://developers.carrybee.com/api/v2/address-details', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ query: order.customerAddress })
+    });
+
+    if (!addressRes.ok) throw new Error(`CarryBee Network Error (Address): ${addressRes.status} ${addressRes.statusText}`);
+    const addressData = await addressRes.json();
+
+    if (addressData.error || !addressData.data?.city_id || !addressData.data?.zone_id) {
+        throw new Error(`CarryBee Address Extraction Failed: Could not extract valid city or zone from address "${order.customerAddress}". Please ensure the address contains a valid Bangladesh city/zone. Response: ${JSON.stringify(addressData)}`);
+    }
+
+    const cityId = addressData.data.city_id;
+    const zoneId = addressData.data.zone_id;
+
+    // 2. Fetch the first available Store ID
+    const storeRes = await fetch('https://developers.carrybee.com/api/v2/stores', {
+        method: 'GET',
+        headers
+    });
+
+    if (!storeRes.ok) throw new Error(`CarryBee Network Error (Stores): ${storeRes.status} ${storeRes.statusText}`);
+    const storeData = await storeRes.json();
+
+    if (storeData.error || !storeData.data || storeData.data.length === 0) {
+        throw new Error('CarryBee Error: No pickup stores found for your account. Please create a store in your CarryBee merchant dashboard first.');
+    }
+
+    const storeId = storeData.data[0].id;
+
+    // 3. Dispatch Order
+    console.log(`[CARRYBEE] Dispatching order ${order.id} to Store ${storeId} (City: ${cityId}, Zone: ${zoneId})`);
+    
+    // Ensure 11 digit BD phone number format commonly required by BD couriers
+    let cleanPhone = order.customerPhone.replace(/[^0-9]/g, '');
+    if (cleanPhone.startsWith('880') && cleanPhone.length > 11) {
+        cleanPhone = cleanPhone.substring(2);
+    }
+    
+    const orderPayload = {
+        store_id: storeId,
+        merchant_order_id: order.id,
+        delivery_type: 1, // Standard Delivery
+        product_type: 1, // Parcel
+        recipient_phone: cleanPhone,
+        recipient_name: order.customerName,
+        recipient_address: order.customerAddress,
+        city_id: cityId,
+        zone_id: zoneId,
+        item_weight: 0.5,
+        item_quantity: 1,
+        collectable_amount: order.amount
+    };
+
+    const orderRes = await fetch('https://developers.carrybee.com/api/v2/orders', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(orderPayload)
+    });
+
+    const orderResult = await orderRes.json();
+
+    if (orderResult.error || !orderRes.ok) {
+         throw new Error(`CarryBee Order Dispatch Failed: ${JSON.stringify(orderResult)}`);
+    }
+
+    console.log(`✅ [CARRYBEE] SUCCESS: Order created for ${order.id}`);
+
+    return {
+        consignment_id: orderResult.data?.order?.consignment_id || orderResult.data?.consignment_id || orderResult.data?.id
+    };
+};
 
 // ── Dispatcher ─────────────────────────────────────────────────────────────────
-export type CourierName = "steadfast" | "pathao" | "redx";
+export type CourierName = "steadfast" | "pathao" | "redx" | "carrybee";
 
 /**
  * Send multiple orders to a chosen courier service.
@@ -256,6 +357,8 @@ export const sendOrdersToCourier = async (orderIds: string[], courier?: CourierN
                 apiResult = await sendToPathao(orderData);
             } else if (activeProvider === "redx") {
                 apiResult = await sendToRedX(orderData);
+            } else if (activeProvider === "carrybee") {
+                apiResult = await sendToCarryBee(orderData);
             } else {
                 throw new Error(`Unsupported courier: ${activeProvider}`);
             }

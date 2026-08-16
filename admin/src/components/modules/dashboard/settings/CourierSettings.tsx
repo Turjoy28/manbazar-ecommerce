@@ -38,6 +38,11 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
     // RedX
     const [rxApiKey, setRxApiKey] = useState(courier?.redx?.apiKey || "");
 
+    // CarryBee
+    const [cbClientId, setCbClientId] = useState(courier?.carrybee?.clientId || "");
+    const [cbClientSecret, setCbClientSecret] = useState(courier?.carrybee?.clientSecret || "");
+    const [cbClientContext, setCbClientContext] = useState(courier?.carrybee?.clientContext || "");
+
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsUpdating(true);
@@ -53,6 +58,9 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
                 "courier.pathao.password": ptPassword,
                 "courier.pathao.storeId": ptStoreId,
                 "courier.redx.apiKey": rxApiKey,
+                "courier.carrybee.clientId": cbClientId,
+                "courier.carrybee.clientSecret": cbClientSecret,
+                "courier.carrybee.clientContext": cbClientContext,
                 "footer.contactInfo.number": number,
                 "footer.contactInfo.bkashNumber": bkashNumber,
                 "footer.contactInfo.nagadNumber": nagadNumber,
@@ -105,6 +113,7 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
                             <SelectItem value="steadfast">Steadfast Courier</SelectItem>
                             <SelectItem value="pathao">Pathao Courier</SelectItem>
                             <SelectItem value="redx">RedX</SelectItem>
+                            <SelectItem value="carrybee">CarryBee</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -157,6 +166,26 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
                         <div className="space-y-2">
                             <Label>API Access Token</Label>
                             <Input value={rxApiKey} onChange={(e) => setRxApiKey(e.target.value)} type="password" placeholder="Enter RedX Bearer Token" />
+                        </div>
+                    </div>
+                )}
+
+                {activeProvider === "carrybee" && (
+                    <div className="space-y-4 pt-2 border-t mt-4">
+                        <h5 className="font-semibold text-sm">CarryBee Configuration</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Client ID</Label>
+                                <Input value={cbClientId} onChange={(e) => setCbClientId(e.target.value)} placeholder="Enter CarryBee Client ID" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Client Secret</Label>
+                                <Input value={cbClientSecret} onChange={(e) => setCbClientSecret(e.target.value)} type="password" placeholder="Enter CarryBee Client Secret" />
+                            </div>
+                            <div className="space-y-2 sm:col-span-2">
+                                <Label>Client Context</Label>
+                                <Input value={cbClientContext} onChange={(e) => setCbClientContext(e.target.value)} type="password" placeholder="Enter CarryBee Client Context" />
+                            </div>
                         </div>
                     </div>
                 )}

@@ -26,8 +26,33 @@ export async function generateMetadata(): Promise<Metadata> {
     : undefined;
 
   return {
-    title: "Fashion T-Shirts | ব্র্যান্ডেড শার্ট",
-    description: "ক্লাসিক স্ট্রাইপ, সলিড, এবং বক্স চেক ডিজাইনের ব্র্যান্ডেড শার্ট",
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://manbazar.com'),
+    title: {
+      default: "Manbazar | ব্র্যান্ডেড ফ্যাশন টি-শার্ট শপ",
+      template: "%s | Manbazar"
+    },
+    description: "ক্লাসিক স্ট্রাইপ, সলিড, এবং বক্স চেক ডিজাইনের ব্র্যান্ডেড শার্ট। ম্যানবাজারে আপনাকে স্বাগতম! প্রিমিয়াম কোয়ালিটির টি-শার্ট কালেকশন।",
+    openGraph: {
+      title: "Manbazar | ব্র্যান্ডেড ফ্যাশন টি-শার্ট শপ",
+      description: "ক্লাসিক স্ট্রাইপ, সলিড, এবং বক্স চেক ডিজাইনের ব্র্যান্ডেড শার্ট।",
+      url: process.env.NEXT_PUBLIC_SITE_URL || 'https://manbazar.com',
+      siteName: "Manbazar",
+      images: [
+        {
+          url: logoUrl || '/icon.svg',
+          width: 800,
+          height: 600,
+        },
+      ],
+      locale: "bn_BD",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Manbazar | ব্র্যান্ডেড ফ্যাশন টি-শার্ট শপ",
+      description: "ক্লাসিক স্ট্রাইপ, সলিড, এবং বক্স চেক ডিজাইনের ব্র্যান্ডেড শার্ট।",
+      images: [logoUrl || '/icon.svg'],
+    },
     ...(icons && { icons }),
   };
 }

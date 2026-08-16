@@ -4,7 +4,7 @@ import sendResponse from "../../utils/sendResponse.js";
 
 /**
  * POST /api/v1/courier/send
- * Body: { orderIds: string[], courier: "steadfast" | "pathao" | "redx" }
+ * Body: { orderIds: string[], courier: "steadfast" | "pathao" | "redx" | "carrybee" }
  */
 const sendToCourier = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -15,8 +15,8 @@ const sendToCourier = async (req: Request, res: Response, next: NextFunction) =>
             return;
         }
 
-        if (!["steadfast", "pathao", "redx"].includes(courier)) {
-            res.status(400).json({ success: false, message: "Invalid courier. Use: steadfast, pathao, or redx" });
+        if (!["steadfast", "pathao", "redx", "carrybee"].includes(courier)) {
+            res.status(400).json({ success: false, message: "Invalid courier. Use: steadfast, pathao, redx, or carrybee" });
             return;
         }
 
