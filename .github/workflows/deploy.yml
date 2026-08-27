@@ -139,6 +139,5 @@ jobs:
             
             echo "Restarting PM2 cleanly..."
             cd ${{ env.DEPLOY_PATH }}
-            pm2 delete all || true
-            pm2 start ecosystem.config.js
+            pm2 start ecosystem.config.js || pm2 restart ecosystem.config.js
             pm2 save
