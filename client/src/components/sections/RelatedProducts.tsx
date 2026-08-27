@@ -166,11 +166,6 @@ export default function RelatedProducts({
           <div>
             <h2 className="text-base md:text-2xl font-bold text-gray-900 leading-tight flex items-center gap-1.5 md:gap-2">
               <span>{title}</span>
-              {getCategoryName() && (
-                <span className="text-xs md:text-sm font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
-                  {getCategoryName()}
-                </span>
-              )}
             </h2>
             <p className="text-[10px] md:text-xs text-gray-500 mt-0.5">
               {subtitle}
