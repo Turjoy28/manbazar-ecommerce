@@ -8,14 +8,14 @@ module.exports = {
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
-        PORT: 5000
+        PORT: 5001
       }
     },
     {
       name: 'menbazar-client',
       cwd: './client',
       script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3000',
+      args: 'start -p 3002',
       instances: 1,
       exec_mode: 'fork',
       env: {
@@ -26,7 +26,7 @@ module.exports = {
       name: 'menbazar-admin',
       cwd: './admin',
       script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3001',
+      args: 'start -p 3003',
       instances: 1,
       exec_mode: 'fork',
       env: {
