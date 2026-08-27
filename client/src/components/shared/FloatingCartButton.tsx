@@ -3,8 +3,10 @@
 import { useContext, useState, useRef } from "react";
 import { ShoppingBag } from "lucide-react";
 import { OrderContext } from "@/providers/OrderProvider";
+import { useRouter } from "next/navigation";
 
 export default function FloatingCartButton() {
+    const router = useRouter();
     /* Access the global cart state from OrderContext */
     const { cartItems } = useContext(OrderContext);
 
@@ -80,6 +82,8 @@ export default function FloatingCartButton() {
         const billingSection = document.getElementById("billing");
         if (billingSection) {
             billingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+            router.push('/#billing');
         }
     };
 
