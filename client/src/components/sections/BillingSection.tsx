@@ -7,6 +7,7 @@ import { OrderContext } from "@/providers/OrderProvider";
 import { createOrder } from "@/services/order";
 import { getUiData } from "@/services/ui";
 import { toast } from "sonner";
+import { sendGTMEvent } from "@next/third-parties/google";
 
 import {
   Select,
@@ -311,6 +312,30 @@ export default function BillingSection() {
     }).catch(console.error);
   }, []);
 
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      const getPrice = (item: CartItem) => {
+        if (item.variant) {
+          if (item.variant.sale_price != null && item.variant.sale_price > 0) return item.variant.sale_price;
+          if (item.variant.price != null && item.variant.price > 0) return item.variant.price;
+        }
+        return item.product.price;
+      };
+
+      sendGTMEvent({
+        event: "begin_checkout",
+        ecommerce: {
+          items: cartItems.map(item => ({
+            item_id: item.product.productId || item.product._id,
+            item_name: item.product.name,
+            price: getPrice(item),
+            quantity: item.quantity
+          }))
+        }
+      });
+    }
+  }, [cartItems.length]);
+
   const [isSuccess, setIsSuccess] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<any>(null);
 
@@ -453,6 +478,24 @@ export default function BillingSection() {
       const response = await createOrder(orderPayload);
       setPlacedOrder({ ...orderPayload, orderId: response?.data?.orderId || response?.data?._id });
       clearCart();
+      
+      sendGTMEvent({
+        event: "purchase",
+        ecommerce: {
+          transaction_id: response?.data?.orderId || response?.data?._id || `txn_${Date.now()}`,
+          value: grandTotal,
+          tax: totalVat,
+          shipping: deliveryCharge,
+          currency: "BDT",
+          items: cartItems.map(item => ({
+            item_id: item.product.productId || item.product._id,
+            item_name: item.product.name,
+            price: getItemPrice(item),
+            quantity: item.quantity
+          }))
+        }
+      });
+
       setBilling({
         name: "",
         address: "",

@@ -3,6 +3,7 @@
 import { createContext, ReactNode, useState, useEffect } from "react";
 import { CartItem, Product, ProductVariant } from "@/types";
 import { toast } from "sonner";
+import { sendGTMEvent } from "@next/third-parties/google";
 
 interface OrderContextType {
     cartItems: CartItem[];
@@ -79,14 +80,50 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
                     quantity: prev[existingIndex].quantity + quantity
                 };
                 toast.success("Cart updated!");
+                sendGTMEvent({
+                    event: "add_to_cart",
+                    ecommerce: {
+                        items: [{
+                            item_id: product.productId || product._id,
+                            item_name: product.name,
+                            price: matchedVariant?.sale_price || matchedVariant?.price || product.price,
+                            quantity: quantity
+                        }]
+                    }
+                });
                 return newItems;
             }
             toast.success("Added to cart!");
+            sendGTMEvent({
+                event: "add_to_cart",
+                ecommerce: {
+                    items: [{
+                        item_id: product.productId || product._id,
+                        item_name: product.name,
+                        price: matchedVariant?.sale_price || matchedVariant?.price || product.price,
+                        quantity: quantity
+                    }]
+                }
+            });
             return [...prev, { product, quantity, size, color, variant: matchedVariant }];
         });
     };
 
     const removeFromCart = (productId: string, size?: string, color?: string) => {
+        const itemToRemove = cartItems.find(item => item.product._id === productId && item.size === size && item.color === color);
+        if (itemToRemove) {
+            sendGTMEvent({
+                event: "remove_from_cart",
+                ecommerce: {
+                    items: [{
+                        item_id: itemToRemove.product.productId || itemToRemove.product._id,
+                        item_name: itemToRemove.product.name,
+                        price: itemToRemove.variant?.sale_price || itemToRemove.variant?.price || itemToRemove.product.price,
+                        quantity: itemToRemove.quantity
+                    }]
+                }
+            });
+        }
         setCartItems(prev => prev.filter(item =>
             !(item.product._id === productId && item.size === size && item.color === color)
         ));

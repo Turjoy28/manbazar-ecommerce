@@ -34,15 +34,31 @@ export default function RelatedProducts({
         if (!isMounted) return;
         const allProducts = productsRes?.data?.products || [];
 
-        // Exclude the current product and fetch all
-        const otherProducts = allProducts.filter(
-          (p) => p._id !== currentProduct._id
-        );
-
-        setRelatedProducts(otherProducts);
-
         const activeCategories = categoriesRes?.data || [];
         setCategories(activeCategories);
+
+        const activeCategoryIds = new Set(activeCategories.map((c: any) => c._id));
+        const activeCategorySlugs = new Set(activeCategories.map((c: any) => c.slug));
+
+        // Exclude the current product, inactive products, and products with inactive categories
+        const otherProducts = allProducts.filter((p) => {
+          if (p._id === currentProduct._id) return false;
+          if (p.isActive === false) return false;
+
+          const categoryId = typeof p.category === "object" && p.category !== null ? (p.category as any)._id : p.category;
+          const categorySlug = typeof p.category === "object" && p.category !== null ? (p.category as any).slug : null;
+          const categoryIsActive = typeof p.category === "object" && p.category !== null ? (p.category as any).isActive : true;
+
+          if (categoryIsActive === false) return false;
+
+          if (categoryId && !activeCategoryIds.has(categoryId) && (!categorySlug || !activeCategorySlugs.has(categorySlug))) {
+            return false;
+          }
+
+          return true;
+        });
+
+        setRelatedProducts(otherProducts);
       })
       .catch((err) => {
         console.error("Failed to fetch related products or categories:", err);

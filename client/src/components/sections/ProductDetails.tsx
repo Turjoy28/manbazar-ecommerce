@@ -9,6 +9,7 @@ import { OrderContext } from "@/providers/OrderProvider";
 import { Truck, ThumbsUp, Banknote, PhoneCall, MessageCircle } from 'lucide-react';
 import { getUiData } from "@/services/ui";
 import RelatedProducts from "./RelatedProducts";
+import { sendGTMEvent } from "@next/third-parties/google";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 function ChevronLeft() {
@@ -458,6 +459,21 @@ export default function ProductDetails({
       }
     }).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (product) {
+      sendGTMEvent({
+        event: "view_item",
+        ecommerce: {
+          items: [{
+            item_id: product.productId || product._id,
+            item_name: product.name,
+            price: product.price
+          }]
+        }
+      });
+    }
+  }, [product]);
 
   const { addToCart, cartItems } = useContext(OrderContext);
 
