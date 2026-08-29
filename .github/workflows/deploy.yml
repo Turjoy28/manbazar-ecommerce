@@ -125,17 +125,21 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             export PATH=$PATH:~/bin:~/.npm-global/bin
             
+            echo "Stopping PM2 apps to free up memory during installation..."
+            cd ${{ env.DEPLOY_PATH }}
+            pm2 stop ecosystem.config.js || true
+            
             echo "Installing production dependencies for server..."
             cd ${{ env.DEPLOY_PATH }}/server
-            npm ci --omit=dev
+            npm install --omit=dev
             
             echo "Installing production dependencies for client..."
             cd ${{ env.DEPLOY_PATH }}/client
-            npm ci --omit=dev
+            npm install --omit=dev
             
             echo "Installing production dependencies for admin..."
             cd ${{ env.DEPLOY_PATH }}/admin
-            npm ci --omit=dev
+            npm install --omit=dev
             
             echo "Restarting PM2 cleanly..."
             cd ${{ env.DEPLOY_PATH }}
