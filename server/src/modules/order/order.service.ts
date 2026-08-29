@@ -274,7 +274,25 @@ const updateCourierInfo = async (
 
 /** Aggregate dashboard statistics */
 const getStats = async () => {
-    const [totalOrders, totalRevenue, pending, delivered, cancelled, products] = await Promise.all([
+    const Product = (await import("../../models/product.model.js")).Product;
+    const Category = (await import("../../models/category.model.js")).Category;
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [
+        totalOrders, 
+        totalRevenue, 
+        pending, 
+        delivered, 
+        cancelled, 
+        totalProducts,
+        thisMonthOrders,
+        thisMonthRevenueResult,
+        ordersByLocation,
+        mostOrderedItems,
+        allProducts
+    ] = await Promise.all([
         Order.countDocuments(),
         Order.aggregate([
             { $match: { paymentStatus: "completed" } },
@@ -283,9 +301,78 @@ const getStats = async () => {
         Order.countDocuments({ status: "pending" }),
         Order.countDocuments({ status: "delivered" }),
         Order.countDocuments({ status: "cancelled" }),
-        // Import inline to avoid circular deps
-        (await import("../../models/product.model.js")).Product.countDocuments(),
+        Product.countDocuments(),
+        Order.countDocuments({ createdAt: { $gte: startOfMonth } }),
+        Order.aggregate([
+            { $match: { createdAt: { $gte: startOfMonth }, paymentStatus: "completed" } },
+            { $group: { _id: null, total: { $sum: "$total" } } }
+        ]),
+        Order.aggregate([
+            { $group: { _id: "$customer.location", count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]),
+        Order.aggregate([
+            { $unwind: "$products" },
+            { $group: { _id: { id: "$products.id", name: "$products.name" }, count: { $sum: "$products.quantity" } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 }
+        ]),
+        Product.find({}).populate("category")
     ]);
+
+    // Calculate complex inventory metrics in-memory
+    let totalStockUnits = 0;
+    let totalStockValue = 0;
+    const categoryMap = new Map<string, { totalItems: number, products: any[] }>();
+
+    for (const p of allProducts) {
+        const catName = p.category?.name || "Uncategorized";
+        if (!categoryMap.has(catName)) {
+            categoryMap.set(catName, { totalItems: 0, products: [] });
+        }
+        const catData = categoryMap.get(catName)!;
+        
+        let pStock = 0;
+        let pValue = 0;
+        const colorBreakdown: { color: string, stock: number }[] = [];
+
+        if (p.variants && p.variants.length > 0) {
+            for (const v of p.variants) {
+                const available = (v.quantity_on_hand || 0) - (v.quantity_reserved || 0);
+                if (available > 0) {
+                    pStock += available;
+                    const vPrice = v.price || p.price;
+                    pValue += (available * vPrice);
+                    colorBreakdown.push({ color: v.color.name, stock: available });
+                }
+            }
+        } else {
+            const available = (p.quantity_on_hand || 0) - (p.quantity_reserved || 0);
+            if (available > 0) {
+                pStock += available;
+                pValue += (available * p.price);
+            }
+        }
+
+        totalStockUnits += pStock;
+        totalStockValue += pValue;
+
+        if (pStock > 0) {
+            catData.totalItems += pStock;
+            catData.products.push({
+                name: p.name,
+                stock: pStock,
+                sizes: p.sizes || [],
+                colors: colorBreakdown
+            });
+        }
+    }
+
+    const stockByCategory = Array.from(categoryMap.entries()).map(([name, data]) => ({
+        category: name,
+        totalItems: data.totalItems,
+        products: data.products
+    })).sort((a, b) => b.totalItems - a.totalItems);
 
     return {
         totalOrders,
@@ -293,7 +380,22 @@ const getStats = async () => {
         pendingOrders: pending,
         deliveredOrders: delivered,
         cancelledOrders: cancelled,
-        totalProducts: products,
+        totalProducts,
+        thisMonthOrders,
+        thisMonthRevenue: thisMonthRevenueResult[0]?.total || 0,
+        ordersByLocation: ordersByLocation.map(loc => ({
+            location: loc._id || "Unknown",
+            count: loc.count
+        })),
+        mostOrderedItems: mostOrderedItems.map(item => ({
+            name: item._id.name,
+            count: item.count
+        })),
+        inventory: {
+            totalStockUnits,
+            totalStockValue,
+            stockByCategory
+        }
     };
 };
 
