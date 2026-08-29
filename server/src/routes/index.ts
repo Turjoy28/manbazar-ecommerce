@@ -8,6 +8,7 @@ import { courierRoute } from '../modules/courier/courier.route.js';
 import { bannersRoute } from '../modules/banners/banners.route.js';
 import { feedRoute } from '../modules/feed/feed.route.js';
 import { categoryRoute } from '../modules/category/category.route.js';
+import { incompleteOrderRoute } from '../modules/incomplete-order/incomplete-order.route.js';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ const moduleRoutes = [
     { path: "/banners",      route: bannersRoute },
     { path: "/feed",         route: feedRoute },
     { path: "/categories",   route: categoryRoute },
+    { path: "/incomplete-orders", route: incompleteOrderRoute },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

@@ -21,6 +21,7 @@ import {
   Users,
   Image as ImageIcon,
   Layers,
+  ClipboardList,
 } from "lucide-react";
 import { getUiData } from "@/services/ui";
 import { authService } from "@/services/auth";
@@ -73,6 +74,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Orders",
       url: "/orders",
       icon: <ShoppingCart className="size-4" />,
+    },
+    {
+      title: "Incomplete Orders",
+      url: "/orders/incomplete",
+      icon: <ClipboardList className="size-4" />,
     },
   ];
 

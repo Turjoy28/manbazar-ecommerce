@@ -159,7 +159,17 @@ const createOrder = async (payload: Record<string, any>) => {
         await Product.bulkWrite(bulkInventoryUpdates);
     }
 
-    return Order.create(payload);
+    const createdOrder = await Order.create(payload);
+
+    // Clean up any incomplete order records for this customer (fire-and-forget)
+    try {
+        const { incompleteOrderService } = await import("../incomplete-order/incomplete-order.service.js");
+        await incompleteOrderService.cleanupByPhone(payload.customer?.phone);
+    } catch (err) {
+        console.error("[IncompleteOrder Cleanup] Failed:", err);
+    }
+
+    return createdOrder;
 };
 
 /** Get paginated orders (admin) */

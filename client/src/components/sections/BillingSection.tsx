@@ -1,10 +1,11 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { CartItem } from "@/types";
 import { OrderContext } from "@/providers/OrderProvider";
 import { createOrder } from "@/services/order";
+import { saveIncompleteOrder } from "@/services/incomplete-order";
 import { getUiData } from "@/services/ui";
 import { toast } from "sonner";
 import { sendGTMEvent } from "@next/third-parties/google";
@@ -350,6 +351,88 @@ export default function BillingSection() {
     senderNumber: "",
     location: "dhaka",
   });
+
+  // ── Incomplete Order Tracking ──────────────────────────────────────────────
+  const incompleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Generate or retrieve a unique session ID per browser tab
+  const getSessionId = useCallback(() => {
+    if (typeof window === "undefined") return "";
+    let sid = sessionStorage.getItem("incomplete_order_sid");
+    if (!sid) {
+      sid = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+      sessionStorage.setItem("incomplete_order_sid", sid);
+    }
+    return sid;
+  }, []);
+
+  // Check if the form state qualifies as an "incomplete order"
+  useEffect(() => {
+    // Clear any pending timer
+    if (incompleteTimerRef.current) {
+      clearTimeout(incompleteTimerRef.current);
+      incompleteTimerRef.current = null;
+    }
+
+    // Must have items in cart
+    if (cartItems.length === 0) return;
+
+    const nameOk = billing.name.trim().length >= 2;
+    const addressOk = billing.address.trim().length >= 2;
+    const phoneRegex = /^01[0-9]{9}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const contactOk = phoneRegex.test(billing.phone.trim()) || emailRegex.test(billing.email.trim());
+
+    if (!nameOk || !addressOk || !contactOk) return;
+
+    // Debounce: wait 1.5s of no further changes before sending
+    incompleteTimerRef.current = setTimeout(() => {
+      const sessionId = getSessionId();
+      if (!sessionId) return;
+
+      const getItemPrice = (item: CartItem) => {
+        if (item.variant) {
+          if (item.variant.sale_price != null && item.variant.sale_price > 0) return item.variant.sale_price;
+          if (item.variant.price != null && item.variant.price > 0) return item.variant.price;
+        }
+        return item.product.price;
+      };
+
+      const totalPrice = cartItems.reduce(
+        (sum, item) => sum + getItemPrice(item) * item.quantity,
+        0
+      );
+
+      saveIncompleteOrder({
+        sessionId,
+        customer: {
+          name: billing.name.trim(),
+          phone: billing.phone.trim(),
+          email: billing.email.trim(),
+          address: billing.address.trim(),
+          location: billing.location,
+        },
+        products: cartItems.map((item) => ({
+          productId: item.product.productId || item.product._id,
+          name: item.product.name,
+          price: getItemPrice(item),
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+          thumbnail: item.variant?.images?.[0] || item.product.thumbnail || item.product.images?.[0] || "",
+        })),
+        totalPrice,
+        paymentMethod: billing.paymentMethod === "bkash" ? "bKash" : "CashOnDelivery",
+      });
+    }, 1500);
+
+    return () => {
+      if (incompleteTimerRef.current) {
+        clearTimeout(incompleteTimerRef.current);
+      }
+    };
+  }, [billing.name, billing.address, billing.phone, billing.email, billing.location, billing.paymentMethod, cartItems, getSessionId]);
+  // ── End Incomplete Order Tracking ──────────────────────────────────────────
 
   const handleBillingChange =
     (field: keyof typeof billing) => (e: React.ChangeEvent<HTMLInputElement>) =>
