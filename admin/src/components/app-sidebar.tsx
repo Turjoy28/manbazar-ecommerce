@@ -59,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     fetchLogoAndRole();
   }, []);
 
-  const navMain = [
+  const navMain: any[] = [
     {
       title: "Dashboard",
       url: "/",
@@ -75,11 +75,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/orders",
       icon: <ShoppingCart className="size-4" />,
     },
-    {
-      title: "Incomplete Orders",
-      url: "/orders/incomplete",
-      icon: <ClipboardList className="size-4" />,
-    },
   ];
 
   if (role === "MANAGER" || role === "USER") {
@@ -89,8 +84,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: <ImageIcon className="size-4" />,
     });
   } else {
-    // ADMIN-only links: Categories and Settings
+    // ADMIN-only links: Incomplete Orders, Categories and Settings
     navMain.push(
+      {
+        title: "Incomplete Orders",
+        url: "/orders/incomplete",
+        icon: <ClipboardList className="size-4" />,
+      },
       {
         title: "Categories",
         url: "/categories",
