@@ -366,7 +366,7 @@ const getStats = async () => {
         
         let pStock = 0;
         let pValue = 0;
-        const colorBreakdown: { color: string, stock: number }[] = [];
+        const colorBreakdown: { color: string, stock: number, sizes?: { size: string, stock: number }[] }[] = [];
 
         if (p.variants && p.variants.length > 0) {
             for (const v of p.variants) {
@@ -375,7 +375,12 @@ const getStats = async () => {
                     pStock += available;
                     const vPrice = v.price || p.price;
                     pValue += (available * vPrice);
-                    colorBreakdown.push({ color: v.color.name, stock: available });
+                    colorBreakdown.push({ 
+                        color: v.color.name, 
+                        hex: v.color.hex || "#ccc",
+                        stock: available,
+                        sizes: v.sizes || []
+                    });
                 }
             }
         } else {
