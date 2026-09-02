@@ -366,7 +366,7 @@ const getStats = async () => {
         
         let pStock = 0;
         let pValue = 0;
-        const colorBreakdown: { color: string, stock: number, sizes?: { size: string, stock: number }[] }[] = [];
+        const colorBreakdown: { color: string, hex?: string, stock: number, sizes?: { size: string, stock: number }[] }[] = [];
 
         if (p.variants && p.variants.length > 0) {
             for (const v of p.variants) {
