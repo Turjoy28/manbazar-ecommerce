@@ -116,14 +116,18 @@ export const productService = {
         const formData = new FormData();
         formData.append("file", file);
 
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
         const res = await fetch(`${BASE_URL}/products/bulk-csv`, {
             method: "POST",
-            headers: {
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
+            credentials: "include", // Send auth cookies
             body: formData,
         });
+        
+        // Return JSON if successful, or throw error text
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(errorText || "Upload failed");
+        }
+        
         return res.json();
     },
 };

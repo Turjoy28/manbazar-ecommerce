@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { productService } from "./product.service.js";
 import sendResponse from "../../utils/sendResponse.js";
+import { parse } from "csv-parse/sync";
 
 /** POST /products — Create a new product (admin) */
 const createProduct = async (req: Request, res: Response, next: NextFunction) => {
@@ -78,7 +79,6 @@ const bulkUploadCSV = async (req: Request, res: Response, next: NextFunction) =>
             return;
         }
 
-        const { parse } = await import("csv-parse/sync");
         const csvContent = file.buffer.toString("utf-8");
         const rows: Record<string, string>[] = parse(csvContent, {
             columns: true,
@@ -104,6 +104,15 @@ const bulkUploadCSV = async (req: Request, res: Response, next: NextFunction) =>
             }
             productMap.get(name)!.variantRows.push(row);
         }
+
+        // Fetch all categories to map names to ObjectIds
+        const Category = (await import("../../models/category.model.js")).Category;
+        const categories = await Category.find({});
+        const categoryMap = new Map<string, string>();
+        for (const c of categories) {
+            categoryMap.set(c.name.toLowerCase().trim(), String(c._id));
+        }
+        console.log("=== DB CATEGORIES ===", categoryMap);
 
         // Build product payloads
         const payloads: Record<string, unknown>[] = [];
@@ -170,12 +179,15 @@ const bulkUploadCSV = async (req: Request, res: Response, next: NextFunction) =>
             // Calculate total stock from variants
             const totalStock = variants.reduce((sum, v) => sum + (v.quantity_on_hand || 0), 0);
 
+            let offerType = (base.offerType || "NONE").toUpperCase();
+            if (offerType === "FLAT") offerType = "DIRECT";
+
             const payload: Record<string, unknown> = {
                 name,
                 slug,
                 description: (base.description || "").trim(),
                 base_price: Number(base.base_price) || 0,
-                offerType: base.offerType || "NONE",
+                offerType,
                 offerValue: Number(base.offerValue) || 0,
                 vatPercentage: Number(base.vatPercentage) || 0,
                 thumbnail: (base.thumbnail || "").trim(),
@@ -190,10 +202,31 @@ const bulkUploadCSV = async (req: Request, res: Response, next: NextFunction) =>
                 videoUrl: (base.videoUrl || "").trim(),
             };
 
-            // Only set category if provided and looks like a valid ObjectId
+            // Set category: check if it's a valid ObjectId, otherwise lookup by name, or CREATE it
             const cat = (base.category || "").trim();
-            if (cat && /^[a-f0-9]{24}$/i.test(cat)) {
-                payload.category = cat;
+            if (cat) {
+                if (/^[a-f0-9]{24}$/i.test(cat)) {
+                    payload.category = cat;
+                } else {
+                    const mappedId = categoryMap.get(cat.toLowerCase());
+                    if (mappedId) {
+                        payload.category = mappedId;
+                    } else {
+                        // Auto-create missing category
+                        try {
+                            const newSlug = cat.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+                            const newCategory = await Category.create({
+                                name: cat,
+                                slug: newSlug + "-" + Date.now().toString().slice(-4), // avoid slug collision
+                            });
+                            categoryMap.set(cat.toLowerCase(), String(newCategory._id));
+                            payload.category = String(newCategory._id);
+                            console.log(`Auto-created category: ${cat}`);
+                        } catch (err) {
+                            console.error(`Failed to auto-create category ${cat}`, err);
+                        }
+                    }
+                }
             }
 
             payloads.push(payload);
@@ -206,7 +239,10 @@ const bulkUploadCSV = async (req: Request, res: Response, next: NextFunction) =>
             message: `CSV processed: ${result.created.length} created, ${result.skipped.length} skipped, ${result.errors.length} errors.`,
             data: result,
         });
-    } catch (error) { next(error); }
+    } catch (error) {
+        console.error("=== CSV UPLOAD ERROR ===", error);
+        next(error);
+    }
 };
 
 export const productController = {
