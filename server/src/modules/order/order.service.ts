@@ -254,6 +254,38 @@ const updateOrderStatus = async (id: string, status: string) => {
 
 /** Bulk delete orders */
 const deleteOrders = async (ids: string[]) => {
+    const Product = (await import("../../models/product.model.js")).Product;
+    const ordersToDelete = await Order.find({ _id: { $in: ids } });
+
+    const bulkUpdates: any[] = [];
+    for (const order of ordersToDelete) {
+        if (order.status !== "shipped" && order.status !== "delivered" && order.status !== "cancelled") {
+            // Order is holding reserved stock, must free it before deletion
+            for (const item of order.products) {
+                const dbProduct = await Product.findById(item.id);
+                if (!dbProduct) continue;
+
+                let variantIndex = -1;
+                if (item.color && dbProduct.variants && dbProduct.variants.length > 0) {
+                    variantIndex = dbProduct.variants.findIndex((v: any) => v.color?.name === item.color);
+                }
+                const isVariant = variantIndex !== -1;
+
+                const incObj = isVariant
+                    ? { [`variants.${variantIndex}.quantity_reserved`]: -item.quantity }
+                    : { quantity_reserved: -item.quantity };
+
+                bulkUpdates.push({
+                    updateOne: { filter: { _id: item.id }, update: { $inc: incObj } }
+                });
+            }
+        }
+    }
+
+    if (bulkUpdates.length > 0) {
+        await Product.bulkWrite(bulkUpdates);
+    }
+
     return Order.deleteMany({ _id: { $in: ids } });
 };
 
@@ -456,6 +488,33 @@ const updateOrder = async (id: string, payload: Partial<any>) => {
 
 /** Delete all orders permanently (danger zone) */
 const deleteAllOrders = async () => {
+    // Reset all reserved stock to 0 across all products and variants
+    const Product = (await import("../../models/product.model.js")).Product;
+    const products = await Product.find({});
+    
+    for (const p of products) {
+        let changed = false;
+        
+        if (p.quantity_reserved !== 0) {
+            p.quantity_reserved = 0;
+            changed = true;
+        }
+
+        if (p.variants && p.variants.length > 0) {
+            for (const v of p.variants) {
+                if (v.quantity_reserved !== 0) {
+                    v.quantity_reserved = 0;
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) {
+            p.markModified('variants');
+            await p.save();
+        }
+    }
+
     return Order.deleteMany({});
 };
 

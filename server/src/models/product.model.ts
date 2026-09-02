@@ -1,9 +1,17 @@
 import mongoose from "mongoose";
 
+const variantSizeSchema = new mongoose.Schema(
+    {
+        size: { type: String, required: true, trim: true },
+        stock: { type: Number, default: 0 },
+    },
+    { _id: false }
+);
+
 /* ─── Variant Sub-Schema ───────────────────────────────────────────────────────
    Each variant represents a unique color option.
-   Supports per-variant: images, stock, optional price override, and SKU.
-   Designed to be extended in the future with size/material/etc. attributes.
+   Supports per-variant: images, stock, optional price override, SKU, and sizes.
+   Designed to be extended in the future with material/etc. attributes.
    ──────────────────────────────────────────────────────────────────────────── */
 const variantSchema = new mongoose.Schema(
     {
@@ -12,6 +20,10 @@ const variantSchema = new mongoose.Schema(
             hex: { type: String, default: "#000000", trim: true },
         },
         sku: { type: String, default: "", trim: true },
+        sizes: {
+            type: [variantSizeSchema],
+            default: [],
+        },
         quantity_on_hand: { type: Number, default: 0 },
         quantity_reserved: { type: Number, default: 0 },
         /** Optional per-variant price override. Falls back to product.price if null. */

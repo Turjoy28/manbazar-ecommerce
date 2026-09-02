@@ -53,6 +53,7 @@ function toEmbedUrl(url: string): string {
 const createEmptyVariant = (): ProductVariant => ({
     color: { name: "", hex: "#3B82F6" },
     sku: "",
+    sizes: [],
     stock: 0,
     quantity_on_hand: 0,
     price: null,
@@ -558,6 +559,73 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                                 </div>
                                             </div>
 
+                                            {/* Variant Sizes */}
+                                            <div className="space-y-4 pt-4 border-t border-border mt-4">
+                                                <div className="flex items-center justify-between">
+                                                    <Label className="text-foreground/80 text-sm">Sizes & Stock</Label>
+                                                    <Button 
+                                                        type="button" 
+                                                        variant="outline" 
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            const currentSizes = variant.sizes || [];
+                                                            updateVariant(index, { sizes: [...currentSizes, { size: "S", stock: 0 }] });
+                                                        }}
+                                                        className="h-8 text-xs"
+                                                    >
+                                                        <Plus className="h-3 w-3 mr-1" /> Add Size
+                                                    </Button>
+                                                </div>
+                                                
+                                                {variant.sizes && variant.sizes.length > 0 && (
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
+                                                        {variant.sizes.map((vs, sIdx) => (
+                                                            <div key={sIdx} className="flex gap-1 items-center bg-background/50 p-1.5 rounded-md border border-border/50">
+                                                                <Input 
+                                                                    value={vs.size}
+                                                                    onChange={(e) => {
+                                                                        const nextSizes = [...variant.sizes!];
+                                                                        nextSizes[sIdx].size = e.target.value.toUpperCase();
+                                                                        updateVariant(index, { sizes: nextSizes });
+                                                                    }}
+                                                                    placeholder="Size (e.g. XL)"
+                                                                    className="h-8 text-xs border-border bg-background focus:ring-1 focus:ring-primary focus:border-primary"
+                                                                />
+                                                                <Input 
+                                                                    type="number"
+                                                                    value={vs.stock === 0 ? "" : vs.stock}
+                                                                    onChange={(e) => {
+                                                                        const nextSizes = [...variant.sizes!];
+                                                                        nextSizes[sIdx].stock = e.target.value === "" ? 0 : Number(e.target.value);
+                                                                        
+                                                                        const newStock = nextSizes.reduce((sum, s) => sum + s.stock, 0);
+                                                                        updateVariant(index, { sizes: nextSizes, stock: newStock, quantity_on_hand: newStock });
+                                                                    }}
+                                                                    placeholder="Stock"
+                                                                    className="h-8 w-20 text-xs border-border bg-background focus:ring-1 focus:ring-primary focus:border-primary"
+                                                                />
+                                                                <Button 
+                                                                    type="button" 
+                                                                    variant="ghost" 
+                                                                    size="icon"
+                                                                    onClick={() => {
+                                                                        const nextSizes = variant.sizes!.filter((_, i) => i !== sIdx);
+                                                                        const newStock = nextSizes.reduce((sum, s) => sum + s.stock, 0);
+                                                                        updateVariant(index, { sizes: nextSizes, stock: newStock, quantity_on_hand: newStock });
+                                                                    }}
+                                                                    className="h-7 w-7 text-muted-foreground hover:text-red-400 shrink-0"
+                                                                >
+                                                                    <X className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {(!variant.sizes || variant.sizes.length === 0) && (
+                                                    <p className="text-xs text-muted-foreground italic">No sizes specified. Using variant-level stock.</p>
+                                                )}
+                                            </div>
+
                                             {/* SKU + Stock */}
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="space-y-2">
@@ -569,17 +637,26 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
                                                         value={variant.sku || ""}
                                                         onChange={(e) => updateVariant(index, { sku: e.target.value })}
                                                         placeholder="e.g. POLO-BLK-M"
-                                                        className="border-border bg-background/40 text-foreground text-sm"
+                                                        className="border-border bg-background/40 text-foreground text-sm focus:ring-1 focus:ring-primary focus:border-primary"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <Label className="text-foreground/80 text-sm">Physical Stock (On Hand)</Label>
+                                                    <Label className="text-foreground/80 text-sm">
+                                                        Physical Stock (On Hand)
+                                                        {variant.sizes && variant.sizes.length > 0 && <span className="ml-1.5 text-[10px] font-normal text-muted-foreground bg-muted px-1 py-0.5 rounded">Auto-calculated</span>}
+                                                    </Label>
                                                     <Input
                                                         type="number"
-                                                        value={(variant.quantity_on_hand ?? variant.stock) === 0 ? "" : (variant.quantity_on_hand ?? variant.stock)}
-                                                        onChange={(e) => updateVariant(index, { quantity_on_hand: e.target.value === "" ? 0 : Number(e.target.value), stock: e.target.value === "" ? 0 : Number(e.target.value) })}
+                                                        value={(variant.quantity_on_hand ?? variant.stock) === 0 && (!variant.sizes || variant.sizes.length === 0) ? "" : (variant.quantity_on_hand ?? variant.stock)}
+                                                        onChange={(e) => {
+                                                            if (!variant.sizes || variant.sizes.length === 0) {
+                                                                updateVariant(index, { quantity_on_hand: e.target.value === "" ? 0 : Number(e.target.value), stock: e.target.value === "" ? 0 : Number(e.target.value) });
+                                                            }
+                                                        }}
+                                                        readOnly={variant.sizes && variant.sizes.length > 0}
+                                                        tabIndex={variant.sizes && variant.sizes.length > 0 ? -1 : 0}
                                                         placeholder="0"
-                                                        className="border-border bg-background/40 text-foreground text-sm"
+                                                        className={`border-border bg-background/40 text-foreground text-sm focus:ring-1 focus:ring-primary focus:border-primary ${variant.sizes && variant.sizes.length > 0 ? "opacity-70 bg-muted/50 cursor-not-allowed" : ""}`}
                                                     />
                                                 </div>
                                             </div>

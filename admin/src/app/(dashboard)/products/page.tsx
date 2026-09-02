@@ -23,8 +23,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, Edit2, Trash2, Loader2, Image as ImageIcon, Search, MoreHorizontal, Eye } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, Image as ImageIcon, Search, MoreHorizontal, Eye, FileSpreadsheet, Download } from "lucide-react";
 import { ProductDetailsModal } from "./ProductDetailsModal";
+import { CsvUploadModal } from "./CsvUploadModal";
 
 export default function ProductsPage() {
     /* State for the products list fetched from the API */
@@ -37,6 +38,7 @@ export default function ProductsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     /* State for viewing product details */
     const [viewingProduct, setViewingProduct] = useState<ProductData | null>(null);
+    const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
 
     /* Fetch all products from the admin API endpoint */
     const fetchProducts = async () => {
@@ -83,6 +85,97 @@ export default function ProductsPage() {
         product.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    /* Export all products as CSV (same format as the import template) */
+    const handleExportCSV = () => {
+        if (!products.length) {
+            toast.error("No products to export.");
+            return;
+        }
+
+        const CSV_HEADERS = [
+            "name", "slug", "description", "base_price", "offerType", "offerValue",
+            "vatPercentage", "thumbnail", "fabric", "fit", "sizes", "category",
+            "isActive", "videoUrl", "deliveryCharge_text", "deliveryCharge_price",
+            "color_name", "color_hex", "variant_sku", "variant_stock",
+            "variant_price", "variant_sale_price", "variant_images", "variant_sizes"
+        ];
+
+        const escapeCSV = (val: string) => {
+            if (!val) return "";
+            if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+                return `"${val.replace(/"/g, '""')}"`;
+            }
+            return val;
+        };
+
+        const rows: string[][] = [];
+
+        for (const p of products) {
+            const categoryId = p.category && typeof p.category === "object" ? (p.category as any)._id || "" : (p.category || "");
+            const deliveryTexts = (p.deliveryCharge || []).map(d => d.text).join(",");
+            const deliveryPrices = (p.deliveryCharge || []).map(d => String(d.price)).join(",");
+            const sizesStr = (p.sizes || []).join(",");
+
+            const baseFields = [
+                p.name || "",
+                p.slug || "",
+                p.description || "",
+                String(p.base_price || p.price || 0),
+                p.offerType || "NONE",
+                String(p.offerValue || 0),
+                String(p.vatPercentage || 0),
+                p.thumbnail || "",
+                p.fabric || "",
+                p.fit || "",
+                sizesStr,
+                String(categoryId),
+                String(p.isActive !== false),
+                p.videoUrl || "",
+                deliveryTexts,
+                deliveryPrices,
+            ];
+
+            if (p.variants && p.variants.length > 0) {
+                for (const v of p.variants) {
+                    const variantSizesStr = (v.sizes || []).map(s => `${s.size}:${s.stock}`).join(",");
+                    const variantImagesStr = (v.images || []).join(",");
+                    rows.push([
+                        ...baseFields,
+                        v.color?.name || "",
+                        v.color?.hex || "#000000",
+                        v.sku || "",
+                        String(v.quantity_on_hand || v.stock || 0),
+                        v.price != null ? String(v.price) : "",
+                        v.sale_price != null ? String(v.sale_price) : "",
+                        variantImagesStr,
+                        variantSizesStr,
+                    ]);
+                }
+            } else {
+                // Product without variants — still output one row
+                rows.push([
+                    ...baseFields,
+                    "", "", "", String(p.quantity_on_hand || p.stock || 0),
+                    "", "", (p.images || []).join(","), "",
+                ]);
+            }
+        }
+
+        const csvContent = [
+            CSV_HEADERS.join(","),
+            ...rows.map(row => row.map(escapeCSV).join(","))
+        ].join("\n");
+
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `menbazar_products_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.success(`Exported ${products.length} product(s) to CSV!`);
+    };
+
     return (
         <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
             {/* Page header — title and Add Product button */}
@@ -105,6 +198,14 @@ export default function ProductsPage() {
                             className="pl-8 bg-card"
                         />
                     </div>
+                    {/* Export CSV button */}
+                    <Button variant="outline" onClick={handleExportCSV} className="whitespace-nowrap" disabled={isLoading || !products.length}>
+                        <Download className="mr-2 h-4 w-4" /> Export CSV
+                    </Button>
+                    {/* Import CSV button */}
+                    <Button variant="outline" onClick={() => setIsCsvModalOpen(true)} className="whitespace-nowrap">
+                        <FileSpreadsheet className="mr-2 h-4 w-4" /> Import CSV
+                    </Button>
                     {/* Link to the "New Product" form */}
                     <Link href="/products/new">
                         <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20 whitespace-nowrap">
@@ -267,6 +368,13 @@ export default function ProductsPage() {
                 product={viewingProduct} 
                 isOpen={!!viewingProduct} 
                 onClose={() => setViewingProduct(null)} 
+            />
+
+            {/* CSV Upload Modal */}
+            <CsvUploadModal
+                open={isCsvModalOpen}
+                onOpenChange={setIsCsvModalOpen}
+                onSuccess={() => fetchProducts()}
             />
         </div>
     );

@@ -95,6 +95,40 @@ const deleteProduct = async (id: string) => {
     return Product.findByIdAndDelete(id);
 };
 
+/** Bulk create products from parsed CSV data.
+ *  Each payload is a fully-formed product object (with variants already grouped).
+ *  Returns { created, skipped, errors } summary. */
+const bulkCreateProducts = async (payloads: Record<string, unknown>[]) => {
+    const results: { created: string[]; skipped: string[]; errors: { name: string; error: string }[] } = {
+        created: [],
+        skipped: [],
+        errors: [],
+    };
+
+    for (const payload of payloads) {
+        try {
+            const slug = payload.slug as string;
+            // Skip duplicates
+            const existing = await Product.findOne({ slug });
+            if (existing) {
+                results.skipped.push(slug);
+                continue;
+            }
+
+            const pricing = computeProductPricing(payload);
+            await Product.create({ ...payload, ...pricing });
+            results.created.push(slug);
+        } catch (err: any) {
+            results.errors.push({
+                name: (payload.name as string) || "unknown",
+                error: err.message || String(err),
+            });
+        }
+    }
+
+    return results;
+};
+
 export const productService = {
     createProduct,
     getAllProducts,
@@ -103,4 +137,5 @@ export const productService = {
     getProductById,
     updateProduct,
     deleteProduct,
+    bulkCreateProducts,
 };

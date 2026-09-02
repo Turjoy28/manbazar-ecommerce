@@ -235,10 +235,21 @@ export function ProductDetailsModal({
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div
-                            className="w-6 h-6 rounded-full border shadow-sm"
+                            className="w-6 h-6 rounded-full border shadow-sm shrink-0"
                             style={{ backgroundColor: variant.color.hex }}
                           />
-                          <span className="font-medium">{variant.color.name}</span>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{variant.color.name}</span>
+                            {variant.sizes && variant.sizes.length > 0 && (
+                              <div className="text-[10px] text-muted-foreground flex flex-wrap gap-1 mt-1">
+                                {variant.sizes.map((s, i) => (
+                                  <span key={i} className="bg-background px-1 rounded border border-border">
+                                    {s.size}: <span className="font-medium text-foreground">{s.stock}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">

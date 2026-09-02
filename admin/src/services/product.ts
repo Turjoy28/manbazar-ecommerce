@@ -15,6 +15,7 @@ export interface ProductVariant {
         hex: string;
     };
     sku?: string;
+    sizes?: { size: string; stock: number }[];
     stock: number;
     quantity_on_hand: number;
     quantity_reserved?: number;
@@ -109,5 +110,20 @@ export const productService = {
         return secureFetch<any>(`${BASE_URL}/products/${id}`, {
             method: "DELETE",
         });
+    },
+
+    bulkUploadCSV: async (file: File): Promise<any> => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const res = await fetch(`${BASE_URL}/products/bulk-csv`, {
+            method: "POST",
+            headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: formData,
+        });
+        return res.json();
     },
 };

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { productController } from "./product.controller.js";
 import { authenticate } from "../../middleware/authenticate.js";
+import upload from "../../middleware/multer.js";
 
 const router = Router();
 
@@ -20,6 +21,9 @@ router.get("/:id", authenticate, productController.getProductById);
 
 /** POST create product */
 router.post("/", authenticate, productController.createProduct);
+
+/** POST bulk upload products from CSV */
+router.post("/bulk-csv", authenticate, upload.single("file"), productController.bulkUploadCSV);
 
 /** PATCH update product */
 router.patch("/:id", authenticate, productController.updateProduct);
