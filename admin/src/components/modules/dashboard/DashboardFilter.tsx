@@ -30,7 +30,8 @@ export function DashboardFilter() {
     }
   }, [currentStart, currentEnd])
 
-  const handlePresetChange = (value: string) => {
+  const handlePresetChange = (value: string | null) => {
+    if (!value) return;
     setPreset(value)
     if (value === "custom") return
 
