@@ -59,13 +59,50 @@ const orderSchema = new mongoose.Schema(
         grandTotal: { type: Number, required: true },
         status: {
             type: String,
-            enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"],
+            enum: [
+                "pending", 
+                "confirmed", 
+                "processing", 
+                "shipped", 
+                "courier_assigned", 
+                "picked_up", 
+                "in_transit", 
+                "out_for_delivery", 
+                "delivered", 
+                "cancelled", 
+                "returned"
+            ],
             default: "pending",
         },
+        // Legacy courier fields kept for backward compatibility on older docs
         courierName: { type: String, default: "" },
         courierTrackingCode: { type: String, default: "" },
         courierStatus: { type: String, default: "" },
         courierConsignmentId: { type: String, default: "" },
+        
+        // Multi-Courier Integration Fields
+        courier: {
+            provider: {
+                type: String,
+                enum: ["pathao", "steadfast", "carrybee"],
+            },
+            consignmentId: String,
+            trackingCode: String,
+            merchantOrderId: String,
+            rawStatus: String,
+            lastSyncedAt: Date,
+        },
+        trackingHistory: [
+            {
+                status: String,
+                rawStatus: String,
+                message: String,
+                location: String,
+                provider: String,
+                eventId: String,
+                timestamp: Date,
+            },
+        ],
     },
     { timestamps: true }
 );

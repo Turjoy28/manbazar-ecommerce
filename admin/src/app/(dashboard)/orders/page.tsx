@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
+import { io, Socket } from "socket.io-client";
 import { orderService, OrderData } from "@/services/order";
 import { authService } from "@/services/auth";
 import { Button } from "@/components/ui/button";
@@ -104,6 +105,50 @@ export default function OrdersPage() {
       })
       .catch(console.error);
   }, []);
+
+  // ── Socket.IO: Real-time courier status updates ──────────────────────────
+  const socketRef = useRef<Socket | null>(null);
+
+  useEffect(() => {
+    const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001/api/v1";
+    const socketUrl = BASE_URL.replace("/api/v1", "");
+    const socket = io(socketUrl, { transports: ["websocket", "polling"] });
+    socketRef.current = socket;
+
+    socket.on("order:status:update", (data: any) => {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === data.orderId
+            ? {
+                ...o,
+                status: data.status,
+                courier: { ...o.courier, rawStatus: data.tracking?.rawStatus },
+                trackingHistory: [
+                  ...(o.trackingHistory || []),
+                  data.tracking,
+                ],
+              }
+            : o
+        )
+      );
+      toast.info(`Order ${data.orderId.slice(-8).toUpperCase()} → ${data.status}`, {
+        description: "Real-time courier update received.",
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // Join rooms for visible orders
+  useEffect(() => {
+    if (socketRef.current && orders.length > 0) {
+      orders.forEach((o) => {
+        socketRef.current?.emit("join_order_room", o._id);
+      });
+    }
+  }, [orders]);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setUpdatingStatusId(orderId);
@@ -310,8 +355,13 @@ export default function OrdersPage() {
       confirmed: "bg-blue-500/10 text-blue-400 border-blue-500/20",
       processing: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
       shipped: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+      courier_assigned: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+      picked_up: "bg-teal-500/10 text-teal-400 border-teal-500/20",
+      in_transit: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+      out_for_delivery: "bg-orange-500/10 text-orange-400 border-orange-500/20",
       delivered: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
       cancelled: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+      returned: "bg-red-500/10 text-red-400 border-red-500/20",
     };
     return map[status] ?? "bg-muted text-muted-foreground border-border";
   };
@@ -490,8 +540,13 @@ export default function OrdersPage() {
               <SelectItem value="confirmed">Confirmed</SelectItem>
               <SelectItem value="processing">Processing</SelectItem>
               <SelectItem value="shipped">Shipped</SelectItem>
+              <SelectItem value="courier_assigned">Courier Assigned</SelectItem>
+              <SelectItem value="picked_up">Picked Up</SelectItem>
+              <SelectItem value="in_transit">In Transit</SelectItem>
+              <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
               <SelectItem value="delivered">Delivered</SelectItem>
               <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="returned">Returned</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -617,8 +672,13 @@ export default function OrdersPage() {
               <SelectItem value="confirmed">Confirmed</SelectItem>
               <SelectItem value="processing">Processing</SelectItem>
               <SelectItem value="shipped">Shipped</SelectItem>
+              <SelectItem value="courier_assigned">Courier Assigned</SelectItem>
+              <SelectItem value="picked_up">Picked Up</SelectItem>
+              <SelectItem value="in_transit">In Transit</SelectItem>
+              <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
               <SelectItem value="delivered">Delivered</SelectItem>
               <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="returned">Returned</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -876,19 +936,16 @@ export default function OrdersPage() {
                             </SelectTrigger>
                             <SelectContent className="border-border bg-card text-foreground">
                               <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">
-                                Confirmed
-                              </SelectItem>
-                              <SelectItem value="processing">
-                                Processing
-                              </SelectItem>
+                              <SelectItem value="confirmed">Confirmed</SelectItem>
+                              <SelectItem value="processing">Processing</SelectItem>
                               <SelectItem value="shipped">Shipped</SelectItem>
-                              <SelectItem value="delivered">
-                                Delivered
-                              </SelectItem>
-                              <SelectItem value="cancelled">
-                                Cancelled
-                              </SelectItem>
+                              <SelectItem value="courier_assigned">Courier Assigned</SelectItem>
+                              <SelectItem value="picked_up">Picked Up</SelectItem>
+                              <SelectItem value="in_transit">In Transit</SelectItem>
+                              <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
+                              <SelectItem value="delivered">Delivered</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                              <SelectItem value="returned">Returned</SelectItem>
                             </SelectContent>
                           </Select>
                         )}

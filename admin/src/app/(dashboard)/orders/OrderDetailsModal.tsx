@@ -106,28 +106,79 @@ export function OrderDetailsModal({
           {/* Courier Information */}
           <div className="bg-muted/30 p-4 rounded-xl border border-border md:col-span-2">
             <h3 className="font-semibold text-lg mb-3 text-foreground/80 border-b pb-2">
-              Courier Information
+              Courier &amp; Tracking
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div className="flex">
                 <span className="w-24 text-muted-foreground">Courier:</span>
                 <span className="font-medium uppercase">
-                  {order.courierName || "N/A"}
+                  {order.courier?.provider || order.courierName || "N/A"}
                 </span>
               </div>
               <div className="flex">
                 <span className="w-24 text-muted-foreground">Status:</span>
-                <span className="font-medium">
-                  {order.courierName ? order.courierStatus || "Dispatched" : "Not Sent"}
+                <span className="font-medium capitalize">
+                  {order.courier?.rawStatus || order.courierStatus || (order.courierName ? "Dispatched" : "Not Sent")}
                 </span>
               </div>
-              {order.courierTrackingCode && (
+              {(order.courier?.trackingCode || order.courierTrackingCode) && (
                 <div className="flex">
-                  <span className="w-24 text-muted-foreground">Tracking ID:</span>
-                  <span className="font-mono">{order.courierTrackingCode}</span>
+                  <span className="w-24 text-muted-foreground">Tracking:</span>
+                  <span className="font-mono">{order.courier?.trackingCode || order.courierTrackingCode}</span>
+                </div>
+              )}
+              {order.courier?.consignmentId && (
+                <div className="flex">
+                  <span className="w-24 text-muted-foreground">Consignment:</span>
+                  <span className="font-mono">{order.courier.consignmentId}</span>
+                </div>
+              )}
+              {order.courier?.lastSyncedAt && (
+                <div className="flex md:col-span-2">
+                  <span className="w-24 text-muted-foreground">Last Sync:</span>
+                  <span className="text-muted-foreground text-xs">
+                    {new Date(order.courier.lastSyncedAt).toLocaleString("en-US", {
+                      year: "numeric", month: "short", day: "numeric",
+                      hour: "2-digit", minute: "2-digit",
+                    })}
+                  </span>
                 </div>
               )}
             </div>
+
+            {/* Tracking History Timeline */}
+            {order.trackingHistory && order.trackingHistory.length > 0 && (
+              <div className="mt-4 border-t border-border pt-4">
+                <h4 className="text-sm font-semibold text-foreground/70 mb-3">Tracking History</h4>
+                <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                  {order.trackingHistory
+                    .slice()
+                    .reverse()
+                    .map((entry, idx) => (
+                      <div key={idx} className="flex gap-3 items-start">
+                        <div className="mt-1 w-2 h-2 rounded-full bg-primary shrink-0" />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium text-foreground">
+                              {entry.message || entry.rawStatus}
+                            </span>
+                            <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                              {entry.provider}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-muted-foreground mt-0.5">
+                            {new Date(entry.timestamp).toLocaleString("en-US", {
+                              month: "short", day: "numeric",
+                              hour: "2-digit", minute: "2-digit",
+                            })}
+                            {entry.location && ` • ${entry.location}`}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

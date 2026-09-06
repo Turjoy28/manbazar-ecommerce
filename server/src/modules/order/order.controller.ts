@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { orderService } from "./order.service.js";
 import sendResponse from "../../utils/sendResponse.js";
 import { sendInvoiceEmail } from "../../utils/invoiceEmail.js";
+import { Order } from "../../models/order.model.js";
 
 /** POST /orders — Place a new order (public) */
 const createOrder = async (req: Request, res: Response, next: NextFunction) => {
@@ -95,6 +96,22 @@ const deleteAllOrders = async (req: Request, res: Response, next: NextFunction) 
     } catch (error) { next(error); }
 };
 
+/** GET /orders/track — Public order tracking by phone */
+const trackOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { phone } = req.query;
+        if (!phone || typeof phone !== "string") {
+            res.status(400).json({ success: false, message: "Phone number is required" });
+            return;
+        }
+        const orders = await Order.find({ "customer.phone": phone })
+            .sort({ createdAt: -1 })
+            .select("_id status customer.name products.name products.quantity total grandTotal deliveryCharge courier trackingHistory paymentMethod paymentStatus createdAt")
+            .lean();
+        sendResponse(res, { statusCode: 200, success: true, message: "Tracking data fetched", data: orders });
+    } catch (error) { next(error); }
+};
+
 export const orderController = {
     createOrder,
     getOrders,
@@ -104,5 +121,6 @@ export const orderController = {
     updateOrder,
     deleteOrders,
     deleteAllOrders,
-    reconcilePayment
+    reconcilePayment,
+    trackOrder
 };

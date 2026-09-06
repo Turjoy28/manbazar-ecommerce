@@ -39,11 +39,29 @@ export interface OrderData {
     paymentStatus: "pending" | "completed" | "failed" | "refunded";
     /** Transaction ID (bKash orders only) */
     bkashTxnId?: string | null;
-    status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+    status: "pending" | "confirmed" | "processing" | "shipped" | "courier_assigned" | "picked_up" | "in_transit" | "out_for_delivery" | "delivered" | "cancelled" | "returned";
     courierName?: string;
     courierTrackingCode?: string;
     courierStatus?: string;
     courierConsignmentId?: string;
+    /** Multi-courier integration fields */
+    courier?: {
+        provider?: string;
+        consignmentId?: string;
+        trackingCode?: string;
+        merchantOrderId?: string;
+        rawStatus?: string;
+        lastSyncedAt?: string;
+    };
+    trackingHistory?: {
+        status: string;
+        rawStatus: string;
+        message: string;
+        location?: string;
+        provider: string;
+        eventId: string;
+        timestamp: string;
+    }[];
     createdAt: string;
     updatedAt: string;
 }

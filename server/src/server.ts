@@ -6,6 +6,9 @@ import { seedUi } from './script/seedUi.js';
 import { seedCategories } from './script/seedCategories.js';
 
 
+import { socketService } from './modules/socket/socket.service.js';
+import './modules/courier/courier.worker.js';
+
 async function main() {
     try {
         if (!config.database_uri) {
@@ -19,9 +22,12 @@ async function main() {
         await seedUi();
         await seedCategories();
 
-        app.listen(config.port, () => {
+        const server = app.listen(config.port, () => {
             console.log(`Server is listening on port http://localhost:${config.port}`);
         });
+
+        // Initialize Real-Time WebSockets
+        socketService.init(server);
     } catch (err) {
         console.error('Failed to connect to MongoDB', err);
         process.exit(1);

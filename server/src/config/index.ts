@@ -38,5 +38,12 @@ export default {
     },
     redx: {
         api_key: process.env.REDX_API_KEY || "",
-    }
+    },
+    
+    // Redis & BullMQ
+    redis_uri: process.env.REDIS_URI || "redis://localhost:6379",
+    
+    // Webhooks
+    steadfast_webhook_token: process.env.STEADFAST_WEBHOOK_TOKEN || "",
+    pathao_webhook_secret: process.env.PATHAO_WEBHOOK_SECRET || "",
 };

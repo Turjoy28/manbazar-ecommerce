@@ -8,6 +8,9 @@ const router = Router();
 /** POST — Place a new order */
 router.post("/", orderController.createOrder);
 
+/** GET — Track orders by phone number (public) */
+router.get("/track", orderController.trackOrder);
+
 // ── Admin protected ────────────────────────────────────────────────────────────
 /** GET — All orders with pagination */
 router.get("/", authenticate, orderController.getOrders);
