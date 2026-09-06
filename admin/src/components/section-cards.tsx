@@ -160,7 +160,7 @@ export function SectionCards({ stats }: SectionCardsProps) {
       </Card>
 
       {/* ─── ROW 2: DETAILED ANALYTICS ─────────────────── */}
-      <Card className="shadow-xs border-purple-100/50 bg-white dark:bg-card lg:col-span-3 overflow-hidden flex flex-col">
+      <Card className="shadow-xs border-purple-100/50 bg-white dark:bg-card md:col-span-2 lg:col-span-3 overflow-hidden flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between p-4 px-5 bg-slate-50/50 border-b border-slate-100">
           <CardDescription className="text-sm font-bold text-slate-600 flex items-center gap-2 uppercase tracking-wide">
             <Layers className="h-4 w-4 text-purple-500" /> Stock by Category
@@ -170,13 +170,13 @@ export function SectionCards({ stats }: SectionCardsProps) {
           </Button>
         </CardHeader>
         <CardContent className="p-0 flex-1 overflow-hidden">
-          <div className="max-h-[450px] overflow-y-auto custom-scrollbar">
-            <table className="w-full text-sm text-left">
+          <div className="max-h-[450px] overflow-auto custom-scrollbar">
+            <table className="w-full min-w-[750px] text-sm text-left">
               <thead className="text-xs text-slate-400 uppercase bg-slate-50 sticky top-0 shadow-sm z-10">
                 <tr>
-                  <th className="px-5 py-3 font-medium">Category / Product</th>
-                  <th className="px-5 py-3 font-medium text-right">Stock</th>
-                  <th className="px-5 py-3 font-medium">Variants Breakdown</th>
+                  <th className="px-5 py-3 font-medium w-[30%] min-w-[200px]">Category / Product</th>
+                  <th className="px-5 py-3 font-medium text-right w-[15%] min-w-[80px]">Stock</th>
+                  <th className="px-5 py-3 font-medium w-[55%] min-w-[400px]">Variants Breakdown</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -198,10 +198,10 @@ export function SectionCards({ stats }: SectionCardsProps) {
                         </td>
                         <td className="px-5 py-3 text-right font-semibold text-slate-600">{prod.stock}</td>
                         <td className="px-5 py-3">
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 py-1.5">
+                          <div className="flex flex-wrap gap-3 py-1.5">
                             {prod.colors?.length > 0 ? (
                               prod.colors.map((c: any, k: number) => (
-                                <div key={k} className="flex flex-col h-full border border-slate-200/80 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
+                                <div key={k} className="flex flex-col flex-shrink-0 min-w-[100px] border border-slate-200/80 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
                                   {/* Color Header */}
                                   <div className="flex items-center justify-between px-2.5 py-2 bg-slate-50 border-b border-slate-100">
                                     <div className="flex items-center gap-1.5 overflow-hidden">
@@ -245,7 +245,7 @@ export function SectionCards({ stats }: SectionCardsProps) {
         </CardContent>
       </Card>
 
-      <Card className="shadow-xs border-indigo-100/50 bg-white dark:bg-card flex flex-col">
+      <Card className="shadow-xs border-indigo-100/50 bg-white dark:bg-card md:col-span-2 lg:col-span-1 flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between p-4 px-5 bg-slate-50/50 border-b border-slate-100">
           <CardDescription className="text-sm font-bold text-slate-600 flex items-center gap-2 uppercase tracking-wide">
             <MapPin className="h-4 w-4 text-indigo-500" /> Orders by Location
@@ -270,7 +270,7 @@ export function SectionCards({ stats }: SectionCardsProps) {
       </Card>
 
       {/* ─── ROW 3: LEADERBOARDS ─────────────────── */}
-      <Card className="shadow-xs border-pink-100/50 bg-white dark:bg-card lg:col-span-4 flex flex-col">
+      <Card className="shadow-xs border-pink-100/50 bg-white dark:bg-card md:col-span-2 lg:col-span-4 flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between p-4 px-5 bg-slate-50/50 border-b border-slate-100">
           <CardDescription className="text-sm font-bold text-slate-600 flex items-center gap-2 uppercase tracking-wide">
             <ListOrdered className="h-4 w-4 text-pink-500" /> Top Ordered Items
