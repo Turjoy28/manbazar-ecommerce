@@ -158,8 +158,17 @@ export const orderService = {
     },
 
 
-    getOrderStats: async (token?: string): Promise<OrderStatsResponse> => {
-        return secureFetch<OrderStatsResponse>(`${BASE_URL}/orders/stats`, {
+    getOrderStats: async (token?: string, startDate?: string, endDate?: string): Promise<OrderStatsResponse> => {
+        let url = `${BASE_URL}/orders/stats`;
+        const params = new URLSearchParams();
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
+        
+        if (params.toString()) {
+            url += `?${params.toString()}`;
+        }
+
+        return secureFetch<OrderStatsResponse>(url, {
             ...(token && { token }),
         });
     },

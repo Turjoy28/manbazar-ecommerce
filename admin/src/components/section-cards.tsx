@@ -3,7 +3,7 @@ import React from "react"
 
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingBag, Package, CheckCircle, Clock, MapPin, Box, Layers, DollarSign, ListOrdered, Palette, Download } from "lucide-react"
+import { ShoppingBag, Package, CheckCircle, Clock, MapPin, Box, Layers, DollarSign, ListOrdered, Palette, Download, Truck, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export interface SectionCardsProps {
@@ -11,9 +11,11 @@ export interface SectionCardsProps {
     totalOrders: number;
     totalRevenue: number;
     pendingOrders: number;
+    onCourierOrders: number;
     deliveredOrders: number;
-    cancelledOrders: number;
+    returnedOrders: number;
     totalProducts: number;
+    categories: { name: string, isActive: boolean }[];
     thisMonthOrders: number;
     thisMonthRevenue: number;
     ordersByLocation: { location: string; count: number }[];
@@ -26,6 +28,7 @@ export interface SectionCardsProps {
         totalItems: number;
         products: {
           name: string;
+          thumbnail?: string;
           stock: number;
           sizes: string[];
           colors: { color: string; stock: number }[];
@@ -44,11 +47,14 @@ export function SectionCards({ stats }: SectionCardsProps) {
     thisMonthOrders,
     thisMonthRevenue,
     totalProducts,
+    categories = [],
     ordersByLocation,
     mostOrderedItems,
     inventory,
     pendingOrders,
-    deliveredOrders
+    onCourierOrders,
+    deliveredOrders,
+    returnedOrders
   } = stats;
 
   const downloadStockCSV = () => {
@@ -94,7 +100,7 @@ export function SectionCards({ stats }: SectionCardsProps) {
           <div className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-1">
             ৳{thisMonthRevenue.toLocaleString()}
           </div>
-          <p className="text-xs text-slate-400 font-medium">This Month</p>
+          <p className="text-xs text-slate-400 font-medium">Selected Period</p>
           <div className="mt-4 text-xs text-slate-500 border-t border-slate-100 pt-3 flex justify-between">
             <span>Lifetime:</span>
             <span className="font-semibold text-slate-600">৳{totalRevenue.toLocaleString()}</span>
@@ -113,10 +119,30 @@ export function SectionCards({ stats }: SectionCardsProps) {
           <div className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-1">
             {thisMonthOrders.toLocaleString()}
           </div>
-          <p className="text-xs text-slate-400 font-medium">This Month</p>
-          <div className="mt-4 text-xs text-slate-500 border-t border-slate-100 pt-3 flex justify-between">
-            <span>Lifetime:</span>
-            <span className="font-semibold text-slate-600">{totalOrders.toLocaleString()}</span>
+          <p className="text-xs text-slate-400 font-medium">Selected Period</p>
+          <div className="mt-4 text-xs text-slate-500 border-t border-slate-100 pt-3 flex justify-between mb-3">
+            <span>Total (Updated):</span>
+            <span className="font-semibold text-slate-600">
+              {(pendingOrders + onCourierOrders + deliveredOrders + returnedOrders).toLocaleString()}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-amber-600 flex items-center gap-1"><Clock className="h-3.5 w-3.5"/> Pending</span>
+              <span className="font-semibold text-slate-700">{pendingOrders}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-blue-500 flex items-center gap-1"><Truck className="h-3.5 w-3.5"/> Courier</span>
+              <span className="font-semibold text-slate-700">{onCourierOrders}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-emerald-600 flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5"/> Delivered</span>
+              <span className="font-semibold text-slate-700">{deliveredOrders}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-red-500 flex items-center gap-1"><RotateCcw className="h-3.5 w-3.5"/> Returned</span>
+              <span className="font-semibold text-slate-700">{returnedOrders}</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -132,10 +158,20 @@ export function SectionCards({ stats }: SectionCardsProps) {
           <div className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-1">
             {totalProducts.toLocaleString()}
           </div>
-          <p className="text-xs text-slate-400 font-medium">Unique products in store</p>
-          <div className="mt-4 text-xs text-slate-500 border-t border-slate-100 pt-3 flex justify-between">
-            <span className="flex items-center gap-1 text-amber-600"><Clock className="h-3.5 w-3.5"/> {pendingOrders} Pend</span>
-            <span className="flex items-center gap-1 text-emerald-600"><CheckCircle className="h-3.5 w-3.5"/> {deliveredOrders} Deliv</span>
+          <p className="text-xs text-slate-400 font-medium">
+            {categories.filter(c => c.isActive).length} active, {categories.filter(c => !c.isActive).length} inactive categories
+          </p>
+          <div className="mt-4 text-xs border-t border-slate-100 pt-3 flex flex-wrap gap-1.5 max-h-[60px] overflow-y-auto custom-scrollbar">
+            {categories.map((cat, idx) => (
+              <span 
+                key={idx} 
+                className={`px-2 py-0.5 rounded-full font-medium text-[10px] ${
+                  cat.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                }`}
+              >
+                {cat.name}
+              </span>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -151,7 +187,7 @@ export function SectionCards({ stats }: SectionCardsProps) {
           <div className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-1">
             {inventory?.totalStockUnits?.toLocaleString() || 0}
           </div>
-          <p className="text-xs text-slate-400 font-medium">Total available items</p>
+          <p className="text-xs text-slate-400 font-medium">Total available stocks</p>
           <div className="mt-4 text-xs text-slate-500 border-t border-slate-100 pt-3 flex justify-between">
             <span>Inventory Value:</span>
             <span className="font-bold text-slate-700">৳{inventory?.totalStockValue?.toLocaleString() || 0}</span>
@@ -193,11 +229,25 @@ export function SectionCards({ stats }: SectionCardsProps) {
                     {/* Products Row */}
                     {cat.products.slice(0, 3).map((prod, j) => (
                       <tr key={`${i}-${j}`} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="px-5 py-3 pl-8 text-slate-600 truncate max-w-[220px] font-medium" title={prod.name}>
-                          {prod.name}
+                        <td className="px-5 py-3 pl-8 align-top">
+                          <div className="flex flex-col items-start gap-2">
+                            {prod.thumbnail && (
+                              <img 
+                                src={prod.thumbnail} 
+                                alt={prod.name} 
+                                className="w-12 h-12 rounded object-cover border border-slate-200 shadow-sm"
+                              />
+                            )}
+                            <span 
+                              className="text-slate-700 font-medium leading-tight whitespace-normal max-w-[220px]" 
+                              title={prod.name}
+                            >
+                              {prod.name}
+                            </span>
+                          </div>
                         </td>
-                        <td className="px-5 py-3 text-right font-semibold text-slate-600">{prod.stock}</td>
-                        <td className="px-5 py-3">
+                        <td className="px-5 py-3 text-right font-semibold text-slate-600 align-top">{prod.stock}</td>
+                        <td className="px-5 py-3 align-top">
                           <div className="flex flex-wrap gap-3 py-1.5">
                             {prod.colors?.length > 0 ? (
                               prod.colors.map((c: any, k: number) => (

@@ -131,6 +131,22 @@ export default function OrdersPage() {
             : o
         )
       );
+      
+      setViewingOrder((prev) => {
+        if (prev && prev._id === data.orderId) {
+          return {
+            ...prev,
+            status: data.status,
+            courier: { ...prev.courier, rawStatus: data.tracking?.rawStatus },
+            trackingHistory: [
+              ...(prev.trackingHistory || []),
+              data.tracking,
+            ],
+          };
+        }
+        return prev;
+      });
+
       toast.info(`Order ${data.orderId.slice(-8).toUpperCase()} → ${data.status}`, {
         description: "Real-time courier update received.",
       });

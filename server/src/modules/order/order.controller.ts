@@ -33,7 +33,11 @@ const getOrders = async (req: Request, res: Response, next: NextFunction) => {
 /** GET /orders/stats — Aggregated dashboard stats (admin) */
 const getStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await orderService.getStats();
+        const { startDate, endDate } = req.query;
+        const result = await orderService.getStats(
+            startDate as string,
+            endDate as string
+        );
         sendResponse(res, { statusCode: 200, success: true, message: "Stats fetched successfully", data: result });
     } catch (error) { next(error); }
 };

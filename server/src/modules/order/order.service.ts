@@ -305,45 +305,63 @@ const updateCourierInfo = async (
 };
 
 /** Aggregate dashboard statistics */
-const getStats = async () => {
+const getStats = async (startDate?: string, endDate?: string) => {
     const Product = (await import("../../models/product.model.js")).Product;
     const Category = (await import("../../models/category.model.js")).Category;
 
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const dateFilter: any = {};
+    const updateDateFilter: any = {};
+    if (startDate || endDate) {
+        dateFilter.createdAt = {};
+        updateDateFilter.updatedAt = {};
+        if (startDate) {
+            dateFilter.createdAt.$gte = new Date(startDate);
+            updateDateFilter.updatedAt.$gte = new Date(startDate);
+        }
+        if (endDate) {
+            dateFilter.createdAt.$lte = new Date(endDate);
+            updateDateFilter.updatedAt.$lte = new Date(endDate);
+        }
+    }
 
     const [
         totalOrders, 
         totalRevenue, 
         pending, 
+        onCourier, 
         delivered, 
-        cancelled, 
+        returned,
         totalProducts,
-        thisMonthOrders,
-        thisMonthRevenueResult,
+        allCategoriesData,
+        periodOrders,
+        periodRevenueResult,
         ordersByLocation,
         mostOrderedItems,
         allProducts
     ] = await Promise.all([
-        Order.countDocuments(),
-        Order.aggregate([
+        Order.countDocuments(), // Lifetime
+        Order.aggregate([       // Lifetime
             { $match: { paymentStatus: "completed" } },
             { $group: { _id: null, total: { $sum: "$total" } } }
         ]),
-        Order.countDocuments({ status: "pending" }),
-        Order.countDocuments({ status: "delivered" }),
-        Order.countDocuments({ status: "cancelled" }),
+        Order.countDocuments({ ...updateDateFilter, status: { $in: ["pending", "confirmed"] } }),
+        Order.countDocuments({ ...updateDateFilter, status: { $in: ["processing", "shipped", "courier_assigned", "picked_up", "in_transit", "out_for_delivery"] } }),
+        Order.countDocuments({ ...updateDateFilter, status: "delivered" }),
+        Order.countDocuments({ ...updateDateFilter, status: "returned" }),
         Product.countDocuments(),
-        Order.countDocuments({ createdAt: { $gte: startOfMonth } }),
+        Category.find().select("name isActive").lean(),
+        Order.countDocuments(dateFilter),
         Order.aggregate([
-            { $match: { createdAt: { $gte: startOfMonth }, paymentStatus: "completed" } },
+            { $match: { ...dateFilter, paymentStatus: "completed" } },
             { $group: { _id: null, total: { $sum: "$total" } } }
         ]),
         Order.aggregate([
+            ...(Object.keys(dateFilter).length ? [{ $match: dateFilter }] : []),
             { $group: { _id: "$customer.location", count: { $sum: 1 } } },
             { $sort: { count: -1 } }
         ]),
         Order.aggregate([
+            ...(Object.keys(dateFilter).length ? [{ $match: dateFilter }] : []),
             { $unwind: "$products" },
             { $group: { _id: { id: "$products.id", name: "$products.name" }, count: { $sum: "$products.quantity" } } },
             { $sort: { count: -1 } },
@@ -398,6 +416,7 @@ const getStats = async () => {
             catData.totalItems += pStock;
             catData.products.push({
                 name: p.name,
+                thumbnail: p.thumbnail || p.images?.[0] || null,
                 stock: pStock,
                 sizes: p.sizes || [],
                 colors: colorBreakdown
@@ -415,11 +434,13 @@ const getStats = async () => {
         totalOrders,
         totalRevenue: totalRevenue[0]?.total || 0,
         pendingOrders: pending,
+        onCourierOrders: onCourier,
         deliveredOrders: delivered,
-        cancelledOrders: cancelled,
+        returnedOrders: returned,
         totalProducts,
-        thisMonthOrders,
-        thisMonthRevenue: thisMonthRevenueResult[0]?.total || 0,
+        categories: allCategoriesData,
+        thisMonthOrders: periodOrders, // Reused key for UI compatibility
+        thisMonthRevenue: periodRevenueResult[0]?.total || 0,
         ordersByLocation: ordersByLocation.map(loc => ({
             location: loc._id || "Unknown",
             count: loc.count
