@@ -6,6 +6,19 @@ import { courierWebhookService } from "./courier.webhook.service.js";
 export const pathaoWebhookController = async (req: Request, res: Response): Promise<any> => {
     try {
         const payload = req.body;
+
+        // Handle verification ping / empty test request
+        if (
+            req.method === "GET" ||
+            req.method === "HEAD" ||
+            !payload ||
+            Object.keys(payload).length === 0 ||
+            (!payload.consignment_id && !payload.merchant_order_id && !payload.event)
+        ) {
+            console.log("[PATHAO WEBHOOK] Ping / Handshake verification received");
+            return res.status(200).json({ success: true, message: "Pathao webhook endpoint active" });
+        }
+
         console.log(`[PATHAO WEBHOOK] Received:`, {
             event: payload.event,
             consignment_id: payload.consignment_id,
@@ -22,7 +35,7 @@ export const pathaoWebhookController = async (req: Request, res: Response): Prom
         return res.status(200).json({ success: true });
     } catch (error: any) {
         console.error("Pathao Webhook Error:", error.message || error);
-        return res.status(500).json({ success: false, error: error.message });
+        return res.status(200).json({ success: false, error: error.message });
     }
 };
 
@@ -44,6 +57,18 @@ export const steadfastWebhookController = async (req: Request, res: Response): P
             }
         }
 
+        // Handle verification ping / empty test request
+        if (
+            req.method === "GET" ||
+            req.method === "HEAD" ||
+            !req.body ||
+            Object.keys(req.body).length === 0 ||
+            (!req.body.consignment_id && !req.body.tracking_code && !req.body.invoice)
+        ) {
+            console.log("[STEADFAST WEBHOOK] Ping / Handshake verification received");
+            return res.status(200).json({ success: true, message: "Steadfast webhook endpoint active" });
+        }
+
         console.log(`[STEADFAST WEBHOOK] Received:`, {
             status: req.body.status || req.body.delivery_status,
             consignment_id: req.body.consignment_id || req.body.tracking_code,
@@ -60,7 +85,7 @@ export const steadfastWebhookController = async (req: Request, res: Response): P
         return res.status(200).json({ success: true });
     } catch (error: any) {
         console.error("Steadfast Webhook Error:", error.message || error);
-        return res.status(500).json({ success: false, error: error.message });
+        return res.status(200).json({ success: false, error: error.message });
     }
 };
 
