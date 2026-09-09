@@ -144,6 +144,27 @@ export function OrderDetailsModal({
                   </span>
                 </div>
               )}
+              {order.courier?.rider?.name && (
+                <div className="flex md:col-span-2 items-center gap-2 p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50">
+                  <span className="text-lg">🏍️</span>
+                  <div className="text-xs">
+                    <span className="font-semibold text-emerald-800 dark:text-emerald-300">
+                      Assigned {order.courier.rider.type === "pickup" ? "Pickup" : "Delivery"} Rider:
+                    </span>{" "}
+                    <span className="font-medium text-emerald-700 dark:text-emerald-200">
+                      {order.courier.rider.name}
+                    </span>
+                    {order.courier.rider.phone && (
+                      <a
+                        href={`tel:${order.courier.rider.phone}`}
+                        className="ml-2 font-mono text-emerald-600 dark:text-emerald-400 underline hover:text-emerald-500"
+                      >
+                        📞 {order.courier.rider.phone}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Tracking History Timeline */}
@@ -165,6 +186,11 @@ export function OrderDetailsModal({
                             <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                               {entry.provider}
                             </span>
+                            {entry.rider?.name && (
+                              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                🏍️ {entry.rider.name} {entry.rider.phone && `(${entry.rider.phone})`}
+                              </span>
+                            )}
                           </div>
                           <div className="text-[11px] text-muted-foreground mt-0.5">
                             {new Date(entry.timestamp).toLocaleString("en-US", {

@@ -14,10 +14,20 @@ export class PathaoService implements ICourierProvider {
         return ui.courier.pathao;
     }
 
+    private inMemoryToken: { token: string; expiresAt: number } | null = null;
+
     private async getAccessToken(): Promise<string> {
-        const cachedToken = await redisClient.get("pathao_access_token");
-        if (cachedToken) {
-            return cachedToken;
+        if (this.inMemoryToken && Date.now() < this.inMemoryToken.expiresAt) {
+            return this.inMemoryToken.token;
+        }
+
+        try {
+            const cachedToken = await redisClient.get("pathao_access_token");
+            if (cachedToken) {
+                return cachedToken;
+            }
+        } catch {
+            // Redis unavailable - proceed to fetch
         }
 
         const creds = await this.getCredentials();
@@ -25,14 +35,25 @@ export class PathaoService implements ICourierProvider {
         const response = await axios.post(`${this.baseURL}/issue-token`, {
             client_id: creds.clientId,
             client_secret: creds.clientSecret,
-            username: creds.clientId, // usually username or specific field for pathao
+            username: creds.clientId,
             password: creds.clientSecret,
             grant_type: "password",
         });
 
         const token = response.data.access_token;
-        const expiresIn = response.data.expires_in;
-        await redisClient.set("pathao_access_token", token, "EX", expiresIn - 60);
+        const expiresIn = response.data.expires_in || 3600;
+
+        this.inMemoryToken = {
+            token,
+            expiresAt: Date.now() + (expiresIn - 60) * 1000,
+        };
+
+        try {
+            await redisClient.set("pathao_access_token", token, "EX", expiresIn - 60);
+        } catch {
+            // Redis unavailable - in-memory cache is sufficient
+        }
+
         return token;
     }
 

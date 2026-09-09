@@ -122,7 +122,11 @@ export default function OrdersPage() {
             ? {
                 ...o,
                 status: data.status,
-                courier: { ...o.courier, rawStatus: data.tracking?.rawStatus },
+                courier: {
+                  ...o.courier,
+                  rawStatus: data.tracking?.rawStatus,
+                  rider: data.rider || data.tracking?.rider || o.courier?.rider,
+                },
                 trackingHistory: [
                   ...(o.trackingHistory || []),
                   data.tracking,
@@ -137,7 +141,11 @@ export default function OrdersPage() {
           return {
             ...prev,
             status: data.status,
-            courier: { ...prev.courier, rawStatus: data.tracking?.rawStatus },
+            courier: {
+              ...prev.courier,
+              rawStatus: data.tracking?.rawStatus,
+              rider: data.rider || data.tracking?.rider || prev.courier?.rider,
+            },
             trackingHistory: [
               ...(prev.trackingHistory || []),
               data.tracking,
@@ -147,8 +155,11 @@ export default function OrdersPage() {
         return prev;
       });
 
+      const rider = data.rider || data.tracking?.rider;
       toast.info(`Order ${data.orderId.slice(-8).toUpperCase()} → ${data.status}`, {
-        description: "Real-time courier update received.",
+        description: rider?.name
+          ? `🏍️ Rider ${rider.name} assigned${rider.phone ? ` (${rider.phone})` : ""}`
+          : "Real-time courier update received.",
       });
     });
 

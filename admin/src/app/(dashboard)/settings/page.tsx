@@ -9,6 +9,7 @@ import RelatedProductsSettings from "@/components/modules/dashboard/settings/Rel
 import CourierSettings from "@/components/modules/dashboard/settings/CourierSettings";
 import AdministrationMailSettings from "@/components/modules/dashboard/settings/AdministrationMailSettings";
 import DeliveryOfferSettings from "@/components/modules/dashboard/settings/DeliveryOfferSettings";
+import PixelSettings from "@/components/modules/dashboard/settings/PixelSettings";
 import { getUiData } from "@/services/ui";
 import React from "react";
 
@@ -42,6 +43,7 @@ export default async function SettingsPage() {
 
       <CourierSettings id={uiData?.data?.[0]._id} courier={uiData?.data?.[0].courier} contactInfo={uiData?.data?.[0].footer?.contactInfo} />
       <ChatbotSettings id={uiData?.data?.[0]._id} chatbot={uiData?.data?.[0].chatbot} />
+      <PixelSettings id={uiData?.data?.[0]._id} pixel={uiData?.data?.[0].pixel} />
       <Footer id={uiData?.data?.[0]._id} footer={uiData?.data?.[0].footer} />
     </div>
   );

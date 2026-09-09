@@ -1,66 +1,159 @@
-import { Worker, Job } from "bullmq";
-import { redisClient } from "../../config/redis.js";
 import { Order } from "../../models/order.model.js";
 import { courierManager } from "./courier.manager.js";
-import { courierWebhookService } from "./courier.webhook.service.js";
 import { normalizeCourierStatus } from "./courier.mapper.js";
+import { socketService } from "../socket/socket.service.js";
+
+/**
+ * Redis-free courier status sync.
+ * Polls CarryBee / Steadfast / Pathao APIs on a timer to pull the latest
+ * transfer_status for every active (non-terminal) shipment and updates
+ * the order + tracking history in MongoDB.
+ *
+ * Runs every 5 minutes by default.
+ */
+const SYNC_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 const syncCourierStatus = async () => {
-    console.log("[Worker] Starting Courier Sync...");
-    
-    // Find active shipments that are not delivered, cancelled, or returned
-    const orders = await Order.find({
-        status: { $nin: ["delivered", "cancelled", "returned"] },
-        "courier.provider": { $exists: true },
-    });
+    try {
+        // Find orders that have a courier assigned but aren't in a terminal state
+        const orders = await Order.find({
+            status: { $nin: ["delivered", "cancelled", "returned"] },
+            "courier.provider": { $exists: true, $ne: null },
+            "courier.consignmentId": { $exists: true, $ne: "" },
+        });
 
-    for (const order of orders) {
-        if (!order.courier || !order.courier.provider || !order.courier.trackingCode) {
-            continue;
-        }
+        if (!orders.length) return;
 
-        try {
-            const tracking = await courierManager.getTrackingStatus(
-                order.courier.provider, 
-                order.courier.trackingCode
-            );
-            
-            const normalized = normalizeCourierStatus(order.courier.provider, tracking);
+        console.log(`[CourierSync] Syncing ${orders.length} active shipment(s)...`);
 
-            // Skip if the status hasn't changed
-            if (normalized.status === order.status && normalized.rawStatus === order.courier.rawStatus) {
-                continue;
+        for (const order of orders) {
+            if (!order.courier?.provider || !order.courier?.consignmentId) continue;
+
+            try {
+                // Use the tracking code (consignment_id) to fetch status
+                const trackingId = order.courier.trackingCode || order.courier.consignmentId;
+                const trackingResponse = await courierManager.getTrackingStatus(
+                    order.courier.provider,
+                    trackingId
+                );
+
+                const payloadWithId = {
+                    ...trackingResponse,
+                    consignment_id: trackingResponse?.consignment_id || order.courier.consignmentId,
+                    tracking_code: trackingResponse?.tracking_code || order.courier.trackingCode,
+                };
+
+                const normalized = normalizeCourierStatus(order.courier.provider, payloadWithId);
+
+                // Skip if status hasn't changed
+                if (
+                    normalized.status === order.status &&
+                    normalized.rawStatus === order.courier.rawStatus
+                ) {
+                    continue;
+                }
+
+                console.log(
+                    `[CourierSync] Order ${order._id}: ${order.status} → ${normalized.status} (raw: ${normalized.rawStatus})`
+                );
+
+                // Check for duplicate tracking entry
+                const alreadyExists = order.trackingHistory?.some(
+                    (item: any) => item.eventId === normalized.eventId
+                );
+
+                if (!alreadyExists) {
+                    // Update order status
+                    order.status = normalized.status as any;
+                    order.courier!.rawStatus = normalized.rawStatus;
+                    order.courier!.lastSyncedAt = new Date();
+
+                    // Save or update rider assignment if found in polling response
+                    if (normalized.rider?.name || normalized.rider?.phone) {
+                        order.courier!.rider = {
+                            name: normalized.rider.name || order.courier!.rider?.name || "",
+                            phone: normalized.rider.phone || order.courier!.rider?.phone || "",
+                            type: normalized.rider.type || (normalized.status === "courier_assigned" ? "pickup" : "delivery"),
+                            assignedAt: new Date(),
+                        };
+                    }
+
+                    // If delivered and Cash on Delivery, mark payment as completed
+                    if (normalized.status === "delivered" && order.paymentMethod === "cod") {
+                        order.paymentStatus = "completed";
+                    }
+
+                    // Also update legacy fields for backward compat
+                    (order as any).courierStatus = normalized.rawStatus;
+
+                    // Push to tracking history
+                    order.trackingHistory.push({
+                        status: normalized.status,
+                        rawStatus: normalized.rawStatus,
+                        message: normalized.message,
+                        location: (normalized as any).location || "",
+                        provider: order.courier.provider,
+                        eventId: normalized.eventId,
+                        timestamp: normalized.timestamp,
+                        rider: normalized.rider
+                            ? {
+                                name: normalized.rider.name,
+                                phone: normalized.rider.phone,
+                                type: normalized.rider.type,
+                            }
+                            : order.courier?.rider?.name
+                            ? {
+                                name: order.courier.rider.name,
+                                phone: order.courier.rider.phone,
+                                type: order.courier.rider.type,
+                            }
+                            : undefined,
+                    });
+
+                    await order.save();
+
+                    // Emit real-time Socket.io event for admin & client
+                    socketService.emitOrderStatusUpdate(order._id.toString(), {
+                        orderId: order._id,
+                        status: normalized.status,
+                        tracking: {
+                            ...normalized,
+                            rider: order.courier?.rider,
+                        },
+                        rider: order.courier?.rider,
+                    });
+                }
+            } catch (error: any) {
+                console.error(`[CourierSync] Failed to sync order ${order._id}:`, error.message);
             }
-
-            // We can reuse the webhook service to process this update 
-            // since the core logic of updating the order and pushing to trackingHistory is identical.
-            await courierWebhookService.process({
-                provider: order.courier.provider,
-                payload: tracking, // Passing raw tracking response as payload
-                headers: {},
-            });
-
-            console.log(`[Worker] Synced tracking for order ${order._id}`);
-        } catch (error: any) {
-            console.error(`[Worker] Failed to sync order ${order._id}:`, error.message);
         }
+    } catch (error: any) {
+        console.error("[CourierSync] Sync cycle error:", error.message);
     }
 };
 
-export const courierWorker = new Worker(
-    "courier-sync-queue",
-    async (job: Job) => {
-        if (job.name === "sync-status") {
-            await syncCourierStatus();
-        }
-    },
-    { connection: redisClient }
-);
+// ── Start the polling timer ──────────────────────────────────────────────────
+let syncTimer: ReturnType<typeof setInterval> | null = null;
 
-courierWorker.on("completed", (job) => {
-    console.log(`[Worker] Job ${job.id} completed successfully`);
-});
+export function startCourierSync() {
+    if (syncTimer) return; // already running
 
-courierWorker.on("failed", (job, err) => {
-    console.error(`[Worker] Job ${job?.id} failed:`, err.message);
-});
+    // Run once immediately after a short delay (let DB connect first)
+    setTimeout(() => {
+        syncCourierStatus();
+    }, 10_000);
+
+    // Then repeat every SYNC_INTERVAL_MS
+    syncTimer = setInterval(syncCourierStatus, SYNC_INTERVAL_MS);
+    console.log(`[CourierSync] Polling active – syncing every ${SYNC_INTERVAL_MS / 1000}s`);
+}
+
+export function stopCourierSync() {
+    if (syncTimer) {
+        clearInterval(syncTimer);
+        syncTimer = null;
+    }
+}
+
+// Auto-start on import
+startCourierSync();

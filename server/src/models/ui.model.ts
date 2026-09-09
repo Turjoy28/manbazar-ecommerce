@@ -243,12 +243,14 @@ const uiSchema = new mongoose.Schema(
             steadfast: {
                 apiKey: { type: String, default: "" },
                 apiSecret: { type: String, default: "" },
+                webhookToken: { type: String, default: "" },
             },
             pathao: {
                 clientId: { type: String, default: "" },
                 clientSecret: { type: String, default: "" },
                 accessToken: { type: String, default: "" },
                 storeId: { type: String, default: "" },
+                webhookSecret: { type: String, default: "" },
             },
             redx: {
                 apiKey: { type: String, default: "" },
@@ -273,6 +275,10 @@ const uiSchema = new mongoose.Schema(
             minQuantity: { type: Number, default: 3 },
             deliveryCharge: { type: Number, default: 0 },
             isActive: { type: Boolean, default: true }
+        },
+
+        pixel: {
+            facebookPixelId: { type: String, default: "" },
         }
     },
     { timestamps: true }

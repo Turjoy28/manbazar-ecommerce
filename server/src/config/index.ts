@@ -46,4 +46,5 @@ export default {
     // Webhooks
     steadfast_webhook_token: process.env.STEADFAST_WEBHOOK_TOKEN || "",
     pathao_webhook_secret: process.env.PATHAO_WEBHOOK_SECRET || "",
+    carrybee_webhook_secret: process.env.CB_WEBHOOK_SECRET || process.env.CARRYBEE_WEBHOOK_SECRET || "40489fe0-9386-4fc9-8e92-2b2fcb9d451c",
 };

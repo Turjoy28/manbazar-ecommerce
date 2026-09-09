@@ -28,8 +28,14 @@ app.use(cors({
 
 
 
+import { carrybeeWebhookController } from "./modules/courier/courier.webhook.controller.js";
+
 // Application routes
 app.use('/api/v1', router);
+
+// CarryBee Webhook URL endpoint as documented: /api/webhook/cashback
+app.post('/api/webhook/cashback', carrybeeWebhookController);
+app.post('/api/webhook/carrybee', carrybeeWebhookController);
 
 
 

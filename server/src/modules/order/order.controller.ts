@@ -110,7 +110,7 @@ const trackOrder = async (req: Request, res: Response, next: NextFunction) => {
         }
         const orders = await Order.find({ "customer.phone": phone })
             .sort({ createdAt: -1 })
-            .select("_id status customer.name products.name products.quantity total grandTotal deliveryCharge courier trackingHistory paymentMethod paymentStatus createdAt")
+            .select("_id status customer.name customer.phone customer.address products.name products.quantity total grandTotal deliveryCharge courier trackingHistory paymentMethod paymentStatus createdAt")
             .lean();
         sendResponse(res, { statusCode: 200, success: true, message: "Tracking data fetched", data: orders });
     } catch (error) { next(error); }

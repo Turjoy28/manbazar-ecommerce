@@ -299,7 +299,24 @@ const updateCourierInfo = async (
 ) => {
     return Order.findByIdAndUpdate(
         id,
-        { $set: { courierName, courierTrackingCode, courierConsignmentId, courierStatus } },
+        {
+            $set: {
+                // Update main order status (this is what the admin UI reads)
+                status: courierStatus,
+                // Legacy fields for backward compatibility
+                courierName,
+                courierTrackingCode,
+                courierConsignmentId,
+                courierStatus,
+                // New multi-courier embedded document
+                "courier.provider": courierName,
+                "courier.trackingCode": courierTrackingCode,
+                "courier.consignmentId": courierConsignmentId,
+                "courier.merchantOrderId": id,
+                "courier.rawStatus": courierStatus,
+                "courier.lastSyncedAt": new Date(),
+            }
+        },
         { new: true }
     );
 };

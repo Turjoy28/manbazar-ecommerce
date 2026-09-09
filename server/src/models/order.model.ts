@@ -91,6 +91,12 @@ const orderSchema = new mongoose.Schema(
             merchantOrderId: String,
             rawStatus: String,
             lastSyncedAt: Date,
+            rider: {
+                name: { type: String, default: "" },
+                phone: { type: String, default: "" },
+                type: { type: String, default: "" }, // 'pickup' | 'delivery'
+                assignedAt: { type: Date },
+            },
         },
         trackingHistory: [
             {
@@ -101,6 +107,11 @@ const orderSchema = new mongoose.Schema(
                 provider: String,
                 eventId: String,
                 timestamp: Date,
+                rider: {
+                    name: { type: String, default: "" },
+                    phone: { type: String, default: "" },
+                    type: { type: String, default: "" },
+                },
             },
         ],
     },

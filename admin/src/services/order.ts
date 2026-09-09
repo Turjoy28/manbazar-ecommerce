@@ -52,6 +52,12 @@ export interface OrderData {
         merchantOrderId?: string;
         rawStatus?: string;
         lastSyncedAt?: string;
+        rider?: {
+            name?: string;
+            phone?: string;
+            type?: "pickup" | "delivery";
+            assignedAt?: string;
+        };
     };
     trackingHistory?: {
         status: string;
@@ -61,6 +67,11 @@ export interface OrderData {
         provider: string;
         eventId: string;
         timestamp: string;
+        rider?: {
+            name?: string;
+            phone?: string;
+            type?: string;
+        };
     }[];
     createdAt: string;
     updatedAt: string;

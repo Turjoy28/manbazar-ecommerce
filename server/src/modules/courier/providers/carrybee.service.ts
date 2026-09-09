@@ -89,18 +89,31 @@ export class CarryBeeService implements ICourierProvider {
             'Client-Context': clientContext
         };
 
-        const customerAddress = order.customerAddress || "";
-        const customerName = order.customerName || "";
-        const customerPhone = order.customerPhone || "";
-        const amount = order.amount || 0;
+        // Extract customer details safely from Mongoose order document
+        // CarryBee requires recipient_address to be at least 10 characters
+        let customerAddress = (order.customer?.address || order.customerAddress || "").trim();
+        if (customerAddress.length < 10) {
+            const location = (order.customer?.location || "").trim();
+            if (location && !customerAddress.toLowerCase().includes(location.toLowerCase())) {
+                customerAddress = customerAddress ? `${customerAddress}, ${location}` : location;
+            }
+            if (customerAddress.length < 10) {
+                customerAddress = customerAddress ? `${customerAddress}, Bangladesh` : "Dhaka, Bangladesh";
+            }
+        }
+        const customerName = (order.customer?.name || order.customerName || "").trim();
+        const customerPhone = (order.customer?.phone || order.customerPhone || "").trim();
+        const amount = (order.paymentMethod === "bkash" || order.paymentStatus === "completed") 
+            ? 0 
+            : (order.grandTotal ?? order.total ?? order.amount ?? 0);
+        const merchantOrderId = (order._id || order.id || "").toString();
 
-        // 1. Resolve city_id from customer address
+        // 1. Resolve city_id from customer address or customer location
         console.log(`[CARRYBEE] Looking up city for address: "${customerAddress}"`);
         const citiesRes = await fetch(`${baseUrl}/api/v2/cities`, { method: 'GET', headers });
 
         if (!citiesRes.ok) throw new Error(`CarryBee Network Error (Cities): ${citiesRes.status} ${citiesRes.statusText}`);
         const citiesJson = await citiesRes.json() as any;
-        console.log(`[CARRYBEE] Cities response keys: ${JSON.stringify(Object.keys(citiesJson))}`);
 
         const citiesList: { id: number; name: string }[] =
             citiesJson?.data?.cities ?? citiesJson?.data?.data ?? (Array.isArray(citiesJson?.data) ? citiesJson.data : []);
@@ -109,7 +122,22 @@ export class CarryBeeService implements ICourierProvider {
             throw new Error(`CarryBee Error: Could not retrieve cities list. Raw response: ${JSON.stringify(citiesJson).slice(0, 500)}`);
         }
 
-        const cityId = fuzzyMatchLocation(customerAddress, citiesList);
+        let cityId = fuzzyMatchLocation(customerAddress, citiesList);
+
+        // Fallback 1: match on order.customer.location if available
+        if (!cityId && order.customer?.location) {
+            cityId = fuzzyMatchLocation(order.customer.location, citiesList);
+        }
+
+        // Fallback 2: if address or location indicates Dhaka or empty, default to Dhaka (id: 14)
+        if (!cityId) {
+            const dhakaCity = citiesList.find(c => c.name.toLowerCase() === 'dhaka');
+            if (dhakaCity && (customerAddress.toLowerCase().includes('dhaka') || !order.customer?.location || order.customer?.location === 'dhaka')) {
+                cityId = dhakaCity.id;
+                console.log(`[CARRYBEE] Defaulted to Dhaka city (id=${cityId})`);
+            }
+        }
+
         if (!cityId) {
             const available = citiesList.slice(0, 15).map(c => c.name).join(', ');
             throw new Error(`CarryBee Address Error: Could not match a city from address "${customerAddress}". Available cities (first 15): ${available}`);
@@ -121,7 +149,6 @@ export class CarryBeeService implements ICourierProvider {
 
         if (!zonesRes.ok) throw new Error(`CarryBee Network Error (Zones): ${zonesRes.status} ${zonesRes.statusText}`);
         const zonesJson = await zonesRes.json() as any;
-        console.log(`[CARRYBEE] Zones response keys: ${JSON.stringify(Object.keys(zonesJson))}`);
 
         const zonesList: { id: number; name: string }[] =
             zonesJson?.data?.zones ?? zonesJson?.data?.data ?? (Array.isArray(zonesJson?.data) ? zonesJson.data : []);
@@ -144,7 +171,6 @@ export class CarryBeeService implements ICourierProvider {
 
         if (!storeRes.ok) throw new Error(`CarryBee Network Error (Stores): ${storeRes.status} ${storeRes.statusText}`);
         const storeJson = await storeRes.json() as any;
-        console.log(`[CARRYBEE] Stores response keys: ${JSON.stringify(Object.keys(storeJson))}`);
 
         const storesList: any[] =
             storeJson?.data?.stores ?? storeJson?.data?.data ?? (Array.isArray(storeJson?.data) ? storeJson.data : []);
@@ -154,36 +180,45 @@ export class CarryBeeService implements ICourierProvider {
         }
 
         const firstStore = storesList[0];
-        const storeId = firstStore.store_id ?? firstStore.id;
+        const storeId = Number(firstStore.id ?? firstStore.store_id);
 
-        if (!storeId) {
-            throw new Error(`CarryBee Error: First store has no ID field. Store object: ${JSON.stringify(firstStore)}`);
+        if (!storeId || isNaN(storeId)) {
+            throw new Error(`CarryBee Error: First store has no valid ID field. Store object: ${JSON.stringify(firstStore)}`);
         }
 
-        console.log(`[CARRYBEE] Using store: id=${storeId}`);
+        console.log(`[CARRYBEE] Using store: id=${storeId} (${firstStore.name || 'Store'})`);
 
         // 4. Dispatch Order
+        // Bangladeshi phone number formatting: 11 digits starting with 01
         let cleanPhone = customerPhone.replace(/[^0-9]/g, '');
         if (cleanPhone.startsWith('880') && cleanPhone.length > 11) {
             cleanPhone = cleanPhone.substring(2);
         }
+        if (!cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+            cleanPhone = '0' + cleanPhone;
+        }
+
+        // Note: CarryBee strictly requires item_weight to be an integer >= 1
+        const weight = Math.max(1, Math.round(Number(order.weight) || 1));
+        const quantity = Math.max(1, Number(order.products?.length) || 1);
 
         const orderPayload = {
             store_id: storeId,
-            merchant_order_id: order.id,
+            merchant_order_id: merchantOrderId,
             delivery_type: 1, 
             product_type: 1, 
             recipient_phone: cleanPhone,
             recipient_name: customerName,
             recipient_address: customerAddress,
-            city_id: cityId,
-            zone_id: zoneId,
-            item_weight: 0.5,
-            item_quantity: 1,
-            collectable_amount: amount
+            city_id: Number(cityId),
+            zone_id: Number(zoneId),
+            item_weight: weight,
+            item_quantity: quantity,
+            collectable_amount: Math.round(Number(amount)),
+            special_instruction: "Manbazar: Ready for immediate pickup"
         };
 
-        console.log(`[CARRYBEE] Dispatching order ${order.id} → Store ${storeId}`);
+        console.log(`[CARRYBEE] Dispatching order ${merchantOrderId} → Store ${storeId} (Weight: ${weight}, Amount: ${amount})`);
 
         const orderRes = await fetch(`${baseUrl}/api/v2/orders`, {
             method: 'POST',
@@ -194,7 +229,9 @@ export class CarryBeeService implements ICourierProvider {
         const orderResult = await orderRes.json() as any;
 
         if (orderResult.error || !orderRes.ok) {
-            throw new Error(`CarryBee Order Dispatch Failed (HTTP ${orderRes.status}): ${JSON.stringify(orderResult)}`);
+            const detail = orderResult.message || orderResult.error || JSON.stringify(orderResult);
+            const causes = orderResult.causes ? ` Causes: ${JSON.stringify(orderResult.causes)}` : '';
+            throw new Error(`CarryBee Order Dispatch Failed (HTTP ${orderRes.status}): ${detail}${causes}`);
         }
 
         const consignmentId =
@@ -204,7 +241,7 @@ export class CarryBeeService implements ICourierProvider {
             orderResult?.data?.id ??
             orderResult?.consignment_id;
 
-        console.log(`✅ [CARRYBEE] SUCCESS: Order created for ${order.id}, consignment_id=${consignmentId}`);
+        console.log(`✅ [CARRYBEE] SUCCESS: Order created for ${merchantOrderId}, consignment_id=${consignmentId}`);
 
         return { 
             consignmentId: String(consignmentId), 
@@ -215,7 +252,30 @@ export class CarryBeeService implements ICourierProvider {
     }
 
     async getTrackingStatus(trackingCode: string): Promise<any> {
-        // Not implemented in original code, so this remains unimplemented
-        throw new Error("CarryBee getTrackingStatus is not implemented yet.");
+        const uiData = await Ui.findOne();
+        const carrybee = uiData?.courier?.carrybee;
+
+        const clientId = carrybee?.clientId;
+        const clientSecret = carrybee?.clientSecret;
+        const clientContext = carrybee?.clientContext;
+
+        if (!clientId || !clientSecret || !clientContext) {
+            throw new Error('CarryBee credentials (Client ID, Secret, or Context) are missing in the admin settings.');
+        }
+
+        const baseUrl = 'https://developers.carrybee.com';
+        const headers = {
+            'Content-Type': 'application/json',
+            'Client-ID': clientId,
+            'Client-Secret': clientSecret,
+            'Client-Context': clientContext
+        };
+
+        const res = await fetch(`${baseUrl}/api/v2/orders/${trackingCode}`, { headers });
+        if (!res.ok) {
+            throw new Error(`CarryBee Tracking Error (HTTP ${res.status}): ${res.statusText}`);
+        }
+
+        return await res.json();
     }
 }
