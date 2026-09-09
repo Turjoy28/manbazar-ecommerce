@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { io, Socket } from "socket.io-client";
 import { orderService, OrderData } from "@/services/order";
 import { authService } from "@/services/auth";
+import { getUiData } from "@/services/ui";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -47,6 +48,7 @@ import {
   Eye,
   Printer,
   Pencil,
+  ExternalLink,
 } from "lucide-react";
 import { InvoicePrintOverlay } from "./InvoicePrintOverlay";
 import { OrderDetailsModal } from "./OrderDetailsModal";
@@ -76,6 +78,9 @@ export default function OrdersPage() {
   const [printingOrder, setPrintingOrder] = useState<OrderData | null>(null);
   const [editingOrder, setEditingOrder] = useState<OrderData | null>(null);
 
+  // Steadfast Pickup Request URL from admin settings
+  const [sfPickupUrl, setSfPickupUrl] = useState("https://steadfast.com.bd/user/pickup-request");
+
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
@@ -104,6 +109,14 @@ export default function OrdersPage() {
         }
       })
       .catch(console.error);
+
+    // Load Steadfast pickup URL from admin settings
+    getUiData()
+      .then((res) => {
+        const url = res?.data?.[0]?.courier?.steadfast?.pickupRequestUrl;
+        if (url) setSfPickupUrl(url);
+      })
+      .catch(() => {});
   }, []);
 
   // ── Socket.IO: Real-time courier status updates ──────────────────────────
@@ -743,6 +756,27 @@ export default function OrdersPage() {
               )}
               Dispatch
             </Button>
+
+            {/* Steadfast Pickup Request shortcut — only visible when Steadfast is selected */}
+            {selectedCourier === "steadfast" && (
+              <a
+                href={sfPickupUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="After dispatching to Steadfast, click here to submit your daily Pickup Request so their rider comes to collect."
+              >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs border-orange-400 text-orange-400 hover:bg-orange-400/10 hover:text-orange-300 gap-1.5"
+                >
+                  <Truck className="h-3 w-3" />
+                  Pickup Request
+                  <ExternalLink className="h-3 w-3 opacity-70" />
+                </Button>
+              </a>
+            )}
+
             {role === "ADMIN" && (
               <Button
                 size="sm"

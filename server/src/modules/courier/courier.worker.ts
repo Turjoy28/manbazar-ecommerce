@@ -30,7 +30,8 @@ const syncCourierStatus = async () => {
             if (!order.courier?.provider || !order.courier?.consignmentId) continue;
 
             try {
-                // Use the tracking code (consignment_id) to fetch status
+                // For Steadfast: prefer trackingCode, but also pass order._id as invoice fallback.
+                // The updated SteadfastService.getTrackingStatus tries: trackingCode → cid → invoice.
                 const trackingId = order.courier.trackingCode || order.courier.consignmentId;
                 const trackingResponse = await courierManager.getTrackingStatus(
                     order.courier.provider,
@@ -41,15 +42,16 @@ const syncCourierStatus = async () => {
                     ...trackingResponse,
                     consignment_id: trackingResponse?.consignment_id || order.courier.consignmentId,
                     tracking_code: trackingResponse?.tracking_code || order.courier.trackingCode,
+                    // Invoice = order._id — used by Steadfast as a reliable identifier
+                    invoice: trackingResponse?.invoice || order._id.toString(),
                 };
 
                 const normalized = normalizeCourierStatus(order.courier.provider, payloadWithId);
 
-                // Skip if status hasn't changed
-                if (
-                    normalized.status === order.status &&
-                    normalized.rawStatus === order.courier.rawStatus
-                ) {
+                // Skip if status hasn't changed AND no new rider info
+                const statusUnchanged = normalized.status === order.status && normalized.rawStatus === order.courier.rawStatus;
+                const riderUnchanged = !normalized.rider?.name || order.courier.rider?.name === normalized.rider.name;
+                if (statusUnchanged && riderUnchanged) {
                     continue;
                 }
 

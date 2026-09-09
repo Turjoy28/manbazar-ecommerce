@@ -244,6 +244,7 @@ const uiSchema = new mongoose.Schema(
                 apiKey: { type: String, default: "" },
                 apiSecret: { type: String, default: "" },
                 webhookToken: { type: String, default: "" },
+                pickupRequestUrl: { type: String, default: "https://steadfast.com.bd/user/pickup-request" },
             },
             pathao: {
                 clientId: { type: String, default: "" },

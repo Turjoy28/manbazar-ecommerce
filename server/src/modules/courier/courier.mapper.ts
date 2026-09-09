@@ -54,30 +54,46 @@ export const PATHAO_STATUS_MAP: Record<string, string> = {
     "hold": "processing",
 };
 
+// Official Steadfast statuses (from portal.packzy.com API docs):
+//   in_review, pending, hold, delivered, partial_delivered, cancelled,
+//   delivered_approval_pending, partial_delivered_approval_pending,
+//   cancelled_approval_pending, unknown_approval_pending, unknown
+//
+// Webhook-pushed statuses (from live webhook payloads — not all documented):
+//   dispatched, assigned_for_pickup, picked_up, in_transit,
+//   out_for_delivery, rider_assigned, deliveryman_assigned, etc.
 export const STEADFAST_STATUS_MAP: Record<string, string> = {
-    "pending": "courier_assigned",
-    "in_review": "processing",
-    "hold": "processing",
-    "dispatched": "courier_assigned",
-    "assigned_for_pickup": "courier_assigned",
-    "picked": "picked_up",
-    "picked_up": "picked_up",
-    "in_transit": "in_transit",
-    "out_for_delivery": "out_for_delivery",
-    "delivering": "out_for_delivery",
-    "assigned_for_delivery": "out_for_delivery",
-    "assigned_rider": "out_for_delivery",
-    "rider_assigned": "out_for_delivery",
-    "deliveryman_assigned": "out_for_delivery",
-    "delivery_man_assigned": "out_for_delivery",
-    "delivered": "delivered",
-    "partial_delivered": "delivered",
-    "cancelled": "cancelled",
-    "returned": "returned",
-    "unknown": "processing",
-    "delivered_approval_pending": "delivered",
-    "partial_delivered_approval_pending": "processing",
-    "cancelled_approval_pending": "cancelled",
+    // ── Official status-check API statuses ──────────────────────────────────
+    "in_review":                          "processing",       // Created, awaiting Steadfast review
+    "pending":                            "courier_assigned", // Approved by Steadfast, awaiting pickup
+    "hold":                               "processing",       // On hold
+
+    // ── Delivery approval pipeline ───────────────────────────────────────────
+    "delivered_approval_pending":         "delivered",        // Delivered, admin approval pending
+    "partial_delivered_approval_pending": "processing",       // Partially delivered, pending
+    "cancelled_approval_pending":         "cancelled",        // Cancelled, pending
+    "unknown_approval_pending":           "processing",       // Unknown, needs support
+
+    // ── Final statuses ───────────────────────────────────────────────────────
+    "delivered":                          "delivered",
+    "partial_delivered":                  "delivered",
+    "cancelled":                          "cancelled",
+    "returned":                           "returned",
+    "unknown":                            "processing",
+
+    // ── Webhook-only statuses (live push, not in status-check docs) ──────────
+    "dispatched":                         "courier_assigned",
+    "assigned_for_pickup":                "courier_assigned",
+    "picked":                             "picked_up",
+    "picked_up":                          "picked_up",
+    "in_transit":                         "in_transit",
+    "out_for_delivery":                   "out_for_delivery",
+    "delivering":                         "out_for_delivery",
+    "assigned_for_delivery":              "out_for_delivery",
+    "assigned_rider":                     "out_for_delivery",
+    "rider_assigned":                     "out_for_delivery",
+    "deliveryman_assigned":               "out_for_delivery",
+    "delivery_man_assigned":              "out_for_delivery",
 };
 
 export const CARRYBEE_STATUS_MAP: Record<string | number, string> = {

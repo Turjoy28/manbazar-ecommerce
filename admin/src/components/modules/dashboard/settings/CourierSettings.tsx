@@ -27,6 +27,7 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
     // Steadfast
     const [sfApiKey, setSfApiKey] = useState(courier?.steadfast?.apiKey || "");
     const [sfApiSecret, setSfApiSecret] = useState(courier?.steadfast?.apiSecret || "");
+    const [sfPickupRequestUrl, setSfPickupRequestUrl] = useState(courier?.steadfast?.pickupRequestUrl || "https://steadfast.com.bd/user/pickup-request");
     
     // Pathao
     const [ptClientId, setPtClientId] = useState(courier?.pathao?.clientId || "");
@@ -51,6 +52,7 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
                 "courier.activeProvider": activeProvider,
                 "courier.steadfast.apiKey": sfApiKey,
                 "courier.steadfast.apiSecret": sfApiSecret,
+                "courier.steadfast.pickupRequestUrl": sfPickupRequestUrl,
                 "courier.pathao.clientId": ptClientId,
                 "courier.pathao.clientSecret": ptClientSecret,
                 "courier.pathao.accessToken": ptAccessToken,
@@ -126,6 +128,11 @@ export default function CourierSettings({ courier, id, contactInfo }: { courier:
                         <div className="space-y-2">
                             <Label>Secret Key</Label>
                             <Input value={sfApiSecret} onChange={(e) => setSfApiSecret(e.target.value)} type="password" placeholder="Enter Steadfast Secret Key" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Pickup Request URL</Label>
+                            <Input value={sfPickupRequestUrl} onChange={(e) => setSfPickupRequestUrl(e.target.value)} placeholder="https://steadfast.com.bd/user/pickup-request" />
+                            <p className="text-xs text-muted-foreground">This link appears as a shortcut button on the Orders page after dispatching to Steadfast.</p>
                         </div>
                     </div>
                 )}
