@@ -32,6 +32,11 @@ export class PathaoService implements ICourierProvider {
 
         const creds = await this.getCredentials();
 
+        // If direct Access Token is configured in Admin Settings, use it
+        if (creds.accessToken) {
+            return creds.accessToken;
+        }
+
         const response = await axios.post(`${this.baseURL}/issue-token`, {
             client_id: creds.clientId,
             client_secret: creds.clientSecret,
