@@ -202,27 +202,49 @@ export const normalizeCourierStatus = (provider: string, payload: any): INormali
             const consignmentId = payload.consignment_id || payload.tracking_code || payload.invoice || "";
             const updatedAt = payload.updated_at || Date.now();
 
-            // Extract Steadfast rider / deliveryman details if present
-            const rawRiderName =
+            // Extract Steadfast rider / deliveryman details from all possible fields
+            let rawRiderName =
                 payload.rider_name ||
                 payload.delivery_man_name ||
                 payload.deliveryman_name ||
+                payload.delivery_rider_name ||
                 payload.rider?.name ||
+                payload.deliveryman?.name ||
+                payload.data?.rider_name ||
+                payload.data?.delivery_man_name ||
                 "";
 
-            const rawRiderPhone =
+            let rawRiderPhone =
                 payload.rider_phone ||
                 payload.delivery_man_phone ||
                 payload.deliveryman_phone ||
+                payload.delivery_rider_phone ||
                 payload.rider?.phone ||
+                payload.deliveryman?.phone ||
+                payload.data?.rider_phone ||
+                payload.data?.delivery_man_phone ||
+                payload.rider_contact ||
                 "";
+
+            // Fallback: If rider info is embedded in tracking_message / note
+            const textContent = payload.tracking_message || payload.message || payload.note || "";
+            if ((!rawRiderName || !rawRiderPhone) && typeof textContent === "string" && textContent) {
+                const phoneMatch = textContent.match(/(?:\+?88)?(01[3-9]\d{8})/);
+                if (phoneMatch && !rawRiderPhone) {
+                    rawRiderPhone = phoneMatch[1];
+                }
+                const nameMatch = textContent.match(/(?:rider|delivery\s*man|deliveryman|agent|driver)\s*(?:name)?[:\s\-]+([a-zA-Z\s\.]+?)(?:[\(\,\-]|\s+(?:contact|phone|mobile|\d))/i);
+                if (nameMatch && !rawRiderName) {
+                    rawRiderName = nameMatch[1].trim();
+                }
+            }
 
             const isPickup = rawStatus.includes("pickup") || mappedStatus === "courier_assigned";
             const riderType: "pickup" | "delivery" = isPickup ? "pickup" : "delivery";
 
             const rider = (rawRiderName || rawRiderPhone)
                 ? {
-                    name: String(rawRiderName).trim(),
+                    name: String(rawRiderName || "Assigned Delivery Rider").trim(),
                     phone: String(rawRiderPhone).trim(),
                     type: riderType,
                 }

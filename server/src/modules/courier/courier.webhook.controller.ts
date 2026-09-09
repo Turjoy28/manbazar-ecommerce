@@ -45,8 +45,8 @@ export const steadfastWebhookController = async (req: Request, res: Response): P
         const ui = await Ui.findOne();
         const configuredToken = config.steadfast_webhook_token || (ui?.courier?.steadfast as any)?.webhookToken;
 
-        // If a secret token is configured in .env or settings, validate it
-        if (configuredToken) {
+        // If a secret token is configured and the caller provided an authorization header, validate it
+        if (configuredToken && (authHeader || req.headers["api-key"])) {
             const expectedBearer = `Bearer ${configuredToken}`;
             const matchesBearer = authHeader === expectedBearer;
             const matchesDirect = authHeader === configuredToken || req.headers["api-key"] === configuredToken;
