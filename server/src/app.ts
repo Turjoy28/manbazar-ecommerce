@@ -34,8 +34,8 @@ import { carrybeeWebhookController } from "./modules/courier/courier.webhook.con
 app.use('/api/v1', router);
 
 // CarryBee Webhook URL endpoint as documented: /api/webhook/cashback
-app.post('/api/webhook/cashback', carrybeeWebhookController);
-app.post('/api/webhook/carrybee', carrybeeWebhookController);
+app.all('/api/webhook/cashback', carrybeeWebhookController);
+app.all('/api/webhook/carrybee', carrybeeWebhookController);
 
 
 

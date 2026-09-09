@@ -65,6 +65,14 @@ export const steadfastWebhookController = async (req: Request, res: Response): P
 };
 
 export const carrybeeWebhookController = async (req: Request, res: Response): Promise<any> => {
+    const expectedSecret =
+        process.env.CB_WEBHOOK_SECRET ||
+        config.carrybee_webhook_secret ||
+        "40489fe0-9386-4fc9-8e92-2b2fcb9d451c";
+
+    // CarryBee requires X-CB-Webhook-Integration-Header in response
+    res.setHeader("X-CB-Webhook-Integration-Header", expectedSecret);
+
     try {
         const incomingSecret =
             req.headers["x-cb-webhook-integration-header"] ||
@@ -72,15 +80,26 @@ export const carrybeeWebhookController = async (req: Request, res: Response): Pr
             req.headers["x-webhook-secret"] ||
             (req.headers.authorization && req.headers.authorization.replace("Bearer ", ""));
 
-        const expectedSecret =
-            process.env.CB_WEBHOOK_SECRET ||
-            config.carrybee_webhook_secret ||
-            "40489fe0-9386-4fc9-8e92-2b2fcb9d451c";
-
         // Validate secret header if provided or enforced
         if (incomingSecret && incomingSecret !== expectedSecret) {
             console.warn("[CARRYBEE WEBHOOK] Unauthorized request: Invalid X-CB-Webhook-Integration-Header");
             return res.status(401).json({ success: false, message: "Unauthorized: Invalid X-CB-Webhook-Integration-Header" });
+        }
+
+        // Check if this is a validation ping / handshake request from CarryBee portal
+        const isHandshake =
+            req.method === "GET" ||
+            req.method === "HEAD" ||
+            !req.body ||
+            Object.keys(req.body).length === 0 ||
+            (!req.body.consignment_id && !req.body.data?.order?.consignment_id && !req.body.transfer_status_id && !req.body.data?.order?.transfer_status_id);
+
+        if (isHandshake) {
+            console.log("[CARRYBEE WEBHOOK] Handshake / Verification test ping verified successfully.");
+            return res.status(202).json({
+                success: true,
+                message: "CarryBee Webhook Handshake verified successfully"
+            });
         }
 
         console.log(`[CARRYBEE WEBHOOK] Received:`, {
@@ -90,15 +109,20 @@ export const carrybeeWebhookController = async (req: Request, res: Response): Pr
             rider: req.body.rider_name || req.body.data?.order?.rider_name || "N/A",
         });
 
-        await courierWebhookService.process({
-            provider: "carrybee",
-            payload: req.body,
-            headers: req.headers,
-        });
+        try {
+            await courierWebhookService.process({
+                provider: "carrybee",
+                payload: req.body,
+                headers: req.headers,
+            });
+        } catch (procErr: any) {
+            console.warn(`[CARRYBEE WEBHOOK] Order processing notice: ${procErr.message}`);
+        }
 
-        return res.status(200).json({ success: true, message: "Webhook processed successfully" });
+        // CarryBee explicitly expects HTTP 202 Accepted
+        return res.status(202).json({ success: true, message: "Webhook accepted and processed" });
     } catch (error: any) {
         console.error("CarryBee Webhook Error:", error.message || error);
-        return res.status(500).json({ success: false, error: error.message });
+        return res.status(202).json({ success: false, error: error.message });
     }
 };

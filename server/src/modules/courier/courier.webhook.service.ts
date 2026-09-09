@@ -26,7 +26,7 @@ export class CourierWebhookService {
         }
 
         try {
-            // 2. Find associated order with multi-key fallback
+            // 2. Find associated order with multi-key fallback & strict provider isolation
             const lookupConditions: any[] = [];
             if (normalized.consignmentId) {
                 lookupConditions.push({ "courier.consignmentId": normalized.consignmentId });
@@ -51,14 +51,22 @@ export class CourierWebhookService {
                 lookupConditions.push({ _id: normalized.consignmentId });
             }
 
-            const order = await Order.findOne(
-                lookupConditions.length
-                    ? { $or: lookupConditions }
-                    : { "courier.consignmentId": normalized.consignmentId }
-            );
+            const queryConditions = lookupConditions.length
+                ? { $or: lookupConditions }
+                : { "courier.consignmentId": normalized.consignmentId };
+
+            const order: any = await Order.findOne(queryConditions as any);
 
             if (!order) {
-                throw new Error(`Order not found for consignment/invoice: ${normalized.consignmentId}`);
+                throw new Error(`Order not found for ${provider} consignment/invoice: ${normalized.consignmentId}`);
+            }
+
+            // Reject cross-courier webhook contamination
+            if (order.courier?.provider && order.courier.provider !== provider) {
+                console.warn(
+                    `[CourierWebhook] Ignored cross-courier webhook: Order ${order._id} is assigned to '${order.courier.provider}', ignoring webhook from '${provider}'.`
+                );
+                return;
             }
 
             // 3. Update order state & rider pipeline
